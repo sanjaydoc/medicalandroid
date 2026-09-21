@@ -41,6 +41,18 @@ const SPECIALTIES: Spec[] = [
   { key: 'infect', label: 'Infectious Diseases' },
   { key: 'allergy', label: 'Allergy & Immunology' },
   { key: 'sexual', label: 'Sexual Health' },
+  { key: 'emergency', label: 'Emergency Medicine' },
+  { key: 'geriatrics', label: 'Geriatrics (Elderly Care)' },
+  { key: 'hepatology', label: 'Hepatology (Liver)' },
+  { key: 'andrology', label: "Andrology & Men's Health" },
+  { key: 'pain', label: 'Pain Management' },
+  { key: 'radiology', label: 'Radiology & Imaging' },
+  { key: 'neurosurgery', label: 'Neurosurgery' },
+  { key: 'cardiacsurgery', label: 'Cardiac & Thoracic Surgery' },
+  { key: 'plastic', label: 'Plastic & Cosmetic Surgery' },
+  { key: 'vascular', label: 'Vascular Surgery' },
+  { key: 'paedsurgery', label: 'Paediatric Surgery' },
+  { key: 'bariatric', label: 'Bariatric (Weight-loss) Surgery' },
 ];
 
 // Clean 2D blue line icons (currentColor = theme blue), matching the site.

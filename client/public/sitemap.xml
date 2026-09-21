@@ -5,31 +5,44 @@
   <url><loc>https://medicalandroid.com/ai-symptom-checker/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://medicalandroid.com/ai-medical-assistant/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://medicalandroid.com/blood-test-results-explained/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://medicalandroid.com/ask/general-medicine/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/cardiology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/dermatology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/paediatrics/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/orthopedics/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/neurology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/gynaecology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/gastroenterology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/endocrinology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/pulmonology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/nephrology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/rheumatology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/infectious-diseases/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/allergy-immunology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/general-surgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/orthopedics/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/urology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/oncology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/ent/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/ophthalmology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/gynaecology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/paediatrics/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/oncology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/dermatology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/dentistry/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/psychiatry/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/psychology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/rheumatology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/physiotherapy/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/nutrition/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/general-surgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/infectious-diseases/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://medicalandroid.com/ask/allergy-immunology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/sexual-health/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ask/regenerative-medicine/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/emergency-medicine/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/geriatrics/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/hepatology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/andrology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/pain-management/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/radiology/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/neurosurgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/cardiac-surgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/plastic-surgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/vascular-surgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/paediatric-surgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/ask/bariatric-surgery/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/ecg-explained/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/x-ray-explained/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/mri-scan-explained/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>

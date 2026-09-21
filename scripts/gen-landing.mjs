@@ -132,15 +132,16 @@ const R_CORE = [
 ];
 
 function spec(key, label, blurb, faqs) {
+  const low = label.toLowerCase();
   return {
     slug: `ask/${key}`,
-    title: `Ask a ${label} Question — Free AI ${label} Assistant | MediMind`,
-    desc: `Ask a ${label.toLowerCase()} question to MediMind's free AI, in any language. ${blurb} Educational only, not a diagnosis — always consult a clinician.`,
-    h1: `AI ${label.toLowerCase()} assistant`,
-    lede: `Have a ${label.toLowerCase()} question? MediMind's free AI explains it in plain language, in your language, and helps you understand when to see a specialist. ${blurb}`,
+    title: `${label} — Free AI ${label} Assistant | MediMind`,
+    desc: `Get ${low} answers from MediMind's free AI, in any language. ${blurb} Educational only, not a diagnosis — always consult a clinician.`,
+    h1: `AI ${low} assistant`,
+    lede: `Have a ${low} question? MediMind's free AI explains it in plain language, in your language, and helps you understand when to see a specialist. ${blurb}`,
     ctaShort: 'Ask a question',
-    ctaLong: `Ask a ${label.toLowerCase()} question`,
-    featTitle: `How MediMind helps with ${label.toLowerCase()}`,
+    ctaLong: `Ask about ${low}`,
+    featTitle: `How MediMind helps with ${low}`,
     features: [
       `Understand ${label.toLowerCase()} symptoms and when they need attention`,
       'Explain your medicines — how they work and common side effects',
@@ -185,6 +186,101 @@ const SPECIALITIES = [
     { q: 'Are my periods normal?', a: 'MediMind explains typical cycle ranges and what irregular bleeding can mean in general terms, plus when to see a gynaecologist.' },
     { q: 'Can MediMind answer pregnancy questions?', a: 'Yes, in general educational terms — symptoms, what is usually safe, and warning signs that need urgent care. It does not replace your obstetrician; some symptoms in pregnancy need immediate review.' },
     { q: 'What contraception options are there?', a: 'MediMind explains the common options and how they generally work, so you can have an informed conversation with your doctor about what suits you.' },
+  ]),
+  spec('gastroenterology', 'Gastroenterology', 'Acidity, stomach pain, liver, IBS, ulcers and digestion questions.', [
+    { q: 'Why do I keep getting acidity or heartburn?', a: 'MediMind explains common causes (diet, timing, reflux) and general remedies, plus the warning signs — trouble swallowing, black stools, weight loss — that need a doctor.' },
+    { q: 'When is stomach pain serious?', a: 'Most tummy pain is mild, but severe, sudden, or persistent pain, or pain with vomiting blood or a rigid abdomen, needs urgent care. MediMind helps you tell the difference.' },
+    { q: 'What do my liver function test results mean?', a: 'MediMind explains markers like SGPT/SGOT (ALT/AST) and bilirubin in plain words and what raised values can suggest — always confirm with your doctor.' },
+  ]),
+  spec('endocrinology', 'Endocrinology (Diabetes & Thyroid)', 'Diabetes, thyroid, hormones and weight-related questions.', [
+    { q: 'What do my blood sugar and HbA1c numbers mean?', a: 'MediMind explains typical target ranges and what your values suggest about diabetes control, in general terms — your personal targets should be confirmed with your doctor.' },
+    { q: 'What do my thyroid (TSH, T3, T4) results show?', a: 'MediMind explains whether results point toward an under- or over-active thyroid and what that generally means, and when to see an endocrinologist.' },
+    { q: 'Can MediMind explain my diabetes medicines?', a: 'Yes — how they generally work, common side effects, and general dosing, with a reminder to confirm your exact dose with your doctor or pharmacist.' },
+  ]),
+  spec('pulmonology', 'Pulmonology', 'Cough, asthma, breathlessness and lung-health questions.', [
+    { q: 'Why won’t my cough go away?', a: 'MediMind explains common causes of a lingering cough and the red flags — coughing blood, weight loss, breathlessness — that need prompt review.' },
+    { q: 'Is my breathlessness serious?', a: 'Sudden or severe breathlessness is an emergency — seek care immediately. MediMind explains the causes and what needs urgent attention.' },
+    { q: 'Can MediMind read my chest X-ray?', a: 'You can attach a chest X-ray and MediMind will describe what it appears to show in plain words — educational only; a radiologist must confirm.' },
+  ]),
+  spec('nephrology', 'Nephrology', 'Kidney function, creatinine, dialysis and urine-test questions.', [
+    { q: 'What does a high creatinine mean?', a: 'MediMind explains what creatinine and eGFR indicate about kidney function in general terms, and when it needs a nephrologist.' },
+    { q: 'How can I protect my kidneys?', a: 'General guidance on blood pressure, sugar control, hydration and avoiding certain painkillers — tailored advice should come from your doctor.' },
+    { q: 'What do my urine test results show?', a: 'MediMind explains findings like protein or blood in urine in plain words and what they can suggest.' },
+  ]),
+  spec('urology', 'Urology', 'Urinary problems, kidney stones, prostate and men’s-health questions.', [
+    { q: 'What causes burning during urination?', a: 'Often a urinary infection, but there are other causes. MediMind explains the common ones and when you need to be seen and possibly tested.' },
+    { q: 'How are kidney stones treated?', a: 'MediMind explains the general options from fluids and medication to procedures, and the pain/red-flag signs that need urgent care.' },
+    { q: 'When should I get my prostate checked?', a: 'MediMind explains typical screening guidance and symptoms (weak stream, frequency at night) that warrant a urologist visit.' },
+  ]),
+  spec('oncology', 'Oncology', 'Cancer, chemotherapy, biopsy reports and screening questions.', [
+    { q: 'Can MediMind explain my biopsy or pathology report?', a: 'Yes — it translates the terms into plain language and what they generally mean. It is educational, not a diagnosis; your oncologist interprets it fully.' },
+    { q: 'What do tumour markers mean?', a: 'MediMind explains what common markers indicate in general terms and why they must be read alongside scans and biopsy by a specialist.' },
+    { q: 'What are common chemotherapy side effects?', a: 'MediMind explains typical side effects and general ways they are managed, and which symptoms need urgent contact with your team.' },
+  ]),
+  spec('ent', 'ENT', 'Ear pain, hearing, sinus, throat and nose problems.', [
+    { q: 'Why is my ear blocked or ringing?', a: 'MediMind explains common causes (wax, infection, fluid, tinnitus) and when hearing changes need an ENT review.' },
+    { q: 'How do I treat a sinus infection?', a: 'General self-care and when antibiotics or a doctor are actually needed — MediMind explains both.' },
+    { q: 'When is a sore throat serious?', a: 'MediMind explains viral vs bacterial (strep) throat, and red flags like trouble breathing or swallowing that need urgent care.' },
+  ]),
+  spec('ophthalmology', 'Ophthalmology', 'Eye pain, vision changes, redness and eye-care questions.', [
+    { q: 'Why is my vision suddenly blurry?', a: 'MediMind explains common causes and flags sudden vision loss, eye pain or flashes/floaters as reasons to seek eye care urgently.' },
+    { q: 'What causes red, itchy or watery eyes?', a: 'Often allergy or infection (conjunctivitis). MediMind explains the differences and simple care, and when to see an eye doctor.' },
+    { q: 'When is an eye problem an emergency?', a: 'Sudden vision loss, severe eye pain, chemical exposure or injury need immediate care — MediMind tells you when not to wait.' },
+  ]),
+  spec('dentistry', 'Dentistry', 'Toothache, gums, cavities and oral-health questions.', [
+    { q: 'How do I relieve a toothache?', a: 'MediMind explains general relief and what a persistent or severe toothache (or facial swelling) means — the latter needs prompt dental care.' },
+    { q: 'What causes bleeding gums?', a: 'Usually gum inflammation from plaque; MediMind explains care and when it points to something needing a dentist.' },
+    { q: 'When do I need urgent dental care?', a: 'Facial swelling, severe pain, a knocked-out tooth or trauma need urgent attention — MediMind flags these.' },
+  ]),
+  spec('psychiatry', 'Psychiatry', 'Depression, anxiety, sleep and mental-health medicine questions.', [
+    { q: 'How do I know if I should seek help for my mood?', a: 'MediMind explains common signs of depression and anxiety and encourages reaching out to a professional — it does not diagnose, but it can help you decide to seek help.' },
+    { q: 'Are antidepressants addictive?', a: 'MediMind explains how these medicines generally work, common misconceptions, and why they should be started and stopped with a doctor’s guidance.' },
+    { q: 'What if I have thoughts of self-harm?', a: 'Please seek help immediately — contact your local emergency number or a crisis line now. You are not alone, and urgent support is available.' },
+  ]),
+  spec('psychology', 'Psychology & Counselling', 'Stress, relationships, coping and counselling questions.', [
+    { q: 'What’s the difference between a psychologist and a psychiatrist?', a: 'MediMind explains it simply: psychologists focus on talking therapy and counselling; psychiatrists are doctors who can also prescribe medicine. Many people benefit from both.' },
+    { q: 'How can I manage stress and anxiety day to day?', a: 'MediMind shares general, evidence-based coping strategies (breathing, routine, sleep, activity) and when professional counselling would help.' },
+    { q: 'When should I see a counsellor or therapist?', a: 'If low mood, stress or worry is affecting your daily life, relationships or sleep, talking to a professional helps — MediMind encourages it and explains what to expect.' },
+  ]),
+  spec('rheumatology', 'Rheumatology', 'Joint pain, arthritis, autoimmune and inflammation questions.', [
+    { q: 'Is my joint pain arthritis?', a: 'MediMind explains the common types (osteoarthritis, rheumatoid, gout) and their typical patterns, and when to see a rheumatologist for proper testing.' },
+    { q: 'What do RA factor or ANA blood tests mean?', a: 'MediMind explains what these autoimmune markers can indicate in general terms and why they must be read alongside symptoms by a specialist.' },
+    { q: 'How is arthritis managed?', a: 'General options from lifestyle and physiotherapy to medication — MediMind explains the principles; your doctor tailors the plan.' },
+  ]),
+  spec('physiotherapy', 'Physiotherapy', 'Rehab, exercises, posture and recovery-after-injury questions.', [
+    { q: 'What exercises help my back or knee pain?', a: 'MediMind explains general, commonly-recommended exercises and posture tips, and when pain means you should stop and see a physiotherapist or doctor.' },
+    { q: 'How long does rehab take after surgery or injury?', a: 'It varies by injury and person; MediMind explains typical timelines and the importance of a guided programme.' },
+    { q: 'Is it safe to exercise through pain?', a: 'MediMind explains the difference between normal effort and warning pain, and when to rest or seek assessment.' },
+  ]),
+  spec('nutrition', 'Nutrition & Dietetics', 'Diet, weight, deficiencies and healthy-eating questions.', [
+    { q: 'What should I eat for diabetes or weight loss?', a: 'MediMind explains general, balanced-eating principles and portion guidance, and when a dietitian should tailor a plan for you.' },
+    { q: 'What do my vitamin D or B12 levels mean?', a: 'MediMind explains what low levels can cause and general ways to correct them, with a reminder to confirm supplements with your doctor.' },
+    { q: 'Is my diet balanced?', a: 'Tell MediMind what you eat and it explains, in general terms, where it looks balanced and where it could improve.' },
+  ]),
+  spec('general-surgery', 'General Surgery', 'Surgery, pre-op, post-op recovery and wound-care questions.', [
+    { q: 'What can I expect after my surgery?', a: 'MediMind explains general recovery, activity and diet guidance for common operations, and the warning signs to report.' },
+    { q: 'How do I care for my surgical wound?', a: 'General wound-care principles and the signs of infection (increasing redness, pus, fever) that need prompt review.' },
+    { q: 'When is post-op pain or fever a concern?', a: 'MediMind explains what’s expected vs what needs urgent contact with your surgical team.' },
+  ]),
+  spec('infectious-diseases', 'Infectious Diseases', 'Fever, infections, antibiotics and travel-health questions.', [
+    { q: 'Do I actually need antibiotics for this?', a: 'Many infections are viral and don’t need antibiotics. MediMind explains the difference in general terms and when a doctor should decide.' },
+    { q: 'How long am I contagious?', a: 'MediMind explains typical contagious periods for common infections and general precautions to avoid spreading them.' },
+    { q: 'What precautions or vaccines do I need for travel?', a: 'MediMind gives general travel-health guidance; confirm specifics with a travel clinic or your doctor.' },
+  ]),
+  spec('allergy-immunology', 'Allergy & Immunology', 'Allergies, rashes, asthma and immune-system questions.', [
+    { q: 'How do I find out what I’m allergic to?', a: 'MediMind explains how allergies are generally identified (history, tests) and common triggers, and when to see an allergist.' },
+    { q: 'What helps with an allergic reaction?', a: 'General guidance on mild reactions and antihistamines — and clear warning that severe reactions need emergency care.' },
+    { q: 'When is an allergic reaction an emergency?', a: 'Swelling of the lips/throat, difficulty breathing or collapse (anaphylaxis) is an emergency — use an adrenaline auto-injector if prescribed and call emergency services immediately.' },
+  ]),
+  spec('sexual-health', 'Sexual Health', 'STIs, contraception and confidential sexual-health questions.', [
+    { q: 'What are common signs of an STI?', a: 'MediMind explains common symptoms (and that many STIs have none), and encourages testing — non-judgementally and in general terms.' },
+    { q: 'How do I protect myself and get tested?', a: 'MediMind explains prevention and where testing is generally available, so you can take action confidently.' },
+    { q: 'Can I ask sexual-health questions privately?', a: 'Yes — MediMind answers these questions plainly and without judgement. It is general information; for testing or treatment, see a clinician.' },
+  ]),
+  spec('regenerative-medicine', 'Regenerative Medicine', 'Stem-cell therapy, PRP and regenerative-treatment questions.', [
+    { q: 'What is regenerative medicine?', a: 'MediMind explains the general idea (using cells, PRP or growth factors to support healing) in plain terms — and is honest that many regenerative treatments are still investigational.' },
+    { q: 'Is stem-cell or PRP therapy proven for my condition?', a: 'For a few conditions there is evidence; for many it is experimental or unproven. MediMind is honest about this and urges caution and expert advice.' },
+    { q: 'How do I know if a regenerative treatment is legitimate?', a: 'MediMind explains the questions to ask (evidence, regulatory approval, realistic claims) and warns about clinics that over-promise.' },
   ]),
 ];
 

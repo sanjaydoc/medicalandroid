@@ -102,14 +102,21 @@ jobs:
           path: medimind.apk
           if-no-files-found: error
 
-      # Publish to a public GitHub Release so the website can offer a stable,
-      # public download URL:
-      #   https://github.com/sanjaydoc/medicalandroid/releases/download/android/medimind.apk
-      - name: Publish APK to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: android
-          name: MediMind Android APK
-          body: "Latest MediMind Android build. Install on Android (allow install from unknown sources)."
-          files: medimind.apk
-          fail_on_unmatched_files: true
+      # Mirror the StemCells approach: publish the APK as a RAW FILE on a
+      # dedicated orphan branch ('apk') of this public repo, served fast via
+      #   https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/medimind.apk
+      # Force-pushed as a single commit each build so it never bloats history.
+      # Uses the built-in GITHUB_TOKEN (permissions: contents: write above).
+      - name: Publish APK to the public 'apk' branch (raw, fast download)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk medimind.apk
+          rm -rf /tmp/apkpub && mkdir /tmp/apkpub && cp medimind.apk /tmp/apkpub/
+          cd /tmp/apkpub
+          git init -q
+          git checkout -q -b apk
+          git -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" add medimind.apk
+          git -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" commit -q -m "Publish MediMind APK"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" apk
+          echo "Published to raw.githubusercontent.com/${GITHUB_REPOSITORY}/apk/medimind.apk"

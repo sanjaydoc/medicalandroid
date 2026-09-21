@@ -270,7 +270,7 @@ export default function Assistant() {
         </div>
 
         {/* Android app download */}
-        <a className="asd-appbar asd-neu" href="https://github.com/sanjaydoc/medicalandroid/releases/download/android/medimind.apk" target="_blank" rel="noopener">
+        <a className="asd-appbar asd-neu" href="https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/medimind.apk" target="_blank" rel="noopener">
           <span className="ic" aria-hidden>{ANDROID}</span>
           <span className="tx">
             <b>Get the Android app</b>

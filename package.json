@@ -4,7 +4,7 @@
   "description": "MedicalAndroid — AI medical assistant (web + Android). ChatGPT-style home in the StemCells Simulator theme, speciality chat, Supabase admin.",
   "private": true,
   "scripts": {
-    "build": "npm --prefix client run build",
+    "build": "npm --prefix client install && npm --prefix client run build",
     "build:pages": "node scripts/build-pages.mjs",
     "cap:sync": "cap sync android"
   },

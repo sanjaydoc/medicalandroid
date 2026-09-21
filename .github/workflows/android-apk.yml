@@ -88,11 +88,11 @@ jobs:
           ./gradlew assembleDebug --no-daemon
 
       - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk medicalandroid.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk medimind.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: medicalandroid-android-apk
-          path: medicalandroid.apk
+          name: medimind-android-apk
+          path: medimind.apk
           if-no-files-found: error

@@ -1,13 +1,13 @@
 // Central branding for the app. Rename here and it updates everywhere.
 export const BRAND = {
-  name: 'MedicalAndroid',
-  full: 'MedicalAndroid',
+  name: 'MediMind',
+  full: 'MediMind',
   tagline: 'Your AI medical assistant',
   greeting: 'Where should we begin?',
   inputPlaceholder: 'Ask a medical question…',
   disclaimer:
-    'MedicalAndroid is AI and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician.',
-  appId: 'com.medicalandroid.app',
+    'MediMind is AI and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician.',
+  appId: 'com.medimind.app',
   domain: 'medicalandroid.com',
   supportEmail: 'dr.sanjay@stemcellsprotocol.com',
 };

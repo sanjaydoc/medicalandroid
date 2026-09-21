@@ -1,6 +1,6 @@
 {
-  "appId": "com.medicalandroid.app",
-  "appName": "MedicalAndroid",
+  "appId": "com.medimind.app",
+  "appName": "MediMind",
   "webDir": "client/dist",
   "android": {
     "allowMixedContent": false

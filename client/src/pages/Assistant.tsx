@@ -90,9 +90,9 @@ export default function Assistant() {
   const [initialQ, setInitialQ] = useState('');
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem('medicalandroid_pending');
+      const raw = sessionStorage.getItem('medimind_pending');
       if (!raw) return;
-      sessionStorage.removeItem('medicalandroid_pending');
+      sessionStorage.removeItem('medimind_pending');
       const pending = JSON.parse(raw) as { q?: string; spec?: string };
       if (pending.spec && SPECIALTIES.some((s) => s.label === pending.spec)) {
         setSpec(pending.spec);

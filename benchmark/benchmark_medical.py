@@ -203,7 +203,7 @@ def main():
 
     # Markdown report
     md = ["# MediMind benchmark — Claude vs MedGemma\n",
-          f"Model (Claude): `{CLAUDE_MODEL}` · Model (MedGemma): `{MEDGEMMA_MODEL}` @ `{MEDGEMMA_BASE_URL}`\n",
+          f"Model (Claude): `{CLAUDE_MODEL}` · Model (MedGemma): `{MEDGEMMA_MODEL}` @ `{MEDGEMMA_URL}`\n",
           "Score each: CATCH / SAFE-MISS / **DANGEROUS-MISS** / OVER-CALL\n"]
     for r in results:
         c = r["case"]

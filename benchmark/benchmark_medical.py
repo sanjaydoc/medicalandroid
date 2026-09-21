@@ -10,17 +10,14 @@ and writes a side-by-side report you can score by hand:
   - OVER-CALL    : invented a finding that isn't there
 
 ------------------------------------------------------------------------------
-SETUP (run once, on your laptop):
-    pip install anthropic openai
-    export ANTHROPIC_API_KEY="sk-ant-...."         # your Anthropic key
-    # MedGemma must be served on an OpenAI-compatible endpoint, e.g.:
-    #   Ollama:      ollama serve         -> http://localhost:11434/v1  (model e.g. "medgemma")
-    #   LM Studio:   start local server   -> http://localhost:1234/v1
-    #   llama.cpp:   ./server --api ...   -> http://localhost:8080/v1
-    #   vLLM:        vllm serve ...        -> http://localhost:8000/v1
-    # Set the two env vars below to match your setup:
-    export MEDGEMMA_BASE_URL="http://localhost:11434/v1"
-    export MEDGEMMA_MODEL="medgemma"
+SETUP (run once, on your laptop — Windows PowerShell shown):
+    pip install anthropic
+    $env:ANTHROPIC_API_KEY = "sk-ant-...."     # your Anthropic key
+    # MedGemma runs in Ollama (already pulled: `ollama pull medgemma`).
+    # Ollama's native API is used (guaranteed image support). Defaults below
+    # match a standard Ollama install; override only if yours differs:
+    #   $env:MEDGEMMA_URL   = "http://localhost:11434/api/chat"
+    #   $env:MEDGEMMA_MODEL = "medgemma"
 
 RUN:
     python benchmark_medical.py
@@ -47,9 +44,8 @@ HERE = Path(__file__).resolve().parent
 CLAUDE_MODEL = "claude-sonnet-4-5-20250929"      # what MediMind runs in production
 CLAUDE_MAX_TOKENS = 1500
 
-MEDGEMMA_BASE_URL = os.environ.get("MEDGEMMA_BASE_URL", "http://localhost:11434/v1")
+MEDGEMMA_URL = os.environ.get("MEDGEMMA_URL", "http://localhost:11434/api/chat")  # Ollama native
 MEDGEMMA_MODEL = os.environ.get("MEDGEMMA_MODEL", "medgemma")
-MEDGEMMA_API_KEY = os.environ.get("MEDGEMMA_API_KEY", "not-needed")  # local servers ignore it
 
 # The medical system prompt (aligned with the MediMind Worker + Doctor mode:
 # full structured reads for images; never conclude "normal"; not a final diagnosis).
@@ -144,33 +140,34 @@ def ask_claude(case):
 
 
 # ----------------------------------------------------------------------------
-# MedGemma (local, OpenAI-compatible endpoint)
+# MedGemma (local, via Ollama's native /api/chat — guaranteed image support)
 # ----------------------------------------------------------------------------
 def ask_medgemma(case):
-    from openai import OpenAI
+    import urllib.request
 
-    client = OpenAI(base_url=MEDGEMMA_BASE_URL, api_key=MEDGEMMA_API_KEY)
-    parts = [{"type": "text", "text": case["question"]}]
+    user_msg = {"role": "user", "content": case["question"]}
     if case.get("image"):
         img = HERE / case["image"]
         if img.exists():
-            mime, b64 = encode_image(img)
-            parts.append({
-                "type": "image_url",
-                "image_url": {"url": f"data:{mime};base64,{b64}"},
-            })
+            _, b64 = encode_image(img)
+            user_msg["images"] = [b64]  # Ollama wants raw base64 (no data: prefix)
+
+    body = json.dumps({
+        "model": MEDGEMMA_MODEL,
+        "stream": False,
+        "options": {"num_predict": CLAUDE_MAX_TOKENS},
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            user_msg,
+        ],
+    }).encode("utf-8")
 
     t0 = time.time()
-    resp = client.chat.completions.create(
-        model=MEDGEMMA_MODEL,
-        max_tokens=CLAUDE_MAX_TOKENS,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": parts},
-        ],
-    )
+    req = urllib.request.Request(MEDGEMMA_URL, data=body, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=600) as r:
+        data = json.loads(r.read().decode("utf-8"))
     dt = time.time() - t0
-    text = resp.choices[0].message.content or ""
+    text = (data.get("message") or {}).get("content", "") or ""
     return text.strip(), dt, ""
 
 

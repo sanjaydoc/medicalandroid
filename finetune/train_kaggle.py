@@ -114,14 +114,32 @@ except Exception as e:
     print("GGUF export failed (we can do it separately):", e)
     print("You still have the LoRA adapter in outputs/lora to work with.")
 
+# ---- 6. split the GGUF into ~500MB parts for reliable download ----
+# Big single-file downloads time out through Kaggle's proxy, so also emit
+# meddroid.part.aa/ab/... which download reliably; rejoin on the laptop with
+#   (Windows)  copy /b meddroid.part.* meddroid.gguf
+#   (mac/lin)  cat meddroid.part.* > meddroid.gguf
+import glob as _glob, os as _os
+_ggufs = sorted(set(_glob.glob("outputs*/**/*.gguf", recursive=True) + _glob.glob("outputs*/*.gguf")))
+_q4 = [g for g in _ggufs if "q4" in g.lower()]
+_target = _q4[0] if _q4 else (_ggufs[0] if _ggufs else None)
+if _target:
+    _d = _os.path.dirname(_target) or "."
+    _b = _os.path.basename(_target)
+    print("GGUF found:", _target)
+    sh(f'cd "{_d}" && split -b 500M "{_b}" meddroid.part. && ls -la meddroid.part.* "{_b}"')
+    print(f"Split parts written in {_d} (download meddroid.part.* and rejoin).")
+else:
+    print("!! No GGUF found to split — check the export step above.")
+
 print("""
 DONE. Next:
-  - Download the .gguf from the Kaggle Output panel.
-  - In Ollama, create it:
-        # Modelfile
-        FROM ./<the-file>.gguf
-        PARAMETER temperature 0.6
-    then:  ollama create meddroid -f Modelfile
-  - Benchmark:  set MEDGEMMA_MODEL=meddroid and run benchmark_medical.py
-    (meddroid vs base medgemma vs claude). Ship only if it's better.
+  - This notebook was Committed, so the files persist under the version's Output.
+  - Download either the whole medgemma-4b-it.Q4_K_M.gguf, OR (more reliable) all
+    the meddroid.part.* files and rejoin them:
+        Windows:  copy /b meddroid.part.aa + meddroid.part.ab + ... medgemma-4b-it.Q4_K_M.gguf
+  - Also grab medgemma-4b-it.F16-mmproj.gguf and Modelfile.
+  - In Ollama:  ollama create meddroid-v3 -f Modelfile
+  - Benchmark:  set MEDGEMMA_MODEL=meddroid-v3 and run benchmark_medical.py
+    (meddroid-v3 vs base medgemma vs claude). Ship only if it's better.
 """)

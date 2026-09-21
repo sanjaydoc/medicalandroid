@@ -34,6 +34,7 @@ const HOME_CSS = `
 .mh-top{display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:16px 22px;}
 .mh-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 20px 8vh;gap:22px;}
 .mh-h1{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:var(--ink);text-align:center;letter-spacing:-.01em;margin:0;}
+.mh-seo-h1{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .mh-ask{width:100%;max-width:720px;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:22px;
   background:#fff;box-shadow:7px 7px 18px var(--shd),-6px -6px 16px var(--shl);}
 .mh-ask input{flex:1;border:0;background:transparent;font:inherit;font-size:15.5px;color:var(--ink);outline:none;}
@@ -159,7 +160,9 @@ export default function Home() {
           </div>
 
           <div className="mh-center">
-            <h1 className="mh-h1">{BRAND.greeting}</h1>
+            {/* Real H1 for SEO (screen-reader/crawler); the friendly greeting stays visible below. */}
+            <h1 className="mh-seo-h1">MediMind — free AI medical assistant &amp; symptom checker: ask a doctor online and understand blood test results, lab reports, ECGs and medicines</h1>
+            <div className="mh-h1">{BRAND.greeting}</div>
 
             <form className="mh-ask" onSubmit={onSubmit}>
               <button type="button" className="mh-ic" aria-label="Attachments" onClick={() => go('')}>

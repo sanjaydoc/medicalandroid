@@ -101,3 +101,15 @@ jobs:
           name: medimind-android-apk
           path: medimind.apk
           if-no-files-found: error
+
+      # Publish to a public GitHub Release so the website can offer a stable,
+      # public download URL:
+      #   https://github.com/sanjaydoc/medicalandroid/releases/download/android/medimind.apk
+      - name: Publish APK to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android
+          name: MediMind Android APK
+          body: "Latest MediMind Android build. Install on Android (allow install from unknown sources)."
+          files: medimind.apk
+          fail_on_unmatched_files: true

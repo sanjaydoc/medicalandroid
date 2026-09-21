@@ -270,11 +270,11 @@ export default function Assistant() {
         </div>
 
         {/* Android app download */}
-        <a className="asd-appbar asd-neu" href="https://raw.githubusercontent.com/sanjaydoc/stemcellsprotocol-android-app/main/stemcells-protocol.apk" target="_blank" rel="noopener">
+        <a className="asd-appbar asd-neu" href="https://github.com/sanjaydoc/medicalandroid/releases/download/android/medimind.apk" target="_blank" rel="noopener">
           <span className="ic" aria-hidden>{ANDROID}</span>
           <span className="tx">
             <b>Get the Android app</b>
-            <span>Works offline — on-device AI for low-connectivity areas</span>
+            <span>Ask MediMind on your phone — free</span>
           </span>
           <span className="go">Download<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14" /></svg></span>
         </a>

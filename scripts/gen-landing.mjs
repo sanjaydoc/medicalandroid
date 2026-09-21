@@ -10,8 +10,7 @@ const DOMAIN = 'https://medicalandroid.com';
 
 const LOGO = `<svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#4285F4"/><rect x="27.5" y="13" width="9" height="30" rx="4.5" fill="#EA4335"/><rect x="17" y="23.5" width="30" height="9" rx="4.5" fill="#EA4335"/><path d="M10 46 h11 l4 -9 5 16 4 -10 h20" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-const CSS = `:root{--blue:#4285F4;--blue2:#2F6FE0;--red:#EA4335;--bg:#eef3fb;--surface:#fff;--ink:#152038;--sub:#5a6b8a;--line:#e4e9f3;--card:#f6f9fe}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1424;--surface:#141c2f;--ink:#e9eefb;--sub:#9aa8c4;--line:#26304a;--card:#1a2338}}
+const CSS = `:root{color-scheme:light;--blue:#4285F4;--blue2:#2F6FE0;--red:#EA4335;--bg:#eef3fb;--surface:#fff;--ink:#152038;--sub:#5a6b8a;--line:#e4e9f3;--card:#f6f9fe}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--blue2)}

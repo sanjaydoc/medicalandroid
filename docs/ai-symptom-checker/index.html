@@ -31,8 +31,7 @@
 }
 </script>
 <style>
-  :root{--blue:#4285F4;--blue2:#2F6FE0;--red:#EA4335;--bg:#eef3fb;--surface:#fff;--ink:#152038;--sub:#5a6b8a;--line:#e4e9f3;--card:#f6f9fe}
-  @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1424;--surface:#141c2f;--ink:#e9eefb;--sub:#9aa8c4;--line:#26304a;--card:#1a2338}}
+  :root{color-scheme:light;--blue:#4285F4;--blue2:#2F6FE0;--red:#EA4335;--bg:#eef3fb;--surface:#fff;--ink:#152038;--sub:#5a6b8a;--line:#e4e9f3;--card:#f6f9fe}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
   a{color:var(--blue2)}
@@ -50,7 +49,6 @@
   ul.feat li::before{content:"✓";position:absolute;left:0;top:0;color:var(--blue);font-weight:800}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}
   .card.warn{border-color:#f0b8b2;background:#fdecea}
-  @media(prefers-color-scheme:dark){:root:not([data-theme=light]) .card.warn{background:#2a1512;border-color:#5c2b25}}
   .faq details{border-bottom:1px solid var(--line);padding:14px 0}
   .faq summary{font-weight:700;cursor:pointer;list-style:none}
   .faq summary::-webkit-details-marker{display:none}

@@ -1,7 +1,7 @@
 {
-  "name": "StemCells Protocol",
-  "short_name": "StemCells",
-  "description": "Advanced stem-cell & regenerative therapies, personalised to your DNA. Explore therapies, join the waiting list, and track your care.",
+  "name": "MedicalAndroid",
+  "short_name": "MedicalAndroid",
+  "description": "MedicalAndroid — an AI medical assistant. Ask health questions by speciality and get clear general information (not a diagnosis); always consult a clinician.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

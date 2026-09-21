@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { usePwa } from '../context/PwaContext';
+import { BRAND } from '../brand';
 
 const DISMISS_KEY = 'sp_pwa_dismissed';
 
@@ -37,13 +38,13 @@ export default function InstallPrompt() {
       <div className="flex w-full max-w-2xl items-center gap-3 rounded-2xl border border-clay-200 bg-white p-3 shadow-[0_10px_30px_rgba(20,20,19,0.18)]">
         <img src="/pwa-192.png" alt="" className="h-11 w-11 flex-none rounded-xl" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-ink-900">Install StemCells Protocol</p>
+          <p className="text-sm font-bold text-ink-900">Install {BRAND.name}</p>
           {isIos && !canInstall ? (
             <p className="text-xs text-ink-700/70">
               Tap the Share icon, then <b>Add to Home Screen</b>.
             </p>
           ) : (
-            <p className="text-xs text-ink-700/70">Install the StemCells Protocol app.</p>
+            <p className="text-xs text-ink-700/70">Install the {BRAND.name} app.</p>
           )}
         </div>
         {canInstall && (

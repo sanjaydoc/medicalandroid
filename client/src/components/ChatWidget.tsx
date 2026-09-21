@@ -9,56 +9,26 @@ import {
 } from '../api/chat';
 import { saveRow } from '../api/supabase';
 import { BRAND } from '../brand';
-import { runPipeline, type PipelineResult } from '../sim/pipeline';
-import { buildRun, type FullRun } from '../sim/full';
-import { CATALOG, DEFAULT_DISEASE } from '../sim/catalog';
-import { impliedCondition } from '../sim/immune';
-import ConditionPicker from './ConditionPicker';
-import SimRun from './SimRun';
 
 interface Attachment {
   file: File;
-  kind: 'image' | 'document' | 'methylation';
+  kind: 'image' | 'document';
   previewUrl?: string;
 }
 
 interface UIMsg {
   role: 'user' | 'assistant';
   text: string;
-  attachments?: { name: string; kind: 'image' | 'document' | 'methylation' }[];
-  sim?: FullRun;      // an animated simulator run rendered in place of text
-  simSeen?: boolean;  // true once its animation has played — restore it instantly
+  attachments?: { name: string; kind: 'image' | 'document' }[];
 }
 
 const MAX_IMAGE_MB = 5;
 const MAX_PDF_MB = 10;
-const MAX_METH_MB = 40;
-// Methylation inputs the browser pipeline can read (array beta CSV or bisulfite .cov/bedGraph).
-const METH_EXT = /\.(csv|cov|tsv|txt|bedgraph|bed)$/i;
 
 const SUGGESTIONS = [
   'Explain my prescription, X-ray, MRI or CT',
-  'Upload my DNA-methylation file (.csv/.cov)',
-  'What is Persona Reversal?',
+  'What do my blood test results mean?',
 ];
-
-// Compact, deterministic summary of a pipeline run — this (never the raw file)
-// is what we hand the model to explain in plain language.
-function summarizePipeline(name: string, r: PipelineResult): string {
-  const ea = r.epigenetic_age; const rej = r.rejuvenation; const t = r.tumor;
-  const accel = ea.ageAcceleration != null ? `${ea.ageAcceleration >= 0 ? '+' : ''}${ea.ageAcceleration.toFixed(1)} yr` : 'not provided (no chronological age given)';
-  const top = r.targets.slice(0, 6).map((x) => `${x.cpg} (${x.gene || '-'}, ${x.direction})`).join(', ');
-  return [
-    `StemCells Protocol simulator — on-device run of "${name}" (raw genome NOT uploaded).`,
-    `Clock: ${ea.clock} · CpG coverage ${ea.nUsed}/${ea.nTotal} (${Math.round(ea.coverage * 100)}%).`,
-    `Biological (DNAm) age: ${ea.dnamAge.toFixed(1)} yr. Chronological age: ${ea.chronologicalAge ?? 'not provided'}. Age acceleration: ${accel}.`,
-    `Reprogramming projection (${rej.tissue_key} tissue, ${rej.cycles} cycle): ${ea.dnamAge.toFixed(1)} → ${rej.projected_age} yr (−${rej.years_reversed} yr), tissue rejuvenation index ${rej.tissue_rejuvenation_index}%.`,
-    `Tumorigenicity safety envelope: ${t.risk_tier} tier, ~${Math.round(t.estimated_risk * 100)}% over-induction risk at ${t.requested_cycles} cycle(s); max safe cycles ${t.max_safe_cycles}; tissue proliferation ${t.tissue_proliferation_factor}× (${t.tissue_key}).`,
-    t.flags.length ? `Flags: ${t.flags.join(' ')}` : '',
-    `Top target CpGs: ${top}.`,
-    `Framing: research/illustrative — the age-reversal figure is a model projection, not a measured outcome; the safety envelope estimates and mitigates tumorigenicity risk, it does not eliminate it. Not medical advice.`,
-  ].filter(Boolean).join('\n');
-}
 
 // Language code (for speech) → English name (for the reply instruction).
 const LANG_NAME: Record<string, string> = {
@@ -96,8 +66,7 @@ function loadMessages(): UIMsg[] {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(parsed)) return [];
-    // Restored simulator runs render instantly (no replay).
-    return parsed.map((m: any) => (m && m.sim ? { ...m, simSeen: true } : m));
+    return parsed as UIMsg[];
   } catch {
     return [];
   }
@@ -135,9 +104,6 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
   const [error, setError] = useState('');
   const [listening, setListening] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
-  const [simDisease, setSimDisease] = useState(DEFAULT_DISEASE.key);
-  const [simAge, setSimAge] = useState('');
-  const [simComorbid, setSimComorbid] = useState<string[]>([]);
   const [voiceLang, setVoiceLang] = useState(() => {
     try {
       return localStorage.getItem(LANG_KEY) || '';
@@ -238,7 +204,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       )
       .join('');
     const when = new Date().toLocaleString();
-    return `<h2 style="font-family:Arial,sans-serif">StemCells Protocol — chat summary</h2><p style="color:#666;font-family:Arial,sans-serif;font-size:12px">${when}</p><hr>${rows}<hr><p style="color:#888;font-family:Arial,sans-serif;font-size:11px">Educational information only — not a diagnosis or prescription. Confirm with your doctor.</p>`;
+    return `<h2 style="font-family:Arial,sans-serif">${BRAND.name} — chat summary</h2><p style="color:#666;font-family:Arial,sans-serif;font-size:12px">${when}</p><hr>${rows}<hr><p style="color:#888;font-family:Arial,sans-serif;font-size:11px">Educational information only — not a diagnosis or prescription. Confirm with your doctor.</p>`;
   };
 
   // Strip Markdown for the plain-text export.
@@ -275,7 +241,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     if (doc) {
       doc.open();
       doc.write(
-        `<html><head><meta charset="utf-8"><title>StemCells Protocol chat</title></head><body>${transcriptHtml()}</body></html>`,
+        `<html><head><meta charset="utf-8"><title>${BRAND.name} chat</title></head><body>${transcriptHtml()}</body></html>`,
       );
       doc.close();
       iframe.contentWindow?.focus();
@@ -343,9 +309,8 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     for (const file of Array.from(files)) {
       const isImage = file.type.startsWith('image/');
       const isPdf = file.type === 'application/pdf';
-      const isMeth = !isImage && !isPdf && METH_EXT.test(file.name);
-      if (!isImage && !isPdf && !isMeth) {
-        setError('Supported: DNA-methylation files (.csv/.cov/.tsv/.txt/.bedgraph), images, or PDF.');
+      if (!isImage && !isPdf) {
+        setError('Supported: images (JPG/PNG) or PDF.');
         continue;
       }
       const mb = file.size / (1024 * 1024);
@@ -357,13 +322,9 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
         setError(`PDFs must be under ${MAX_PDF_MB} MB.`);
         continue;
       }
-      if (isMeth && mb > MAX_METH_MB) {
-        setError(`Methylation files must be under ${MAX_METH_MB} MB (array beta CSV or targeted .cov).`);
-        continue;
-      }
       next.push({
         file,
-        kind: isImage ? 'image' : isMeth ? 'methylation' : 'document',
+        kind: isImage ? 'image' : 'document',
         previewUrl: isImage ? URL.createObjectURL(file) : undefined,
       });
     }
@@ -379,72 +340,12 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     });
   };
 
-  // ---- animated on-device simulator run ----
-  const runSimulation = async (att: Attachment) => {
-    setError('');
-    let txt = '';
-    try { txt = await att.file.text(); } catch { setError('Could not read that methylation file.'); return; }
-    const dz = CATALOG.find((d) => d.key === simDisease) || DEFAULT_DISEASE;
-    const sample = att.file.name.replace(/\.[^.]+$/, '');
-    const run = buildRun(txt, { disease: dz, sample, chronologicalAge: simAge ? Number(simAge) : null, cycles: 1, comorbidities: simComorbid });
-    if (!run.ok) { setError(run.error || 'Could not run the simulation on that file.'); return; }
-    setMessages((m) => [
-      ...m,
-      { role: 'user', text: `Run the simulator — ${dz.disease}${simAge ? `, age ${simAge}` : ''}`, attachments: [{ name: att.file.name, kind: 'methylation' }] },
-      { role: 'assistant', text: '', sim: run },
-    ]);
-    setInput('');
-    setAttachments([]);
-  };
-
-  // Hand the deterministic run summary to the model for a plain-language read-out.
-  const explainRun = async (summary: string) => {
-    if (!configured) {
-      setMessages((m) => [...m, { role: 'assistant', text: 'Connect the assistant to get a plain-language explanation — the results above are computed on your device.' }]);
-      return;
-    }
-    const history: ChatMessage[] = messages.map((m) => ({ role: m.role, content: m.sim ? '(simulation run shown above)' : m.text }));
-    history.push({ role: 'user', content: summary + '\n\nExplain this simulator run to the patient in clear, plain language — biological vs chronological age, the reprogramming projection, then the tumorigenicity safety envelope (why the dose is capped). Keep the research/illustrative framing; not a diagnosis.' });
-    setMessages((m) => [...m, { role: 'assistant', text: '' }]);
-    setBusy(true);
-    const ctrl = new AbortController(); abortRef.current = ctrl;
-    let acc = '';
-    try {
-      await streamChat({ messages: history, signal: ctrl.signal, mode: doctorMode ? 'doctor' : 'concise', offline,
-        onText: (chunk) => { acc += chunk; setMessages((m) => { const c = [...m]; c[c.length - 1] = { ...c[c.length - 1], text: acc }; return c; }); } });
-      if (!acc.trim()) setMessages((m) => { const c = [...m]; c[c.length - 1] = { ...c[c.length - 1], text: '⚠️ No reply — tap to retry.' }; return c; });
-    } catch (e: any) {
-      setMessages((m) => { const c = [...m]; c[c.length - 1] = { ...c[c.length - 1], text: 'Could not reach the assistant just now.' }; return c; });
-    } finally { setBusy(false); }
-  };
-
   const send = async (preset?: string) => {
     const text = (preset ?? input).trim();
     if ((!text && attachments.length === 0) || busy) return;
     setError('');
 
-    // A methylation file → launch the animated simulator run (not a text dump).
-    const methAtt = attachments.find((a) => a.kind === 'methylation');
-    if (methAtt) { await runSimulation(methAtt); return; }
-
     if (!configured) {
-      // The on-device pipeline still works without the chat backend — compute
-      // and show the deterministic results locally.
-      const meth = attachments.find((a) => a.kind === 'methylation');
-      if (meth) {
-        try {
-          const txt = await meth.file.text();
-          const r = runPipeline(txt, { tissueKey: 'systemic', cycles: 1 });
-          setMessages((m) => [
-            ...m,
-            { role: 'user', text: text || '(methylation file)', attachments: [{ name: meth.file.name, kind: 'methylation' }] },
-            { role: 'assistant', text: r.ok ? summarizePipeline(meth.file.name, r) : (r.error || 'Could not read that methylation file.') },
-          ]);
-          setInput('');
-          setAttachments([]);
-          return;
-        } catch { /* fall through to the generic message */ }
-      }
       setMessages((m) => [
         ...m,
         { role: 'user', text: text || '(attachment)' },
@@ -458,27 +359,9 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       return;
     }
 
-    // Build the content blocks for the API from text + attachments. Methylation
-    // files are run through the on-device pipeline — the raw genome never leaves
-    // the browser; only the computed summary is sent to the model to explain.
+    // Build the content blocks for the API from text + attachments.
     const blocks: ContentBlock[] = [];
     for (const a of attachments) {
-      if (a.kind === 'methylation') {
-        try {
-          const txt = await a.file.text();
-          const r = runPipeline(txt, { tissueKey: 'systemic', cycles: 1 });
-          if (!r.ok) { setError(r.error || 'Could not read that methylation file.'); return; }
-          blocks.push({
-            type: 'text',
-            text: summarizePipeline(a.file.name, r) +
-              '\n\nExplain these results to the patient in clear, plain language — biological vs chronological age, the reprogramming projection, then the tumorigenicity safety envelope (why the dose is capped). Keep the research/illustrative framing; do not present it as a diagnosis or treatment.',
-          });
-        } catch {
-          setError('Could not read that methylation file.');
-          return;
-        }
-        continue;
-      }
       try {
         const data = await fileToBase64(a.file);
         if (a.kind === 'image') {
@@ -791,24 +674,13 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                 </div>
               )}
               {messages.map((m, i) => (
-                m.sim ? (
-                  <div key={i} className="w-full">
-                    <SimRun
-                      run={m.sim}
-                      onExplain={explainRun}
-                      instant={!!m.simSeen}
-                      onDone={() => setMessages((mm) => (mm[i] && mm[i].sim && !mm[i].simSeen ? mm.map((x, xi) => (xi === i ? { ...x, simSeen: true } : x)) : mm))}
-                    />
-                  </div>
-                ) : (
-                  <Bubble
-                    key={i}
-                    role={m.role}
-                    text={m.text}
-                    attachments={m.attachments}
-                    loading={busy && i === messages.length - 1 && m.role === 'assistant'}
-                  />
-                )
+                <Bubble
+                  key={i}
+                  role={m.role}
+                  text={m.text}
+                  attachments={m.attachments}
+                  loading={busy && i === messages.length - 1 && m.role === 'assistant'}
+                />
               ))}
               </div>
               {showJump && (
@@ -828,44 +700,6 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
             {/* Composer */}
             <div className="border-t border-cream-300 bg-white p-3">
               {error && <p className="mb-2 text-xs font-semibold text-red-600">{error}</p>}
-              {attachments.some((a) => a.kind === 'methylation') && (
-                <div className="mb-2 rounded-xl border border-clay-200 bg-clay-50 p-3">
-                  <p className="mb-2 text-xs font-bold text-clay-700">🧬 Run the Protocol Simulator</p>
-                  <label className="mb-1 block text-[11px] font-semibold text-ink-800">Disease / therapy to develop for</label>
-                  <select
-                    value={simDisease}
-                    onChange={(e) => setSimDisease(e.target.value)}
-                    className="mb-2 w-full rounded-lg border border-cream-300 bg-white px-2 py-1.5 text-sm font-semibold text-ink-900 focus:border-clay-400 focus:outline-none"
-                  >
-                    {CATALOG.map((d) => (
-                      <option key={d.key} value={d.key}>{d.disease} · {d.department}</option>
-                    ))}
-                  </select>
-                  <div className="flex items-center gap-2">
-                    <input
-                      value={simAge}
-                      onChange={(e) => setSimAge(e.target.value.replace(/[^0-9]/g, ''))}
-                      inputMode="numeric"
-                      placeholder="Chronological age (optional)"
-                      className="w-full rounded-lg border border-cream-300 bg-white px-2 py-1.5 text-sm text-ink-900 placeholder:text-ink-700/40 focus:border-clay-400 focus:outline-none"
-                    />
-                    <button
-                      onClick={() => { const a = attachments.find((x) => x.kind === 'methylation'); if (a) runSimulation(a); }}
-                      className="shrink-0 rounded-lg bg-clay-500 px-4 py-1.5 text-sm font-bold text-white transition hover:bg-clay-600"
-                    >
-                      Run ▶
-                    </button>
-                  </div>
-                  <p className="mt-2 mb-1 text-[11px] font-semibold text-ink-800">Other conditions <span className="font-normal text-ink-700/50">(optional · add as many as apply)</span></p>
-                  <ConditionPicker
-                    compact
-                    value={simComorbid}
-                    onChange={setSimComorbid}
-                    impliedKey={impliedCondition((CATALOG.find((d) => d.key === simDisease) || DEFAULT_DISEASE).department)}
-                  />
-                  <p className="mt-1.5 text-[10.5px] text-ink-700/55">8 auto steps · runs on your device · rest is automatic.</p>
-                </div>
-              )}
               {attachments.length > 0 && (
                 <div className="mb-2 flex flex-wrap gap-2">
                   {attachments.map((a, i) => (
@@ -957,13 +791,13 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                     mobile browsers drop). The input stays in the DOM. */}
                 <label
                   aria-label="Attach a file"
-                  title="Attach a DNA-methylation file (array beta .csv with cg IDs, or a .cov/bedGraph), or an ECG / scan / report (image, PDF)"
+                  title="Attach an ECG / scan / report (image or PDF)"
                   className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-cream-300 text-ink-700/70 transition hover:border-clay-400 hover:text-clay-600"
                 >
                   <input
                     ref={fileRef}
                     type="file"
-                    accept="image/*,application/pdf,.csv,.cov,.tsv,.txt,.bedgraph,.bed"
+                    accept="image/*,application/pdf"
                     multiple
                     className="sr-only"
                     onChange={(e) => pickFiles(e.target.files)}
@@ -1062,7 +896,7 @@ function Bubble({
 }: {
   role: 'user' | 'assistant';
   text: string;
-  attachments?: { name: string; kind: 'image' | 'document' | 'methylation' }[];
+  attachments?: { name: string; kind: 'image' | 'document' }[];
   loading?: boolean;
 }) {
   const isUser = role === 'user';

@@ -13,7 +13,7 @@ const HOME_CSS = `
   padding:18px 16px;background:#ffffff;border-right:1px solid var(--track);
   box-shadow:6px 0 24px -18px rgba(90,98,112,.5);}
 .mh-brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:700;font-size:18px;color:var(--ink);}
-.mh-logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--grad);color:#fff;box-shadow:3px 3px 8px var(--shd),-3px -3px 8px var(--shl);}
+.mh-logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#4285F4;color:#fff;box-shadow:3px 3px 8px var(--shd),-3px -3px 8px var(--shl);}
 .mh-new{display:flex;align-items:center;gap:8px;width:100%;justify-content:flex-start;padding:11px 14px;border:0;border-radius:14px;
   background:#fff;color:var(--ink);font:inherit;font-weight:600;font-size:14px;cursor:pointer;
   box-shadow:4px 4px 10px var(--shd),-4px -4px 10px var(--shl);transition:transform .08s;}
@@ -88,6 +88,7 @@ function NavIcon({ d }: { d: string }) {
 export default function Home() {
   const nav = useNavigate();
   const { user } = useAuth();
+  const isAdmin = !!user && user.email.toLowerCase() === BRAND.adminEmail.toLowerCase();
   const [q, setQ] = useState('');
   const [spec, setSpec] = useState('');
 
@@ -118,11 +119,11 @@ export default function Home() {
           <nav className="mh-nav">
             <Link to="/assistant"><NavIcon d="M4 5.5h16a1.5 1.5 0 011.5 1.5v8a1.5 1.5 0 01-1.5 1.5H9l-4 3v-3H4A1.5 1.5 0 012.5 15V7A1.5 1.5 0 014 5.5z" /> Assistant</Link>
             <Link to="/assistant"><NavIcon d="M12 3v18M3 12h18" /> Ask by speciality</Link>
-            {user && <Link to="/admin"><NavIcon d="M4 5h16v6H4zM4 15h10v4H4z" /> Admin</Link>}
+            {isAdmin && <Link to="/admin"><NavIcon d="M4 5h16v6H4zM4 15h10v4H4z" /> Admin</Link>}
           </nav>
           <div className="mh-side-foot">
             {user ? (
-              <Link to="/admin" className="mh-btn ghost">{user.name || 'Account'}</Link>
+              <Link to="/account" className="mh-btn ghost">{user.name || 'Account'}</Link>
             ) : (
               <>
                 <p className="mh-tip"><b>Get answers tailored to you.</b> Log in to save your chats and history.</p>
@@ -139,7 +140,7 @@ export default function Home() {
           <div className="mh-mtop">
             <div className="mh-brand" style={{ fontSize: 16 }}><LogoMark /> {BRAND.name}</div>
             {user ? (
-              <Link to="/admin" className="mh-btn ghost" style={{ width: 'auto', padding: '7px 14px' }}>Account</Link>
+              <Link to="/account" className="mh-btn ghost" style={{ width: 'auto', padding: '7px 14px' }}>Account</Link>
             ) : (
               <Link to="/login" className="mh-btn pri" style={{ width: 'auto', padding: '7px 16px' }}>Log in</Link>
             )}
@@ -148,7 +149,7 @@ export default function Home() {
           {/* Top-right auth (desktop) */}
           <div className="mh-top">
             {user ? (
-              <Link to="/admin" className="mh-btn ghost" style={{ width: 'auto', padding: '8px 18px' }}>Account</Link>
+              <Link to="/account" className="mh-btn ghost" style={{ width: 'auto', padding: '8px 18px' }}>Account</Link>
             ) : (
               <>
                 <Link to="/login" className="mh-btn ghost" style={{ width: 'auto', padding: '8px 18px' }}>Log in</Link>

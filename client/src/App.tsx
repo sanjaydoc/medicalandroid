@@ -6,6 +6,7 @@ import InstallPrompt from './components/InstallPrompt';
 import Home from './pages/Home';
 import Assistant from './pages/Assistant';
 import Admin from './pages/Admin';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
@@ -34,6 +35,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/assistant" element={<Assistant />} />
+          <Route path="/account" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

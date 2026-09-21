@@ -9,7 +9,11 @@ export const BRAND = {
     'MediMind is AI and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician.',
   appId: 'com.medimind.app',
   domain: 'medicalandroid.com',
-  supportEmail: 'dr.sanjay@stemcellsprotocol.com',
+  supportEmail: 'dr.sanjayanbu@gmail.com',
+  // The ONLY account allowed into the admin dashboard. This is a UI gate;
+  // the database is also locked to this email by Supabase RLS (see
+  // supabase/schema.sql), so a non-admin can never read the data even via the API.
+  adminEmail: 'dr.sanjayanbu@gmail.com',
 };
 
 // Speciality quick-picks for the home. Labels MUST match the Assistant's

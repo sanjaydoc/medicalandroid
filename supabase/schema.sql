@@ -55,16 +55,23 @@ begin
   create policy "anon insert page_views" on public.page_views for insert to anon with check (true);
 end $$;
 
--- the signed-in admin (authenticated) may SELECT (for the dashboard)
+-- ONLY the admin account may SELECT (for the dashboard). The policy checks the
+-- signed-in user's email from the JWT, so an ordinary signed-up user gets ZERO
+-- rows back even if they call the API directly — not just hidden in the UI.
+-- Change the email here if the admin account ever changes.
 grant select on public.signups, public.chat_logs, public.page_views to authenticated;
 do $$
+declare admin_email text := 'dr.sanjayanbu@gmail.com';
 begin
   drop policy if exists "auth read signups" on public.signups;
-  create policy "auth read signups" on public.signups for select to authenticated using (true);
+  create policy "auth read signups" on public.signups for select to authenticated
+    using ((auth.jwt() ->> 'email') = admin_email);
   drop policy if exists "auth read chat_logs" on public.chat_logs;
-  create policy "auth read chat_logs" on public.chat_logs for select to authenticated using (true);
+  create policy "auth read chat_logs" on public.chat_logs for select to authenticated
+    using ((auth.jwt() ->> 'email') = admin_email);
   drop policy if exists "auth read page_views" on public.page_views;
-  create policy "auth read page_views" on public.page_views for select to authenticated using (true);
+  create policy "auth read page_views" on public.page_views for select to authenticated
+    using ((auth.jwt() ->> 'email') = admin_email);
 end $$;
 
 -- make sure anon keeps its INSERT grant

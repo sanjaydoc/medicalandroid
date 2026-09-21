@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../api/supabase';
+import { BRAND } from '../brand';
 
 type Row = Record<string, any>;
 
@@ -85,8 +87,14 @@ export default function Admin() {
     setCounts({});
   };
 
+  // Only this one account may see the dashboard. RLS in Supabase enforces the
+  // same rule server-side, so a non-admin can't read the data even by calling
+  // the API directly — this gate is the UI half of that.
+  const isAdmin =
+    !!session && (session.user?.email || '').toLowerCase() === BRAND.adminEmail.toLowerCase();
+
   const loadData = async () => {
-    if (!supabase || !session) return;
+    if (!supabase || !session || !isAdmin) return;
     setDataLoading(true);
     setDataError('');
     try {
@@ -121,9 +129,9 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    if (session) loadData();
+    if (session && isAdmin) loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, tab, rangeDays]);
+  }, [session, isAdmin, tab, rangeDays]);
 
   const active = TABLES.find((t) => t.key === tab)!;
 
@@ -223,7 +231,7 @@ export default function Admin() {
         <form onSubmit={login} className="card w-full max-w-sm space-y-4 p-6 sm:p-8">
           <div>
             <h1 className="font-display text-2xl font-extrabold text-ink-900">Admin sign in</h1>
-            <p className="mt-1 text-sm text-ink-700/60">StemCells Protocol dashboard</p>
+            <p className="mt-1 text-sm text-ink-700/60">{BRAND.name} dashboard</p>
           </div>
           <div>
             <label className="label">Email</label>
@@ -238,6 +246,25 @@ export default function Admin() {
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
+      </div>
+    );
+  }
+
+  // Logged in, but not the admin account → deny (this area is admin-only).
+  if (!isAdmin) {
+    return (
+      <div className="container-x flex min-h-[70vh] items-center justify-center py-10">
+        <div className="card w-full max-w-md space-y-4 p-6 text-center sm:p-8">
+          <h1 className="font-display text-2xl font-extrabold text-ink-900">Admin only</h1>
+          <p className="text-sm text-ink-700/70">
+            You're signed in as <span className="font-semibold">{session.user?.email}</span>, but this
+            dashboard is restricted to the {BRAND.name} administrator.
+          </p>
+          <div className="flex justify-center gap-2 pt-1">
+            <Link to="/assistant" className="btn-primary px-5 py-2.5 text-sm">Go to the assistant</Link>
+            <button onClick={logout} className="btn-ghost px-4 py-2.5 text-sm">Sign out</button>
+          </div>
+        </div>
       </div>
     );
   }

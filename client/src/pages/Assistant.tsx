@@ -7,6 +7,7 @@ import {
   OFFLINE_MODELS, DEFAULT_OFFLINE_MODEL,
 } from '../api/ondevice';
 import type { OfflineModel, DeviceInfo } from '../api/ondevice';
+import { BRAND } from '../brand';
 
 /* Full-page view of the De Novo AI assistant — neumorphic dashboard chrome to
    match the Simulator / Protocols / Research pages, with a doctor-speciality
@@ -226,7 +227,7 @@ export default function Assistant() {
           </span>
           <div className="asd-ttl">
             <h1>AI <span>Assistant</span></h1>
-            <span className="asd-badge">De Novo AI · general info only</span>
+            <span className="asd-badge">{BRAND.name} AI · general info only</span>
           </div>
         </div>
 

@@ -4,9 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { useSaved } from '../context/SavedContext';
 import { BRAND } from '../brand';
 
+// Admin is intentionally NOT listed — the /admin route still works when
+// navigated to directly, but it's hidden from the public nav.
 const links = [
   { to: '/assistant', label: 'Assistant' },
-  { to: '/admin', label: 'Admin' },
 ];
 
 export default function Navbar() {

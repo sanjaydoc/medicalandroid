@@ -8,6 +8,7 @@ import {
   type ContentBlock,
 } from '../api/chat';
 import { saveRow } from '../api/supabase';
+import { BRAND } from '../brand';
 import { runPipeline, type PipelineResult } from '../sim/pipeline';
 import { buildRun, type FullRun } from '../sim/full';
 import { CATALOG, DEFAULT_DISEASE } from '../sim/catalog';
@@ -211,7 +212,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
   const transcriptRows = () =>
     messages
       .filter((m) => m.text && !m.text.startsWith('⚠️'))
-      .map((m) => ({ who: m.role === 'user' ? 'You' : 'StemCells Protocol AI', text: m.text }));
+      .map((m) => ({ who: m.role === 'user' ? 'You' : `${BRAND.name} AI`, text: m.text }));
 
   const downloadBlob = (content: BlobPart, mime: string, filename: string) => {
     const blob = new Blob([content], { type: mime });
@@ -645,7 +646,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
             <SparkIcon />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-bold text-white">Ask our De Novo AI assistant</span>
+            <span className="block font-bold text-white">Ask the {BRAND.name} assistant</span>
             <span className="block truncate text-sm text-white/60">
               Therapies, recovery &amp; post-op care, medications — attach a report too
             </span>
@@ -674,7 +675,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                 <SparkIcon />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="font-bold leading-tight">StemCells Protocol AI</p>
+                <p className="font-bold leading-tight">{BRAND.name} AI</p>
                 <div className="flex items-center gap-2 text-xs">
                   {busy ? (
                     <span className="flex items-center gap-2 text-white/70"><CellLoader /> Generating…</span>
@@ -1037,7 +1038,7 @@ function GreetingBubble() {
   return (
     <div className="flex justify-start">
       <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-white p-3.5 text-sm leading-relaxed text-ink-900 ring-1 ring-cream-300">
-        <p className="font-bold text-ink-900">Hi — I'm the StemCells Protocol assistant 👋</p>
+        <p className="font-bold text-ink-900">Hi — I'm {BRAND.name}, your medical assistant 👋</p>
 
         <p className="mt-2.5 text-ink-800">
           Ask about our therapies, or <span aria-hidden>📎</span> attach an{' '}

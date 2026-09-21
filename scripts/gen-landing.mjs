@@ -6,6 +6,32 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SYMPTOMS, BLOODTESTS, LAB_NOTE } from './clusters.mjs';
 import { DEPARTMENTS } from './departments.mjs';
+import g1 from './diseases/g1.mjs';
+import g2 from './diseases/g2.mjs';
+import g3 from './diseases/g3.mjs';
+import g4 from './diseases/g4.mjs';
+import g5 from './diseases/g5.mjs';
+import g6 from './diseases/g6.mjs';
+import g7 from './diseases/g7.mjs';
+import g8 from './diseases/g8.mjs';
+import g9 from './diseases/g9.mjs';
+
+// Merge disease data from all clusters, de-duping by slug (first wins).
+const DISEASE_DATA = [...g1, ...g2, ...g3, ...g4, ...g5, ...g6, ...g7, ...g8, ...g9];
+const _seenDisease = new Set();
+const DISEASES = [];
+for (const d of DISEASE_DATA) {
+  if (!d || !d.slug || _seenDisease.has(d.slug)) continue;
+  _seenDisease.add(d.slug);
+  DISEASES.push(d);
+}
+// Group diseases by their primary department slug (for the department pages).
+const BY_DEPT = {};
+for (const d of DISEASES) {
+  const k = d.dept && d.dept[0];
+  if (!k) continue;
+  (BY_DEPT[k] = BY_DEPT[k] || []).push(d);
+}
 
 const PUBLIC = join(dirname(fileURLToPath(import.meta.url)), '..', 'client', 'public');
 const DOMAIN = 'https://medicalandroid.com';
@@ -182,6 +208,12 @@ function renderRef(item) {
 
 function deptPage(d) {
   const low = d.label.toLowerCase();
+  const diseaseLinks = (BY_DEPT[d.slug] || []).map((x) => `<a href="/diseases/${x.slug}/">${x.name}</a>`);
+  const lists = [
+    { title: 'Common symptoms', items: d.symptoms.map(renderRef) },
+    { title: 'Tests & procedures', items: d.tests.map(renderRef) },
+  ];
+  if (diseaseLinks.length) lists.push({ title: `Conditions we cover in ${d.label}`, items: diseaseLinks });
   return {
     slug: `ask/${d.slug}`,
     name: d.label,
@@ -193,17 +225,48 @@ function deptPage(d) {
     ctaLong: `Ask MedDroid about ${low}`,
     featTitle: 'Conditions treated',
     features: d.conditions,
-    lists: [
-      { title: 'Common symptoms', items: d.symptoms.map(renderRef) },
-      { title: 'Tests & procedures', items: d.tests.map(renderRef) },
-    ],
+    lists,
     warnings: d.whenToSee,
     faqs: d.faqs,
     related: R_CORE,
   };
 }
 
+// One rich page per disease, cross-linked to its department + symptom/test pages.
+function diseasePage(d) {
+  const lists = [];
+  const sym = (d.symptoms || []).map(renderRef);
+  const tst = (d.tests || []).map(renderRef);
+  if (sym.length) lists.push({ title: 'Common symptoms', items: sym });
+  if (tst.length) lists.push({ title: 'Tests & diagnosis', items: tst });
+  if ((d.treatment || []).length) lists.push({ title: 'Treatment & management', items: d.treatment });
+  return {
+    slug: `diseases/${d.slug}`,
+    name: d.name,
+    title: `${d.name} — Causes, Symptoms & Treatment | MedDroid`,
+    desc: String(d.lede || '').replace(/<[^>]+>/g, '').slice(0, 155),
+    h1: d.name,
+    lede: d.lede,
+    ctaShort: 'Ask MedDroid',
+    ctaLong: `Ask MedDroid about ${d.name.toLowerCase()}`,
+    featTitle: 'Causes & risk factors',
+    features: d.causes || [],
+    lists,
+    warnings: d.whenToSee,
+    noteTitle: 'Not a diagnosis.',
+    note: `MedDroid gives general educational information about ${d.name.toLowerCase()}. It cannot examine you, diagnose or prescribe — always confirm with a qualified doctor.`,
+    faqs: d.faqs,
+    related: [
+      ['ask/' + (d.dept && d.dept[0]), (d.dept && d.dept[1]) || 'Departments'],
+      ['ai-symptom-checker', 'AI symptom checker'],
+      ['ai-doctor', 'AI doctor'],
+      ['blood-test-results-explained', 'Blood tests explained'],
+    ],
+  };
+}
+
 const SPECIALITIES = DEPARTMENTS.map(deptPage);
+const DISEASE_PAGES = DISEASES.map(diseasePage);
 
 function qcluster(slug, title, h1, lede, features, faqs) {
   return {
@@ -323,7 +386,7 @@ function bloodTestPage(b) {
 const SYMPTOM_PAGES = SYMPTOMS.map(symptomPage);
 const BLOODTEST_PAGES = BLOODTESTS.map(bloodTestPage);
 
-const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES];
+const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES];
 
 for (const p of ALL) {
   const dir = join(PUBLIC, ...p.slug.split('/'));

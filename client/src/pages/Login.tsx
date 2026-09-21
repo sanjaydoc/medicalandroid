@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PasswordInput from '../components/PasswordInput';
+import { BRAND } from '../brand';
 
 export default function Login() {
   const { login, loginWithGoogle } = useAuth();
@@ -29,10 +30,14 @@ export default function Login() {
 
   return (
     <div className="container-x max-w-lg py-10">
-      <Link to="/" className="mb-8 flex justify-center">
-        <span className="font-display text-3xl font-extrabold text-ink-900">
-          StemCells <span className="text-clay-500">Protocol</span>
-        </span>
+      <Link to="/" className="mb-8 flex items-center justify-center gap-2">
+        <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true">
+          <rect width="64" height="64" rx="14" fill="#4285F4" />
+          <rect x="27.5" y="13" width="9" height="30" rx="4.5" fill="#EA4335" />
+          <rect x="17" y="23.5" width="30" height="9" rx="4.5" fill="#EA4335" />
+          <path d="M10 46 h11 l4 -9 5 16 4 -10 h20" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <span className="font-display text-3xl font-extrabold text-ink-900">{BRAND.name}</span>
       </Link>
 
       <h1 className="text-center font-display text-3xl font-extrabold uppercase text-ink-900 sm:text-4xl">

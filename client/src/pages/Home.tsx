@@ -37,7 +37,7 @@ const HOME_CSS = `
 .mh-seo-h1{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 .mh-ask{width:100%;max-width:720px;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 16px;border-radius:22px;
   background:#fff;box-shadow:7px 7px 18px var(--shd),-6px -6px 16px var(--shl);}
-.mh-ask input{flex:1;border:0;background:transparent;font:inherit;font-size:15.5px;color:var(--ink);outline:none;}
+.mh-ask input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:15.5px;color:var(--ink);outline:none;}
 .mh-ask input::placeholder{color:var(--fnt);}
 .mh-ic{width:38px;height:38px;flex:none;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;
   background:#fff;color:var(--mut);box-shadow:3px 3px 7px var(--shd),-3px -3px 7px var(--shl);transition:transform .08s;}

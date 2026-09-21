@@ -52,7 +52,7 @@ export default function Register() {
   }
 
   return (
-    <AuthLayout title="Create your account" subtitle="Join thousands of patients exploring regenerative care.">
+    <AuthLayout title="Create your account" subtitle="Save your chats and ask health questions any time.">
       <form onSubmit={submit} className="space-y-4">
         <div>
           <label className="label">Full name</label>

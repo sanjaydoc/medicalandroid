@@ -90,6 +90,7 @@ export default function Home() {
   const nav = useNavigate();
   const { user } = useAuth();
   const isAdmin = !!user && user.email.toLowerCase() === BRAND.adminEmail.toLowerCase();
+  const [showAllSpecs, setShowAllSpecs] = useState(false);
   const [q, setQ] = useState('');
   const [spec, setSpec] = useState('');
 
@@ -185,7 +186,7 @@ export default function Home() {
             </form>
 
             <div className="mh-chips">
-              {SPECIALITIES.slice(0, 8).map((s) => (
+              {(showAllSpecs ? SPECIALITIES : SPECIALITIES.slice(0, 10)).map((s) => (
                 <button
                   key={s}
                   type="button"
@@ -195,6 +196,11 @@ export default function Home() {
                   {s}
                 </button>
               ))}
+              {!showAllSpecs && (
+                <button type="button" className="mh-chip" onClick={() => setShowAllSpecs(true)}>
+                  + {SPECIALITIES.length - 10} more specialities
+                </button>
+              )}
               <button type="button" className="mh-chip" onClick={() => go('What can you help me with?')}>
                 What can you do?
               </button>

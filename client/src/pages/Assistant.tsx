@@ -16,17 +16,31 @@ import { BRAND } from '../brand';
 type Spec = { key: string; label: string };
 const SPECIALTIES: Spec[] = [
   { key: 'general', label: 'General Physician' },
-  { key: 'regen', label: 'Regenerative Medicine' },
   { key: 'cardio', label: 'Cardiology' },
   { key: 'neuro', label: 'Neurology' },
   { key: 'ortho', label: 'Orthopedics' },
-  { key: 'onco', label: 'Oncology & Haematology' },
-  { key: 'endo', label: 'Endocrinology' },
+  { key: 'derma', label: 'Dermatology' },
+  { key: 'paeds', label: 'Paediatrics' },
+  { key: 'obgyn', label: 'Gynaecology & Obstetrics' },
+  { key: 'gastro', label: 'Gastroenterology' },
+  { key: 'endo', label: 'Endocrinology (Diabetes & Thyroid)' },
   { key: 'pulmo', label: 'Pulmonology' },
   { key: 'nephro', label: 'Nephrology' },
-  { key: 'derma', label: 'Dermatology' },
+  { key: 'uro', label: 'Urology' },
+  { key: 'onco', label: 'Oncology & Haematology' },
+  { key: 'regen', label: 'Regenerative Medicine' },
+  { key: 'ent', label: 'ENT (Ear, Nose & Throat)' },
   { key: 'ophthal', label: 'Ophthalmology' },
   { key: 'dental', label: 'Dentistry' },
+  { key: 'psych', label: 'Psychiatry & Mental Health' },
+  { key: 'psychology', label: 'Psychology & Counselling' },
+  { key: 'rheum', label: 'Rheumatology' },
+  { key: 'physio', label: 'Physiotherapy & Rehab' },
+  { key: 'nutrition', label: 'Nutrition & Dietetics' },
+  { key: 'surgery', label: 'General Surgery' },
+  { key: 'infect', label: 'Infectious Diseases' },
+  { key: 'allergy', label: 'Allergy & Immunology' },
+  { key: 'sexual', label: 'Sexual Health' },
 ];
 
 // Clean 2D blue line icons (currentColor = theme blue), matching the site.
@@ -44,7 +58,27 @@ const ICONS: Record<string, JSX.Element> = {
   derma: (<svg viewBox="0 0 24 24" {...S}><path d="M12 4 3.5 8 12 12l8.5-4z" /><path d="M4.3 11.2 12 14.8l7.7-3.6M4.3 14.7 12 18.3l7.7-3.6" /></svg>),
   ophthal: (<svg viewBox="0 0 24 24" {...S}><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="2.6" /></svg>),
   dental: (<svg viewBox="0 0 24 24" {...S}><path d="M8 3.2c-2.1 0-3.6 1.6-3.6 4.1 0 1.9.8 2.9 1.2 6 .3 2.4.5 5.2 1.9 5.2s1.2-3.1 2.5-3.1 1.2 3.1 2.5 3.1 1.6-2.8 1.9-5.2c.4-3.1 1.2-4.1 1.2-6 0-2.5-1.5-4.1-3.6-4.1-1.3 0-1.9.7-3 .7s-1.7-.7-3-.7z" /></svg>),
+  paeds: (<svg viewBox="0 0 24 24" {...S}><circle cx="12" cy="5.5" r="2.5" /><path d="M8.5 21v-5.5a3.5 3.5 0 0 1 7 0V21" /><path d="M9 13.5h6" /></svg>),
+  obgyn: (<svg viewBox="0 0 24 24" {...S}><circle cx="12" cy="8" r="5" /><path d="M12 13v8M8.5 18h7" /></svg>),
+  gastro: (<svg viewBox="0 0 24 24" {...S}><path d="M10 4v4.5a4.5 4.5 0 0 0 4.5 4.5h.5a3 3 0 0 0 0-6h-1" /><path d="M10 8.5c-2.5.5-4 2.8-4 6 0 2.6 1.6 4.5 4 4.5" /></svg>),
+  uro: (<svg viewBox="0 0 24 24" {...S}><path d="M7 9a5 5 0 0 0 5 5 5 5 0 0 0 5-5c0-1.6-1-2.9-2.4-2.9-1.3 0-1.6 1-2.6 1s-1.3-1-2.6-1C8 6.1 7 7.4 7 9z" /><path d="M12 14v6" /></svg>),
+  ent: (<svg viewBox="0 0 24 24" {...S}><path d="M8.5 9.5a3.5 3.5 0 1 1 6.5 1.8c-1 1.6-2.5 1.9-2.5 3.7a2.2 2.2 0 0 1-4.3.6" /></svg>),
+  psych: (<svg viewBox="0 0 24 24" {...S}><path d="M9 18h6M10 21h4" /><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.2 1 2.5h6c0-1.3.3-1.8 1-2.5A6 6 0 0 0 12 3z" /></svg>),
+  psychology: (<svg viewBox="0 0 24 24" {...S}><path d="M20 12a8 8 0 1 0-3 6.2V21l2.4-1.6A7.9 7.9 0 0 0 20 12z" /><path d="M12 15c2 0 3-1.3 3-3s-1.3-2.5-3-2.5S9 10.3 9 12" /></svg>),
+  rheum: (<svg viewBox="0 0 24 24" {...S}><path d="M7 13V7a1.4 1.4 0 0 1 2.8 0v4M9.8 11V5.5a1.4 1.4 0 0 1 2.8 0V11M12.6 11.5V7a1.4 1.4 0 0 1 2.8 0v7a5 5 0 0 1-5 5H10a4 4 0 0 1-3.3-1.7L5 16" /></svg>),
+  physio: (<svg viewBox="0 0 24 24" {...S}><circle cx="13.5" cy="4.5" r="1.9" /><path d="M8 21l3-6 3 1.6 1.6-3.6" /><path d="M11 15l-2.2-3.2 4.2-1.1 3 2" /></svg>),
+  nutrition: (<svg viewBox="0 0 24 24" {...S}><path d="M12 8a5 5 0 0 0-4 8c1.2 1.7 2.5 4 4 4s2.8-2.3 4-4a5 5 0 0 0-4-8z" /><path d="M12 8c0-2 1.5-3.5 3.5-3.5C15.5 6.5 14 8 12 8z" /></svg>),
+  surgery: (<svg viewBox="0 0 24 24" {...S}><path d="M14 4l6 6-9 9-3-3z" /><path d="M4 20l3.5-1.2" /></svg>),
+  infect: (<svg viewBox="0 0 24 24" {...S}><circle cx="12" cy="12" r="4" /><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" /></svg>),
+  allergy: (<svg viewBox="0 0 24 24" {...S}><path d="M12 4l8 14H4z" /><path d="M12 10v4M12 16.5v.6" /></svg>),
+  sexual: (<svg viewBox="0 0 24 24" {...S}><path d="M12 3l7 3v5c0 4.2-3 7.2-7 8.5-4-1.3-7-4.3-7-8.5V6z" /><path d="M12 9c-.8-1-2.5-.7-2.5.8 0 1.3 2.5 2.9 2.5 2.9s2.5-1.6 2.5-2.9c0-1.5-1.7-1.8-2.5-.8z" /></svg>),
 };
+
+// Fallback icon for any speciality without a bespoke glyph (stethoscope).
+const FALLBACK_ICON = (
+  <svg viewBox="0 0 24 24" {...S}><path d="M6 3v5a4 4 0 0 0 8 0V3" /><path d="M10 12v2.2a4.2 4.2 0 0 0 8.4 0v-.7" /><circle cx="18.4" cy="11.4" r="1.9" /></svg>
+);
+const specIcon = (k: string): JSX.Element => ICONS[k] || FALLBACK_ICON;
 
 // Professional blue 2D Android robot (matches the theme; not the green brand mark).
 const ANDROID = (
@@ -249,7 +283,7 @@ export default function Assistant() {
         {active && !specOpen ? (
           /* Collapsed: locked to the chosen speciality — tap to change (frees chat space) */
           <button type="button" className="asd-lock asd-neu" onClick={() => setSpecOpen(true)} aria-expanded={false}>
-            <span className="pi"><span className="em" aria-hidden>{ICONS[active.key]}</span></span>
+            <span className="pi"><span className="em" aria-hidden>{specIcon(active.key)}</span></span>
             <span className="lk">
               <b>{active.label}</b>
               <span>Speciality locked · tap to change</span>
@@ -284,7 +318,7 @@ export default function Assistant() {
                   onClick={() => pickSpec(s.label)}
                   aria-pressed={spec === s.label}
                 >
-                  <span className="em" aria-hidden>{ICONS[s.key]}</span>
+                  <span className="em" aria-hidden>{specIcon(s.key)}</span>
                   <span className="lb">{s.label}</span>
                 </button>
               ))}

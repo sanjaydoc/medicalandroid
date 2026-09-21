@@ -18,17 +18,33 @@ export const BRAND = {
 
 // Speciality quick-picks for the home. Labels MUST match the Assistant's
 // SPECIALTIES labels so a pick carries over cleanly on the handoff.
+// Labels MUST match the Assistant's SPECIALTIES labels exactly so a home pick
+// carries over cleanly on the handoff.
 export const SPECIALITIES: string[] = [
   'General Physician',
   'Cardiology',
   'Neurology',
   'Orthopedics',
-  'Oncology & Haematology',
-  'Endocrinology',
+  'Dermatology',
+  'Paediatrics',
+  'Gynaecology & Obstetrics',
+  'Gastroenterology',
+  'Endocrinology (Diabetes & Thyroid)',
   'Pulmonology',
   'Nephrology',
-  'Dermatology',
+  'Urology',
+  'Oncology & Haematology',
+  'Regenerative Medicine',
+  'ENT (Ear, Nose & Throat)',
   'Ophthalmology',
   'Dentistry',
-  'Regenerative Medicine',
+  'Psychiatry & Mental Health',
+  'Psychology & Counselling',
+  'Rheumatology',
+  'Physiotherapy & Rehab',
+  'Nutrition & Dietetics',
+  'General Surgery',
+  'Infectious Diseases',
+  'Allergy & Immunology',
+  'Sexual Health',
 ];

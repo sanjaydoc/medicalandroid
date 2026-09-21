@@ -1,13 +1,13 @@
 // Central branding for the app. Rename here and it updates everywhere.
 export const BRAND = {
-  name: 'MediMind',
-  full: 'MediMind',
+  name: 'MedDroid',
+  full: 'MedDroid',
   tagline: 'Your AI medical assistant',
   greeting: "AI medical assistant, let's begin?",
   inputPlaceholder: 'Ask a medical question…',
   disclaimer:
-    'MediMind is AI and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician.',
-  appId: 'com.medimind.app',
+    'MedDroid is AI and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician.',
+  appId: 'com.meddroid.app',
   domain: 'medicalandroid.com',
   supportEmail: 'dr.sanjayanbu@gmail.com',
   // The ONLY account allowed into the admin dashboard. This is a UI gate;

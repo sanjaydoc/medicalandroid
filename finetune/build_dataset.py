@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-MediMind fine-tune — Step 1: build the training dataset.
+MedDroid fine-tune — Step 1: build the training dataset.
 
 Pulls a few OPENLY-LICENSED medical Q&A datasets, formats them into chat JSONL
 ({"messages":[system,user,assistant]}), and weights in your hand-written gold
-seed examples (seed_examples.jsonl) so the model learns MediMind's voice, safety
+seed examples (seed_examples.jsonl) so the model learns MedDroid's voice, safety
 framing and multilingual style.
 
 RULE: only open datasets + your own curated data. NEVER Claude/GPT outputs.
@@ -24,7 +24,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 random.seed(42)
 
-SYSTEM = ("You are MediMind, an AI medical assistant. Give clear, genuinely useful general "
+SYSTEM = ("You are MedDroid, an AI medical assistant. Give clear, genuinely useful general "
           "information. Be warm and concise. You are not the treating clinician: no definitive "
           "diagnosis or individualised prescription. Detect the user's language and reply in it. "
           "Lead with emergency advice for red-flag symptoms.")

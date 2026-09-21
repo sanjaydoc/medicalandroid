@@ -61,7 +61,7 @@ const HOME_CSS = `
 function LogoMark() {
   return (
     <span className="mh-logo" aria-hidden>
-      {/* MediMind: red medical cross + white ECG pulse (tile supplies the blue) */}
+      {/* MedDroid: red medical cross + white ECG pulse (tile supplies the blue) */}
       <svg viewBox="0 0 24 24" width="22" height="22">
         <rect x="10.3" y="4" width="3.4" height="12" rx="1.7" fill="#EA4335" />
         <rect x="6" y="8.3" width="12" height="3.4" rx="1.7" fill="#EA4335" />
@@ -97,7 +97,7 @@ export default function Home() {
   const go = (question?: string) => {
     const text = (question ?? q).trim();
     try {
-      sessionStorage.setItem('medimind_pending', JSON.stringify({ q: text, spec }));
+      sessionStorage.setItem('meddroid_pending', JSON.stringify({ q: text, spec }));
     } catch { /* ignore */ }
     nav('/assistant');
   };
@@ -164,7 +164,7 @@ export default function Home() {
 
           <div className="mh-center">
             {/* Real H1 for SEO (screen-reader/crawler); the friendly greeting stays visible below. */}
-            <h1 className="mh-seo-h1">MediMind — free AI medical assistant &amp; symptom checker: ask a doctor online and understand blood test results, lab reports, ECGs and medicines</h1>
+            <h1 className="mh-seo-h1">MedDroid — free AI medical assistant &amp; symptom checker: ask a doctor online and understand blood test results, lab reports, ECGs and medicines</h1>
             <div className="mh-h1">{BRAND.greeting}</div>
 
             <form className="mh-ask" onSubmit={onSubmit}>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MediMind medical benchmark — Claude (Sonnet 4.5) vs local MedGemma 4B.
+MedDroid medical benchmark — Claude (Sonnet 4.5) vs local MedGemma 4B.
 
 Runs the SAME medical system prompt + the SAME test cases against both models
 and writes a side-by-side report you can score by hand:
@@ -41,13 +41,13 @@ HERE = Path(__file__).resolve().parent
 # ----------------------------------------------------------------------------
 # Config
 # ----------------------------------------------------------------------------
-CLAUDE_MODEL = "claude-sonnet-4-5-20250929"      # what MediMind runs in production
+CLAUDE_MODEL = "claude-sonnet-4-5-20250929"      # what MedDroid runs in production
 CLAUDE_MAX_TOKENS = 1500
 
 MEDGEMMA_URL = os.environ.get("MEDGEMMA_URL", "http://localhost:11434/api/chat")  # Ollama native
 MEDGEMMA_MODEL = os.environ.get("MEDGEMMA_MODEL", "medgemma")
 
-# The medical system prompt (aligned with the MediMind Worker + Doctor mode:
+# The medical system prompt (aligned with the MedDroid Worker + Doctor mode:
 # full structured reads for images; never conclude "normal"; not a final diagnosis).
 SYSTEM_PROMPT = """You are an AI medical assistant. Give genuinely useful, educational information.
 You are NOT the treating clinician: do not give a definitive diagnosis or an individualized prescription.
@@ -208,7 +208,7 @@ def main():
     (HERE / "results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), "utf-8")
 
     # Markdown report
-    md = ["# MediMind benchmark — Claude vs MedGemma\n",
+    md = ["# MedDroid benchmark — Claude vs MedGemma\n",
           f"Model (Claude): `{CLAUDE_MODEL}` · Model (MedGemma): `{MEDGEMMA_MODEL}` @ `{MEDGEMMA_URL}`\n",
           "Score each: CATCH / SAFE-MISS / **DANGEROUS-MISS** / OVER-CALL\n"]
     for r in results:

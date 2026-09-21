@@ -125,9 +125,9 @@ export default function Assistant() {
   const [initialQ, setInitialQ] = useState('');
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem('medimind_pending');
+      const raw = sessionStorage.getItem('meddroid_pending');
       if (!raw) return;
-      sessionStorage.removeItem('medimind_pending');
+      sessionStorage.removeItem('meddroid_pending');
       const pending = JSON.parse(raw) as { q?: string; spec?: string };
       if (pending.spec && SPECIALTIES.some((s) => s.label === pending.spec)) {
         setSpec(pending.spec);
@@ -270,11 +270,11 @@ export default function Assistant() {
         </div>
 
         {/* Android app download */}
-        <a className="asd-appbar asd-neu" href="https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/medimind.apk" target="_blank" rel="noopener">
+        <a className="asd-appbar asd-neu" href="https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/meddroid.apk" target="_blank" rel="noopener">
           <span className="ic" aria-hidden>{ANDROID}</span>
           <span className="tx">
             <b>Get the Android app</b>
-            <span>Ask MediMind on your phone — free</span>
+            <span>Ask MedDroid on your phone — free</span>
           </span>
           <span className="go">Download<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14" /></svg></span>
         </a>

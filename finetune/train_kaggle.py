@@ -1,5 +1,5 @@
 # =============================================================================
-# MediMind — Step 2: QLoRA fine-tune MedGemma 4B on Kaggle (free 16 GB GPU)
+# MedDroid — Step 2: QLoRA fine-tune MedGemma 4B on Kaggle (free 16 GB GPU)
 # =============================================================================
 # HOW TO RUN
 #   1. kaggle.com -> Create -> New Notebook
@@ -8,7 +8,7 @@
 #      (create one at huggingface.co/settings/tokens, and accept the MedGemma
 #       licence at huggingface.co/google/medgemma-4b-it)
 #   4. Paste this whole file into ONE cell and Run All.
-#   5. When done, download outputs/medimind-medgemma.Q4_K_M.gguf from the
+#   5. When done, download outputs/meddroid-medgemma.Q4_K_M.gguf from the
 #      notebook's Output panel, then load it in Ollama (Modelfile below).
 #
 # NOTE: this fine-tunes the TEXT side (vision layers frozen). The exported GGUF
@@ -121,7 +121,7 @@ DONE. Next:
         # Modelfile
         FROM ./<the-file>.gguf
         PARAMETER temperature 0.6
-    then:  ollama create medimind -f Modelfile
-  - Benchmark:  set MEDGEMMA_MODEL=medimind and run benchmark_medical.py
-    (medimind vs base medgemma vs claude). Ship only if it's better.
+    then:  ollama create meddroid -f Modelfile
+  - Benchmark:  set MEDGEMMA_MODEL=meddroid and run benchmark_medical.py
+    (meddroid vs base medgemma vs claude). Ship only if it's better.
 """)

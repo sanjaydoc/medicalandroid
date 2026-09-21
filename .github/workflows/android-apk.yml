@@ -66,7 +66,7 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Generate app icon + splash (MediMind)
+      - name: Generate app icon + splash (MedDroid)
         run: |
           npm i -D @capacitor/assets
           npx @capacitor/assets generate --android --iconBackgroundColor '#4285F4' --iconBackgroundColorDark '#4285F4'
@@ -93,30 +93,30 @@ jobs:
           ./gradlew assembleDebug --no-daemon
 
       - name: Rename APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk medimind.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk meddroid.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: medimind-android-apk
-          path: medimind.apk
+          name: meddroid-android-apk
+          path: meddroid.apk
           if-no-files-found: error
 
       # Mirror the StemCells approach: publish the APK as a RAW FILE on a
       # dedicated orphan branch ('apk') of this public repo, served fast via
-      #   https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/medimind.apk
+      #   https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/meddroid.apk
       # Force-pushed as a single commit each build so it never bloats history.
       # Uses the built-in GITHUB_TOKEN (permissions: contents: write above).
       - name: Publish APK to the public 'apk' branch (raw, fast download)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp android/app/build/outputs/apk/debug/app-debug.apk medimind.apk
-          rm -rf /tmp/apkpub && mkdir /tmp/apkpub && cp medimind.apk /tmp/apkpub/
+          cp android/app/build/outputs/apk/debug/app-debug.apk meddroid.apk
+          rm -rf /tmp/apkpub && mkdir /tmp/apkpub && cp meddroid.apk /tmp/apkpub/
           cd /tmp/apkpub
           git init -q
           git checkout -q -b apk
-          git -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" add medimind.apk
-          git -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" commit -q -m "Publish MediMind APK"
+          git -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" add meddroid.apk
+          git -c user.name="github-actions[bot]" -c user.email="github-actions[bot]@users.noreply.github.com" commit -q -m "Publish MedDroid APK"
           git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" apk
-          echo "Published to raw.githubusercontent.com/${GITHUB_REPOSITORY}/apk/medimind.apk"
+          echo "Published to raw.githubusercontent.com/${GITHUB_REPOSITORY}/apk/meddroid.apk"

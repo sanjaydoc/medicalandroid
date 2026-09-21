@@ -1,7 +1,7 @@
 {
-  "name": "MediMind",
-  "short_name": "MediMind",
-  "description": "MediMind — an AI medical assistant. Ask health questions by speciality and get clear general information (not a diagnosis); always consult a clinician.",
+  "name": "MedDroid",
+  "short_name": "MedDroid",
+  "description": "MedDroid — an AI medical assistant. Ask health questions by speciality and get clear general information (not a diagnosis); always consult a clinician.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

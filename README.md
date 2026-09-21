@@ -1,4 +1,4 @@
-# MediMind — AI Medical Assistant
+# MedDroid — AI Medical Assistant
 
 A ChatGPT-style medical assistant (web + Android) in the StemCells Protocol
 Simulator's neumorphic theme. Pick a speciality, ask a question, get clear general
@@ -20,5 +20,5 @@ npm run build                # production build -> client/dist
 
 See `CLAUDE.md` for architecture, infra decisions, and TODOs.
 
-> Educational information only. MediMind is AI and can make mistakes. It does not
+> Educational information only. MedDroid is AI and can make mistakes. It does not
 > diagnose, prescribe, or replace a qualified clinician.

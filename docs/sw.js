@@ -3,7 +3,7 @@
 // handler deletes every cache whose name !== CACHE, so a bump evicts the stale
 // shell. Paired with updateViaCache:'none' + a controllerchange reload in
 // main.tsx, a new deploy takes effect on the next load with no manual refresh.
-const CACHE = 'medimind-v1';
+const CACHE = 'meddroid-v1';
 const SHELL = ['/', '/index.html', '/favicon.svg', '/manifest.webmanifest', '/pwa-192.png', '/pwa-512.png'];
 
 self.addEventListener('install', (event) => {

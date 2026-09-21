@@ -19,7 +19,7 @@ const FOUNDER = {
 
 const FOUNDER_BIO =
   `Dr. Sanjay Anbu is the founder of ${BRAND.name}, working at the intersection of medicine and ` +
-  'artificial intelligence. A physician (MBBS) and builder, he is developing the MediMind AI medical ' +
+  'artificial intelligence. A physician (MBBS) and builder, he is developing the MedDroid AI medical ' +
   'assistant and training an in-house medical AI model — with one goal: to make trustworthy health ' +
   'information understandable to everyone, in their own language, on any device.';
 
@@ -28,7 +28,7 @@ const FOCUS = ['Clinical medicine', 'Medical AI', 'On-device models', 'Multiling
 const VISION =
   `We built ${BRAND.name} on a simple belief: everyone deserves to understand their own health. Too many ` +
   'people leave a clinic with a prescription, a blood report or a scan they cannot read — and no one with ' +
-  'the time to explain it. MediMind is an AI medical assistant that explains it in plain language, in your ' +
+  'the time to explain it. MedDroid is an AI medical assistant that explains it in plain language, in your ' +
   'language, for free. It is built to help you understand your health and prepare for your doctor — never to ' +
   'replace them.';
 
@@ -52,7 +52,7 @@ const PILLARS = [
   },
   {
     title: 'Honest by design',
-    body: 'MediMind gives clear, general information — never a diagnosis. It flags emergencies, explains uncertainty, and always points you back to a qualified clinician.',
+    body: 'MedDroid gives clear, general information — never a diagnosis. It flags emergencies, explains uncertainty, and always points you back to a qualified clinician.',
     icon: (
       <>
         <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />

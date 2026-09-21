@@ -1,4 +1,4 @@
--- MediMind — Supabase schema (run once in the NEW project's SQL Editor).
+-- MedDroid — Supabase schema (run once in the NEW project's SQL Editor).
 --
 -- Security model (same as StemCells): the browser uses the public anon key,
 -- restricted to INSERT-only by RLS, so no data can be read from the client. The

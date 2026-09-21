@@ -132,7 +132,7 @@ export default function Navbar() {
 function Logo() {
   return (
     <svg viewBox="0 0 64 64" className="h-8 w-8">
-      {/* MediMind: medical cross + ECG pulse */}
+      {/* MedDroid: medical cross + ECG pulse */}
       <rect width="64" height="64" rx="14" fill="#4285F4" />
       <rect x="27.5" y="13" width="9" height="30" rx="4.5" fill="#EA4335" />
       <rect x="17" y="23.5" width="30" height="9" rx="4.5" fill="#EA4335" />

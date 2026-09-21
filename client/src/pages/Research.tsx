@@ -8,7 +8,7 @@ const WHY = [
   },
   {
     title: 'Access anywhere',
-    body: 'Care is hardest to reach exactly where the internet is weakest. A compact on-device model works offline, so MediMind keeps helping in low-connectivity areas.',
+    body: 'Care is hardest to reach exactly where the internet is weakest. A compact on-device model works offline, so MedDroid keeps helping in low-connectivity areas.',
   },
   {
     title: 'Grounded & trustworthy',

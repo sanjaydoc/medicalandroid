@@ -1,6 +1,6 @@
-# MediMind — MedGemma fine-tune
+# MedDroid — MedGemma fine-tune
 
-Turn MedGemma 4B into MediMind's own medical model. Full plan (pinned artifact):
+Turn MedGemma 4B into MedDroid's own medical model. Full plan (pinned artifact):
 datasets, QLoRA, where to train, evaluation.
 
 ## Rules
@@ -9,7 +9,7 @@ datasets, QLoRA, where to train, evaluation.
 - No real patient data (PHI) without consent + de-identification.
 
 ## Files
-- `seed_examples.jsonl` — hand-written **gold** examples in MediMind's voice
+- `seed_examples.jsonl` — hand-written **gold** examples in MedDroid's voice
   (concise-but-complete, multilingual, safety framing). Grow this with
   doctor-reviewed answers — it's the differentiator.
 - `build_dataset.py` — **Step 1.** Pulls open medical Q&A (MedMCQA=India,

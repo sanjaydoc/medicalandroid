@@ -1,10 +1,10 @@
-# MediMind — Deploy & Infra
+# MedDroid — Deploy & Infra
 
 Same model as StemCells Protocol: **the host serves the pre-built, committed
 `docs/` — no build step, no wrangler.** Claude builds `docs/` and pushes; Cloudflare
 Pages auto-deploys.
 
-- **App name:** MediMind · **Domain:** medicalandroid.com · **Repo:** sanjaydoc/medicalandroid
+- **App name:** MedDroid · **Domain:** medicalandroid.com · **Repo:** sanjaydoc/medicalandroid
 
 ## 1. Hosting — Cloudflare Pages (git-connected)
 - Workers & Pages → **Pages** → Connect to Git → `sanjaydoc/medicalandroid`
@@ -51,5 +51,5 @@ then commit `docs/` and push → Cloudflare auto-deploys with chat + login + adm
 - Workflow `.github/workflows/android-apk.yml` builds the APK on GitHub Actions
   (trigger: bump `.github/apk-build.txt`, or run manually). Set repo **Secrets**
   `VITE_CHAT_ENDPOINT`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_KEY`. APK is uploaded as
-  the `medimind-android-apk` artifact.
-- `capacitor.config.json`: appId `com.medimind.app`, webDir `client/dist`.
+  the `meddroid-android-apk` artifact.
+- `capacitor.config.json`: appId `com.meddroid.app`, webDir `client/dist`.

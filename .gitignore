@@ -7,3 +7,7 @@ client/dist/
 .DS_Store
 android/
 .gradle/
+
+# fine-tune data (large, generated locally)
+finetune/train.jsonl
+finetune/val.jsonl

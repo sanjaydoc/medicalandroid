@@ -3,7 +3,7 @@ export const BRAND = {
   name: 'MediMind',
   full: 'MediMind',
   tagline: 'Your AI medical assistant',
-  greeting: 'Where should we begin?',
+  greeting: "AI medical assistant, let's begin?",
   inputPlaceholder: 'Ask a medical question…',
   disclaimer:
     'MediMind is AI and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician.',

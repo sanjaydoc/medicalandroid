@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://stemcellsprotocol.com/sitemap.xml
+Sitemap: https://medicalandroid.com/sitemap.xml

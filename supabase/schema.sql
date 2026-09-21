@@ -59,20 +59,23 @@ end $$;
 -- signed-in user's email from the JWT, so an ordinary signed-up user gets ZERO
 -- rows back even if they call the API directly — not just hidden in the UI.
 -- Change the email here if the admin account ever changes.
+-- NOTE: the email is inlined as a literal in each policy. A PL/pgSQL variable
+-- (do $$ ... $$) cannot be referenced inside a create-policy USING expression —
+-- Postgres parses it there as a column name. If the admin account changes,
+-- update the literal in all three policies below.
 grant select on public.signups, public.chat_logs, public.page_views to authenticated;
-do $$
-declare admin_email text := 'dr.sanjayanbu@gmail.com';
-begin
-  drop policy if exists "auth read signups" on public.signups;
-  create policy "auth read signups" on public.signups for select to authenticated
-    using ((auth.jwt() ->> 'email') = admin_email);
-  drop policy if exists "auth read chat_logs" on public.chat_logs;
-  create policy "auth read chat_logs" on public.chat_logs for select to authenticated
-    using ((auth.jwt() ->> 'email') = admin_email);
-  drop policy if exists "auth read page_views" on public.page_views;
-  create policy "auth read page_views" on public.page_views for select to authenticated
-    using ((auth.jwt() ->> 'email') = admin_email);
-end $$;
+
+drop policy if exists "auth read signups" on public.signups;
+create policy "auth read signups" on public.signups for select to authenticated
+  using ((auth.jwt() ->> 'email') = 'dr.sanjayanbu@gmail.com');
+
+drop policy if exists "auth read chat_logs" on public.chat_logs;
+create policy "auth read chat_logs" on public.chat_logs for select to authenticated
+  using ((auth.jwt() ->> 'email') = 'dr.sanjayanbu@gmail.com');
+
+drop policy if exists "auth read page_views" on public.page_views;
+create policy "auth read page_views" on public.page_views for select to authenticated
+  using ((auth.jwt() ->> 'email') = 'dr.sanjayanbu@gmail.com');
 
 -- make sure anon keeps its INSERT grant
 grant insert on public.signups, public.chat_logs, public.page_views to anon;

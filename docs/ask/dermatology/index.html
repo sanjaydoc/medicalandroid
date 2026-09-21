@@ -47,6 +47,18 @@ ul.feat li::before{content:"\2713";position:absolute;left:0;top:0;color:var(--bl
 .related{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .related a{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;text-decoration:none;font-weight:600;font-size:14px;color:var(--blue2)}
 .disc{font-size:13px;color:var(--sub);border-top:1px solid var(--line);margin-top:36px;padding-top:16px}
+table.ref{width:100%;border-collapse:collapse;margin:6px 0 18px;font-size:15px}
+table.ref th,table.ref td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+table.ref thead th{color:var(--sub);font-weight:700;background:var(--card)}
+table.ref td:last-child,table.ref th:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+ul.plain{list-style:none;padding:0;margin:0 0 8px;display:grid;gap:10px}
+ul.plain li{position:relative;padding-left:20px}
+ul.plain li::before{content:"\2022";position:absolute;left:2px;top:0;color:var(--blue);font-weight:800}
+.card.warn{border-color:#f6c9c4;background:#fdeeec}
+.card.warn h2{margin:0 0 8px;font-size:18px;color:var(--red)}
+.card.warn ul{margin:0;padding-left:20px}
+.card.warn li{margin:6px 0}
+.grouptitle{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sub);margin:22px 0 8px}
 </style>
 </head>
 <body>
@@ -69,7 +81,6 @@ ul.feat li::before{content:"\2713";position:absolute;left:0;top:0;color:var(--bl
         <li>Answer in your own language, 24/7, free</li>
         <li>Clear guidance on when to see a doctor in person</li>
   </ul>
-
   <div class="card">
     <strong>Not a diagnosis.</strong> MedDroid gives general educational information to help you understand your dermatology question and prepare for your doctor. It cannot examine you or prescribe — always confirm with a qualified clinician.
   </div>

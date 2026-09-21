@@ -1,9 +1,10 @@
 // Generates MedDroid SEO landing pages (static, crawlable) into client/public/,
 // and rewrites client/public/sitemap.xml to list all of them + the home + the
 // original four pages. Run: node scripts/gen-landing.mjs
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SYMPTOMS, BLOODTESTS, LAB_NOTE } from './clusters.mjs';
 
 const PUBLIC = join(dirname(fileURLToPath(import.meta.url)), '..', 'client', 'public');
 const DOMAIN = 'https://medicalandroid.com';
@@ -34,7 +35,19 @@ ul.feat li::before{content:"\\2713";position:absolute;left:0;top:0;color:var(--b
 .ctarow{margin:28px 0;text-align:center}
 .related{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .related a{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;text-decoration:none;font-weight:600;font-size:14px;color:var(--blue2)}
-.disc{font-size:13px;color:var(--sub);border-top:1px solid var(--line);margin-top:36px;padding-top:16px}`;
+.disc{font-size:13px;color:var(--sub);border-top:1px solid var(--line);margin-top:36px;padding-top:16px}
+table.ref{width:100%;border-collapse:collapse;margin:6px 0 18px;font-size:15px}
+table.ref th,table.ref td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+table.ref thead th{color:var(--sub);font-weight:700;background:var(--card)}
+table.ref td:last-child,table.ref th:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+ul.plain{list-style:none;padding:0;margin:0 0 8px;display:grid;gap:10px}
+ul.plain li{position:relative;padding-left:20px}
+ul.plain li::before{content:"\\2022";position:absolute;left:2px;top:0;color:var(--blue);font-weight:800}
+.card.warn{border-color:#f6c9c4;background:#fdeeec}
+.card.warn h2{margin:0 0 8px;font-size:18px;color:var(--red)}
+.card.warn ul{margin:0;padding-left:20px}
+.card.warn li{margin:6px 0}
+.grouptitle{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sub);margin:22px 0 8px}`;
 
 const DISC = `MedDroid is an AI medical assistant and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician. In an emergency, contact your local emergency number immediately.`;
 
@@ -51,10 +64,49 @@ function faqJsonLd(faqs) {
 
 function page(p) {
   const url = `${DOMAIN}/${p.slug}/`;
-  const feats = p.features.map((f) => `        <li>${f}</li>`).join('\n');
   const faqs = p.faqs.map((f) =>
     `    <details><summary>${f.q}</summary><p>${f.a}</p></details>`).join('\n');
   const related = p.related.map((r) => `    <a href="/${r[0]}/">${r[1]}</a>`).join('\n');
+
+  // Optional reference-range table (blood tests).
+  const tableHtml = p.table
+    ? `  <h2>${p.table.caption}</h2>
+  <table class="ref"><thead><tr><th>Measure</th><th>Range</th></tr></thead><tbody>
+${p.table.rows.map((r) => `    <tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('\n')}
+  </tbody></table>\n`
+    : '';
+
+  // Main feature list (causes / what MedDroid does).
+  const featHtml = (p.features && p.features.length)
+    ? `  <h2>${p.featTitle}</h2>
+  <ul class="feat">
+${p.features.map((f) => `        <li>${f}</li>`).join('\n')}
+  </ul>\n`
+    : '';
+
+  // Extra grouped lists (e.g. "What a high result can mean").
+  const listsHtml = (p.lists || []).map((l) =>
+    `  <h2>${l.title}</h2>
+  <ul class="plain">
+${l.items.map((i) => `    <li>${i}</li>`).join('\n')}
+  </ul>\n`).join('\n');
+
+  // Red-flag warning card (symptoms).
+  const warnHtml = (p.warnings && p.warnings.length)
+    ? `  <div class="card warn">
+    <h2>When to see a doctor urgently</h2>
+    <ul>
+${p.warnings.map((w) => `      <li>${w}</li>`).join('\n')}
+    </ul>
+  </div>\n`
+    : '';
+
+  // Generic note card.
+  const noteHtml = p.note
+    ? `  <div class="card">
+    <strong>${p.noteTitle}</strong> ${p.note}
+  </div>\n`
+    : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -94,15 +146,7 @@ ${CSS}
 
   <div class="ctarow"><a class="cta" href="/#/assistant">${p.ctaLong} &rarr;</a></div>
 
-  <h2>${p.featTitle}</h2>
-  <ul class="feat">
-${feats}
-  </ul>
-
-  <div class="card">
-    <strong>${p.noteTitle}</strong> ${p.note}
-  </div>
-
+${tableHtml}${featHtml}${listsHtml}${warnHtml}${noteHtml}
   <h2>Frequently asked questions</h2>
   <div class="faq">
 ${faqs}
@@ -346,7 +390,62 @@ const QUESTIONS = [
     ]),
 ];
 
-const ALL = [...SPECIALITIES, ...QUESTIONS];
+// ------------------------------------------------------ symptom cluster ------
+function symptomPage(s) {
+  const low = s.name.toLowerCase();
+  return {
+    slug: `symptoms/${s.slug}`,
+    name: s.name,
+    title: `${s.name}: Causes, When to Worry & What to Do | MedDroid`,
+    desc: `${s.name}: common causes, the warning signs that need a doctor, and what you can do — explained in plain language by MedDroid's free AI. Educational, not a diagnosis.`,
+    h1: `${s.name}: causes, warning signs & what to do`,
+    lede: s.lede,
+    ctaShort: 'Check my symptoms',
+    ctaLong: `Ask MedDroid about ${low}`,
+    featTitle: `Common causes of ${low}`,
+    features: s.causes,
+    warnings: s.warnings,
+    faqs: s.faqs,
+    related: [
+      ['ai-symptom-checker', 'AI symptom checker'],
+      ['ask/' + s.dept[0], s.dept[1]],
+      ['ai-doctor', 'AI doctor'],
+      ['ai-medical-assistant', 'AI medical assistant'],
+    ],
+  };
+}
+
+// --------------------------------------------------- blood-test cluster ------
+function bloodTestPage(b) {
+  return {
+    slug: `blood-tests/${b.slug}`,
+    name: b.name,
+    title: `${b.name}: Normal Range, High & Low Explained | MedDroid`,
+    desc: `${b.name}: what it measures, the normal reference range, and what high or low results can mean. MedDroid explains your report in plain language — not a diagnosis.`,
+    h1: `${b.name}: normal range & what your result means`,
+    lede: b.lede,
+    ctaShort: 'Explain my report',
+    ctaLong: 'Upload your report to MedDroid',
+    table: { caption: 'Typical adult reference range', rows: b.rows },
+    lists: [
+      { title: 'What a HIGH result can mean', items: b.high },
+      { title: 'What a LOW result can mean', items: b.low },
+    ],
+    noteTitle: 'Ranges vary by lab.',
+    note: LAB_NOTE,
+    faqs: b.faqs,
+    related: [
+      ['blood-test-results-explained', 'All blood tests explained'],
+      ['ai-medical-assistant', 'AI medical assistant'],
+      ['ai-doctor', 'AI doctor'],
+    ],
+  };
+}
+
+const SYMPTOM_PAGES = SYMPTOMS.map(symptomPage);
+const BLOODTEST_PAGES = BLOODTESTS.map(bloodTestPage);
+
+const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES];
 
 for (const p of ALL) {
   const dir = join(PUBLIC, ...p.slug.split('/'));
@@ -354,6 +453,22 @@ for (const p of ALL) {
   writeFileSync(join(dir, 'index.html'), page(p), 'utf8');
   console.log('wrote', p.slug);
 }
+
+// Inject an auto-generated child index into a hub page, between the markers
+//   <div class="related" id="child-index"> ... </div>
+function injectIndex(hubSlug, pages) {
+  const file = join(PUBLIC, hubSlug, 'index.html');
+  let html;
+  try { html = readFileSync(file, 'utf8'); } catch { console.log('  (hub not found, skipped index):', hubSlug); return; }
+  const links = pages.map((p) => `<a href="/${p.slug}/">${p.name}</a>`).join('\n    ');
+  const re = /(<div class="related" id="child-index">)[\s\S]*?(<\/div>)/;
+  if (!re.test(html)) { console.log('  (no child-index marker in):', hubSlug); return; }
+  html = html.replace(re, `$1\n    ${links}\n  $2`);
+  writeFileSync(file, html, 'utf8');
+  console.log(`  indexed ${pages.length} children into ${hubSlug}`);
+}
+injectIndex('ai-symptom-checker', SYMPTOM_PAGES);
+injectIndex('blood-test-results-explained', BLOODTEST_PAGES);
 
 // sitemap: home + original core pages + generated pages
 const sitemapUrls = [

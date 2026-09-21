@@ -5,10 +5,7 @@ type Row = Record<string, any>;
 
 const TABLES = [
   { key: 'page_views', label: 'Page views', cols: ['created_at', 'page', 'path', 'country', 'duration_sec', 'session_id'] },
-  { key: 'waitlist', label: 'Waiting list', cols: ['created_at', 'priority', 'name', 'email', 'disease', 'therapy', 'department', 'has_methylation', 'file_name', 'notes'] },
-  { key: 'consultations', label: 'Consultations', cols: ['created_at', 'name', 'email', 'phone', 'department', 'condition', 'notes'] },
   { key: 'signups', label: 'Sign-ups', cols: ['created_at', 'name', 'email'] },
-  { key: 'kit_quotes', label: 'Kit quotes', cols: ['created_at', 'name', 'org', 'role', 'city', 'email', 'phone', 'kit', 'message'] },
   { key: 'chat_logs', label: 'Chat logs', cols: ['created_at', 'language', 'question', 'answer', 'had_attachment'] },
 ] as const;
 

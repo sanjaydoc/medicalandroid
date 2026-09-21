@@ -120,6 +120,8 @@ export default function Home() {
           <nav className="mh-nav">
             <Link to="/assistant"><NavIcon d="M4 5.5h16a1.5 1.5 0 011.5 1.5v8a1.5 1.5 0 01-1.5 1.5H9l-4 3v-3H4A1.5 1.5 0 012.5 15V7A1.5 1.5 0 014 5.5z" /> Assistant</Link>
             <Link to="/assistant"><NavIcon d="M12 3v18M3 12h18" /> Ask by speciality</Link>
+            <Link to="/research"><NavIcon d="M9 3v6l-5 9a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3l-5-9V3" /> Research</Link>
+            <Link to="/about"><NavIcon d="M12 11v6M12 7h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /> About</Link>
             {isAdmin && <Link to="/admin"><NavIcon d="M4 5h16v6H4zM4 15h10v4H4z" /> Admin</Link>}
           </nav>
           <div className="mh-side-foot">

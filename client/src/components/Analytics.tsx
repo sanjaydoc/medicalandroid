@@ -21,6 +21,9 @@ function pageLabel(pathname: string): string {
   const p = pathname.replace(/\/+$/, '');
   const map: Record<string, string> = {
     '/assistant': 'Assistant',
+    '/about': 'About',
+    '/research': 'Research',
+    '/account': 'Account',
     '/login': 'Log in',
     '/register': 'Register',
     '/admin': 'Admin',

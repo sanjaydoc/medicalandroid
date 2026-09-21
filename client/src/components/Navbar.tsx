@@ -7,6 +7,8 @@ import { BRAND } from '../brand';
 // navigated to directly, but it's hidden from the public nav.
 const links = [
   { to: '/assistant', label: 'Assistant' },
+  { to: '/research', label: 'Research' },
+  { to: '/about', label: 'About' },
 ];
 
 export default function Navbar() {

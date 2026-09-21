@@ -1,8 +1,8 @@
 /**
- * StemCells Protocol — chat proxy (Cloudflare Worker)
- * ---------------------------------------------------
- * This is the ONLY place the Anthropic API key exists. The static site on
- * GitHub Pages posts the conversation here; this Worker adds the system prompt,
+ * MedicalAndroid — chat proxy (Cloudflare Worker)
+ * -----------------------------------------------
+ * This is the ONLY place the Anthropic API key exists. The static site posts
+ * the conversation here; this Worker adds the system prompt,
  * calls Anthropic server-side, and streams the reply back as plain text. The
  * key is stored as an encrypted secret (`wrangler secret put ANTHROPIC_API_KEY`)
  * and is never shipped to the browser.
@@ -135,13 +135,13 @@ async function handleNotify(request, env) {
     .filter((k) => r[k])
     .map((k) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td style="padding:4px 10px"><b>${String(r[k]).replace(/</g, '&lt;')}</b></td></tr>`)
     .join('');
-  const html = `<h2 style="font-family:Arial">New consultation request</h2><table style="font-family:Arial;border-collapse:collapse">${rows}</table><p style="font-family:Arial;color:#888;font-size:12px">via stemcellsprotocol.com</p>`;
+  const html = `<h2 style="font-family:Arial">New consultation request</h2><table style="font-family:Arial;border-collapse:collapse">${rows}</table><p style="font-family:Arial;color:#888;font-size:12px">via medicalandroid.com</p>`;
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: env.NOTIFY_FROM || 'StemCells Protocol <onboarding@resend.dev>',
+      from: env.NOTIFY_FROM || 'MedicalAndroid <onboarding@resend.dev>',
       to: env.ADMIN_EMAIL,
       subject: `New consultation: ${r.name || 'Unknown'}${r.department ? ' · ' + r.department : ''}`,
       html,

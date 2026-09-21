@@ -129,14 +129,16 @@ export default function Research() {
         </div>
       </div>
 
-      {/* Honesty */}
+      {/* Trust */}
       <div className="mx-auto mt-14 max-w-3xl">
         <div className="card border-l-4 border-l-clay-400 p-6">
-          <h3 className="font-display text-base font-bold text-ink-900">A note on honesty</h3>
+          <h3 className="font-display text-base font-bold text-ink-900">Built on trust</h3>
           <p className="mt-2 text-sm text-ink-700/75">
-            This is active research, not a finished product. {BRAND.name} is <strong>not a certified medical
-            device</strong>, and its outputs are general information — not a diagnosis, prescription or a
-            substitute for professional care. We publish our progress openly and improve it in the open.
+            {BRAND.name} gives clear, reliable general health information to help you understand your health
+            and make confident decisions with your doctor. Like every responsible health service, it
+            <strong> supports your care — it doesn't replace your clinician</strong>, and it isn't a
+            substitute for a professional diagnosis. We're honest about what AI can and can't do, and we keep
+            improving it — because earning your trust matters more to us than overpromising.
           </p>
         </div>
       </div>

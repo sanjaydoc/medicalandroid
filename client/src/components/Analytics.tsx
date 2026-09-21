@@ -19,21 +19,8 @@ const ADMIN_EMAILS = ['dr.sanjayanbu@gmail.com'];
 function pageLabel(pathname: string): string {
   if (pathname === '/' || pathname === '') return 'Home';
   const p = pathname.replace(/\/+$/, '');
-  if (p.startsWith('/therapies/')) return 'Therapy detail';
   const map: Record<string, string> = {
-    '/therapies': 'Therapies',
-    '/simulator': 'Simulator',
-    '/research': 'Research',
-    '/waiting-list': 'Waiting list',
-    '/compare': 'Compare',
-    '/investors': 'Investors',
-    '/consultation': 'Consultation',
-    '/browse': 'Browse',
-    '/care': 'Care packages',
-    '/about': 'About',
-    '/specialists': 'Specialists',
-    '/safety': 'Safety',
-    '/saved': 'Saved',
+    '/assistant': 'Assistant',
     '/login': 'Log in',
     '/register': 'Register',
     '/admin': 'Admin',

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useSaved } from '../context/SavedContext';
 import { BRAND } from '../brand';
 
 // Admin is intentionally NOT listed — the /admin route still works when
@@ -12,7 +11,6 @@ const links = [
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { count } = useSaved();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
@@ -40,15 +38,6 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Link to="/saved" className="btn-ghost relative">
-            <HeartIcon />
-            Saved
-            {count > 0 && (
-              <span className="ml-1 grid h-5 min-w-[20px] place-items-center rounded-full bg-clay-500 px-1 text-xs font-bold text-white">
-                {count}
-              </span>
-            )}
-          </Link>
           {user ? (
             <div className="flex items-center gap-2">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-clay-100 font-bold text-clay-700">
@@ -100,9 +89,6 @@ export default function Navbar() {
                 {l.label}
               </NavLink>
             ))}
-            <NavLink to="/saved" className={navClass} onClick={() => setOpen(false)}>
-              Saved {count > 0 && `(${count})`}
-            </NavLink>
             <div className="mt-2 flex gap-2">
               {user ? (
                 <button
@@ -144,19 +130,18 @@ export default function Navbar() {
 function Logo() {
   return (
     <svg viewBox="0 0 64 64" className="h-8 w-8">
+      {/* MediMind: medical cross + ECG pulse */}
       <rect width="64" height="64" rx="14" fill="#4285F4" />
-      {/* stem cell: membrane, nucleus and a budding daughter cell */}
-      <circle cx="29" cy="34" r="15" fill="none" stroke="#fff" strokeWidth="3.6" />
-      <circle cx="29" cy="34" r="6" fill="#fff" />
-      <circle cx="47" cy="18" r="4.5" fill="#fff" />
-    </svg>
-  );
-}
-
-function HeartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+      <rect x="27.5" y="13" width="9" height="30" rx="4.5" fill="#EA4335" />
+      <rect x="17" y="23.5" width="30" height="9" rx="4.5" fill="#EA4335" />
+      <path
+        d="M10 46 h11 l4 -9 5 16 4 -10 h20"
+        fill="none"
+        stroke="#fff"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

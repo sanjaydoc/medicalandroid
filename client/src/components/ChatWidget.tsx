@@ -1029,11 +1029,6 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
 }
 
 // Structured, eye-catching first-run greeting — replaces a plain text bubble.
-const SAMPLE_FILES = [
-  { href: `${import.meta.env.BASE_URL}samples/sample1_age64_chronic_kidney_disease.cov`, name: 'Sample 1 · Age 64', sub: 'Chronic Kidney Disease' },
-  { href: `${import.meta.env.BASE_URL}samples/sample2_age47_multiple_sclerosis.cov`, name: 'Sample 2 · Age 47', sub: 'Multiple Sclerosis' },
-];
-
 function GreetingBubble() {
   return (
     <div className="flex justify-start">
@@ -1041,55 +1036,19 @@ function GreetingBubble() {
         <p className="font-bold text-ink-900">Hi — I'm {BRAND.name}, your medical assistant 👋</p>
 
         <p className="mt-2.5 text-ink-800">
-          Ask about our therapies, or <span aria-hidden>📎</span> attach an{' '}
+          Ask a health question in any language, or <span aria-hidden>📎</span> attach an{' '}
           <span className="font-semibold text-ink-900">ECG, X-ray, MRI, CT, prescription or lab report</span>{' '}
           and I'll explain it in simple words.
         </p>
 
         <p className="mt-2.5 text-ink-800">
-          You can also <span aria-hidden>🧬</span> attach your{' '}
-          <span className="font-semibold text-ink-900">DNA-methylation file</span> (.csv / .cov) and I'll
-          compute your biological age and a personalized{' '}
-          <span className="font-semibold text-ink-900">MSC / cell-therapy or reprogramming</span> plan with
-          a safety envelope.
-        </p>
-
-        <p className="mt-2 flex items-start gap-1.5 rounded-lg bg-green-50 px-2.5 py-1.5 text-xs font-medium text-green-800 ring-1 ring-green-200/70">
-          <span aria-hidden>🔒</span>
-          <span>On your device — your genome never leaves it.</span>
+          Pick a <span className="font-semibold text-ink-900">speciality</span> above to focus the answer,
+          or just start typing.
         </p>
 
         <p className="mt-2 text-[11px] italic text-ink-700/55">
-          Educational / research support, not a diagnosis or medical advice.
+          General information, not a diagnosis — always consult a qualified clinician.
         </p>
-
-        <div className="mt-3 rounded-xl border border-clay-200 bg-clay-50/60 p-2.5">
-          <p className="text-xs font-bold text-clay-700">
-            <span aria-hidden>🧪</span> New here? Download a sample file and try the simulator:
-          </p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {SAMPLE_FILES.map((s) => (
-              <a
-                key={s.name}
-                href={s.href}
-                download
-                className="group flex items-center gap-2.5 rounded-lg bg-white p-2 ring-1 ring-cream-300 transition hover:ring-clay-400"
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-clay-500 text-white transition group-hover:scale-105">
-                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2">
-                    <path d="M12 3v12m0 0l-4-4m4 4l4-4" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" strokeLinecap="round" />
-                  </svg>
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-xs font-bold text-ink-900">{s.name}</span>
-                  <span className="block truncate text-[11px] text-ink-700/60">{s.sub}</span>
-                </span>
-              </a>
-            ))}
-          </div>
-          <p className="mt-1.5 text-[10px] text-ink-700/45">Synthetic .cov test files — not real genomes.</p>
-        </div>
       </div>
     </div>
   );

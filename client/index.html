@@ -17,10 +17,10 @@
       name="description"
       content="MediMind — an AI medical assistant. Ask health questions by speciality and get clear, general information (not a diagnosis); always consult a clinician."
     />
-    <meta name="keywords" content="stem cell therapy, HSCT, haematopoietic stem cell transplant, leukaemia, lymphoma, bone marrow transplant, MSC therapy, mesenchymal stem cells, knee osteoarthritis, CAR-T cell therapy, neural stem cells, Parkinson's disease, Alzheimer's disease, cardiac repair, heart failure, autoimmune, lupus, multiple sclerosis, type 1 diabetes islet, cord blood, CRISPR gene-edited stem cells, exosome therapy, regenerative medicine, Persona Reversal, epigenetic reprogramming" />
+    <meta name="keywords" content="AI medical assistant, ask a doctor online, symptom checker, medicine information, drug interactions, lab report explained, ECG interpretation, X-ray MRI CT explained, prescription help, post-operative care, general medicine, cardiology, dermatology, paediatrics, orthopaedics, neurology, health questions" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="author" content="MediMind" />
-    <link rel="canonical" href="https://stemcellsprotocol.com/" />
+    <link rel="canonical" href="https://medicalandroid.com/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -34,42 +34,32 @@
     <meta property="og:site_name" content="MediMind" />
     <meta property="og:title" content="MediMind — Your AI Medical Assistant" />
     <meta property="og:description" content="Ask health questions by speciality and get clear, general information. Not a diagnosis — consult a clinician." />
-    <meta property="og:url" content="https://stemcellsprotocol.com/" />
-    <meta property="og:image" content="https://stemcellsprotocol.com/pwa-512.png" />
+    <meta property="og:url" content="https://medicalandroid.com/" />
+    <meta property="og:image" content="https://medicalandroid.com/pwa-512.png" />
 
     <!-- Twitter / X card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="MediMind — Your AI Medical Assistant" />
-    <meta name="twitter:description" content="Stem-cell & regenerative therapies: HSCT, MSC, CAR-T, neural, cardiac, autoimmune, diabetes, cosmetic and gene-edited cell therapies." />
-    <meta name="twitter:image" content="https://stemcellsprotocol.com/pwa-512.png" />
+    <meta name="twitter:description" content="Ask health questions by speciality and get clear, general information. Understand medicines, lab reports and scans. Not a diagnosis — consult a clinician." />
+    <meta name="twitter:image" content="https://medicalandroid.com/pwa-512.png" />
 
     <!-- Structured data — helps Google understand the site (rich results) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "MedicalOrganization",
+      "@type": "WebApplication",
       "name": "MediMind",
-      "url": "https://stemcellsprotocol.com",
-      "logo": "https://stemcellsprotocol.com/pwa-512.png",
-      "description": "Stem-cell & regenerative-medicine platform to explore, compare and book therapies across oncology, orthopedics, neurology, cardiology, autoimmune, diabetes, cosmetic and age-rejuvenation.",
-      "medicalSpecialty": ["Hematologic","Oncologic","Musculoskeletal","Neurologic","Cardiovascular","Rheumatologic","Endocrine","PlasticSurgery"],
-      "availableService": [
-        { "@type": "MedicalTherapy", "name": "Hematopoietic Stem Cell Transplant (HSCT) for leukaemia & lymphoma" },
-        { "@type": "MedicalTherapy", "name": "Mesenchymal Stem Cell (MSC) therapy for osteoarthritis & joints" },
-        { "@type": "MedicalTherapy", "name": "CAR-T cell therapy" },
-        { "@type": "MedicalTherapy", "name": "Neural stem cell therapy (Parkinson's, Alzheimer's)" },
-        { "@type": "MedicalTherapy", "name": "Stem cell therapy for cardiac repair" },
-        { "@type": "MedicalTherapy", "name": "Stem cell therapy for autoimmune disease (lupus, MS)" },
-        { "@type": "MedicalTherapy", "name": "Islet / stem cell therapy for type 1 diabetes" },
-        { "@type": "MedicalTherapy", "name": "CRISPR gene-edited stem cell therapy" }
-      ]
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Web, Android",
+      "url": "https://medicalandroid.com",
+      "logo": "https://medicalandroid.com/pwa-512.png",
+      "description": "MediMind is an AI medical assistant. Ask health questions by speciality and get clear, general information; understand medicines, lab reports and scans. Not a diagnosis — always consult a qualified clinician."
     }
     </script>
-    <!-- Cloudflare Web Analytics (privacy-first visitor metrics) -->
-    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "9d53a24349ac4c1a88395676fb5c6c56"}'></script>
-    <!-- Secure chat proxy (Cloudflare Worker). Public URL, not a secret — the
-         Anthropic API key lives only on the Worker, never in this bundle. -->
-    <script>window.STEMCELLS_CHAT_ENDPOINT = "https://stemcells-chat.dr-sanjayanbu.workers.dev";</script>
+    <!-- Secure chat proxy. Primary path is the same-origin /api/chat relay; this
+         runtime override just names the Worker as a fallback. Public URL, not a
+         secret — the Anthropic API key lives only on the Worker. -->
+    <script>window.STEMCELLS_CHAT_ENDPOINT = "https://medicalandroid-chat.dr-sanjayanbu.workers.dev";</script>
   </head>
   <body>
     <div id="root"></div>

@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
-import { SavedProvider } from './context/SavedContext';
 import { PwaProvider } from './context/PwaContext';
 import './index.css';
 
@@ -29,11 +28,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Router>
       <AuthProvider>
-        <SavedProvider>
-          <PwaProvider>
-            <App />
-          </PwaProvider>
-        </SavedProvider>
+        <PwaProvider>
+          <App />
+        </PwaProvider>
       </AuthProvider>
     </Router>
   </React.StrictMode>

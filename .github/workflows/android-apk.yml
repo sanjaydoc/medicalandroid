@@ -66,6 +66,11 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: Generate app icon + splash (MediMind)
+        run: |
+          npm i -D @capacitor/assets
+          npx @capacitor/assets generate --android --iconBackgroundColor '#4285F4' --iconBackgroundColorDark '#4285F4'
+
       - name: Patch Gradle — dedupe Kotlin stdlib
         run: |
           cat >> android/app/build.gradle <<'EOF'

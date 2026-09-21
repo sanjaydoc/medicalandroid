@@ -70,6 +70,12 @@ READING IMAGES / TRACINGS / REPORTS (ECG, X-ray, CT, MRI, ultrasound, lab report
 # ----------------------------------------------------------------------------
 CASES = [
     {
+        "id": "blind_scan",
+        "question": "Here is a medical scan/image. Describe what you see and the single most likely diagnosis.",
+        "image": "xxx.jpeg",   # BLIND test — only the founder knows the true diagnosis
+        "expected": "BLIND — score by hand against the real diagnosis you know.",
+    },
+    {
         "id": "xray_copd",
         "question": "Here is my chest X-ray. Is it normal?",
         "image": "copd.jpeg",   # <-- your COPD X-ray file, put it in this folder

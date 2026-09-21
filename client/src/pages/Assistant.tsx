@@ -124,7 +124,11 @@ export default function Assistant() {
 
   // Full-screen chat (mobile web + app): hide the bottom nav + page chrome.
   // Always available in both Online and Offline mode.
-  const [fullscreen, setFullscreen] = useState(false);
+  // On phones, open the chat full-screen by default (clean, ChatGPT-style —
+  // hides the page chrome and fills the screen). Desktop stays windowed.
+  const [fullscreen, setFullscreen] = useState(() => {
+    try { return typeof window !== 'undefined' && window.innerWidth < 640; } catch { return false; }
+  });
   useEffect(() => {
     document.documentElement.classList.toggle('chat-fullscreen', fullscreen);
     return () => { document.documentElement.classList.remove('chat-fullscreen'); };

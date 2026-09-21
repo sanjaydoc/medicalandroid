@@ -1,0 +1,20 @@
+name = "stemcells-chat"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# Site origins allowed to call this proxy (comma-separated, no trailing slash).
+# The Capacitor Android/iOS app runs from a local WebView origin (https://localhost,
+# capacitor://localhost, http://localhost) — those must be allowed so the packaged
+# app's Online mode can reach the Worker (otherwise it 403s "Origin not allowed").
+[vars]
+ALLOWED_ORIGINS = "https://stemcellsprotocol.com,https://www.stemcellsprotocol.com,https://sanjaydoc.github.io,http://localhost:5173,https://localhost,http://localhost,capacitor://localhost"
+# Optional: override the model. Defaults to a current Sonnet inside worker.js.
+# MODEL = "claude-sonnet-4-5-20250929"
+
+# Per-IP rate limiting (20 req/min). Bound to the RATE_LIMIT KV namespace.
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "df4fd9971f6f4f97a84026cb272f4a75"
+
+# The API key is NOT stored here — it lives as an encrypted secret on the
+# Worker (set via the dashboard) and is preserved across every deploy.

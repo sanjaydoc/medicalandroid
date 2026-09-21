@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clinical Forms — StemCells Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#fdfdfc; --surface:#ffffff; --ink:#141413; --sub:#3A3733; --faint:#8592ac; --line:#e6ecf5;
+    --brand:#4285F4; --brand-deep:#2F6FE0; --brand-50:#EAF1FE; --warn:#b45309; --warn-bg:#fef4e6;
+    --neu:8px 8px 20px rgba(21,58,124,.10), -8px -8px 20px #ffffff;
+    --neu-sm:5px 5px 12px rgba(90,98,112,.14), -5px -5px 10px #ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font:14px/1.5 'Inter',system-ui,-apple-system,sans-serif;padding:0 16px;-webkit-font-smoothing:antialiased}
+  .sheet{max-width:860px;margin:0 auto;padding:24px 0 60px}
+  h1,h2{font-family:'Poppins','Inter',sans-serif;margin:0;line-height:1.2}
+  .eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-deep)}
+  h1{font-size:25px;font-weight:800;margin:6px 0 4px}
+  .sub{color:var(--sub);font-size:13.5px;max-width:74ch}
+  .toolbar{display:flex;gap:10px;margin:16px 0 8px;flex-wrap:wrap}
+  .btn{font:inherit;font-weight:700;font-size:14px;cursor:pointer;border:0;border-radius:999px;padding:10px 20px;background:var(--brand);color:#fff;box-shadow:0 5px 14px rgba(47,111,224,.28);text-decoration:none;display:inline-block}
+  .btn.ghost{background:var(--surface);color:var(--brand-deep);box-shadow:var(--neu)}
+  .form{background:var(--surface);border-radius:20px;padding:20px 22px;margin:18px 0;box-shadow:var(--neu)}
+  .form h2{font-size:18px}
+  .form .lead{color:var(--sub);font-size:12.5px;margin:4px 0 14px}
+  .pt{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+  .fld{border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+  .fld label{display:block;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint)}
+  .fld .ln{height:20px;border-bottom:1px dotted var(--faint);margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:middle}
+  th{background:var(--brand-50);color:var(--brand-deep);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+  .womac td.q{width:46%} .womac th.sc,.womac td.sc{text-align:center;width:10.8%;font-size:11px}
+  .dot{display:inline-block;width:15px;height:15px;border:1.5px solid var(--faint);border-radius:50%}
+  .sec{background:var(--brand-50);font-weight:700;color:var(--brand-deep)}
+  .vasrow{display:flex;align-items:center;gap:8px;margin:16px 0 10px}
+  .vasline{flex:1;height:34px;border:1px solid var(--line);border-radius:8px;background:linear-gradient(90deg,#e8f6ed,#fef4e6 55%,#fdeceb);position:relative}
+  .vasline span{position:absolute;top:-16px;font-size:10px;color:var(--faint)}
+  .vasend{font-size:11px;color:var(--sub);width:70px}
+  .vasbox{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .vasbox .b{border:1px solid var(--line);border-radius:8px;padding:8px;text-align:center}
+  .vasbox .b label{font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase}
+  .vasbox .b .sl{height:26px;border-bottom:1px dotted var(--faint);margin-top:4px}
+  .note{font-size:11.5px;color:var(--sub);background:var(--warn-bg);border-left:3px solid var(--warn);border-radius:8px;padding:10px 12px;margin-top:12px}
+  .scorebar{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:12px}
+  .scorebar .s{border:1px dashed var(--line);border-radius:8px;padding:8px 12px}
+  .scorebar .s b{color:var(--brand-deep)}
+  .signrow{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap}
+  .sg{flex:1;min-width:180px}.sg .sgl{height:32px;border-bottom:1px solid var(--faint)}
+  .sg label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--faint);font-weight:700;margin-top:4px}
+  .foot{margin-top:18px;font-size:11px;color:var(--faint);text-align:center}
+  [hidden]{display:none!important}
+  @media print{
+    @page{margin:12mm}
+    body{background:#fff;color:#000;padding:0;font-size:10pt}
+    .noprint{display:none!important}
+    .sheet{max-width:none;padding:0}
+    .form{box-shadow:none;border:1px solid #bbb;border-top:3px solid #2F6FE0;break-inside:avoid;page-break-inside:avoid}
+    .form.brk{break-before:page;page-break-before:always}
+    th{background:#EAF1FE!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .vasline{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <span class="eyebrow">StemCells Protocol · Regenerative Medicine</span>
+  <h1 id="title">Clinical Forms</h1>
+  <p class="sub" id="txsub">Traceability &amp; VAS apply to every therapy; a condition-specific outcome measure completes the set. Complete &amp; sign at the baseline (pre-therapy) visit, then repeat the outcome measure at follow-up.</p>
+
+  <div class="toolbar noprint">
+    <button class="btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+    <button class="btn ghost" onclick="document.querySelectorAll('input').forEach(i=>{i.checked=false;i.value=''})">Reset</button>
+  </div>
+
+  <!-- 1 · TRACEABILITY -->
+  <div class="form">
+    <h2>1 · Product Traceability Log</h2>
+    <p class="lead">Regulatory requirement for cell/biologic therapy — one row per administered dose. Record product name + batch/lot number.</p>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Date</th><th>Patient ID</th><th>Product / brand</th><th>Batch / Lot no.</th><th>Expiry</th><th>Dose &amp; site</th><th>Injector</th><th>Signature</th></tr></thead>
+      <tbody id="tracerows"></tbody>
+    </table>
+    </div>
+    <div class="note">Also note pre-medication given, cold-chain logger status on receipt, and any adverse event → report to <b>PvPI</b> &amp; the manufacturer's pharmacovigilance contact.</div>
+  </div>
+
+  <!-- 2 · VAS -->
+  <div class="form">
+    <h2>2 · Pain — Visual Analogue Scale (VAS)</h2>
+    <p class="lead">Mark the point that best represents the patient's pain over the last 48 h. Record at baseline &amp; each follow-up. Free to use.</p>
+    <div class="pt">
+      <div class="fld"><label>Patient ID</label><div class="ln"></div></div>
+      <div class="fld"><label>Date</label><div class="ln"></div></div>
+      <div class="fld"><label>Visit (baseline / 3 / 6 / 12 mo)</label><div class="ln"></div></div>
+      <div class="fld"><label>Site / joint</label><div class="ln"></div></div>
+    </div>
+    <div class="vasrow"><span class="vasend">No pain<br>0</span><div class="vasline"><span style="left:0">0</span><span style="left:25%">2.5</span><span style="left:50%">5</span><span style="left:75%">7.5</span><span style="right:0">10</span></div><span class="vasend" style="text-align:right">Worst pain<br>10</span></div>
+    <div class="vasbox">
+      <div class="b"><label>Baseline</label><div class="sl"></div></div>
+      <div class="b"><label>3 months</label><div class="sl"></div></div>
+      <div class="b"><label>6 months</label><div class="sl"></div></div>
+      <div class="b"><label>12 months</label><div class="sl"></div></div>
+    </div>
+    <div class="signrow">
+      <div class="sg"><div class="sgl"></div><label>Patient signature &amp; date</label></div>
+      <div class="sg"><div class="sgl"></div><label>Assessor / clinician &amp; date</label></div>
+    </div>
+  </div>
+
+  <!-- 3 · OUTCOME MEASURE (WOMAC for knee OA, else generic) -->
+  <div class="form brk" id="womac" hidden>
+    <h2>3 · WOMAC — Knee Osteoarthritis Index</h2>
+    <p class="lead">Rate over the last 48 h: <b>0 None · 1 Mild · 2 Moderate · 3 Severe · 4 Extreme</b>. Tick one per row (LK 3.1 format).</p>
+    <div class="pt">
+      <div class="fld"><label>Patient ID</label><div class="ln"></div></div>
+      <div class="fld"><label>Date</label><div class="ln"></div></div>
+      <div class="fld"><label>Visit</label><div class="ln"></div></div>
+      <div class="fld"><label>Knee (L / R)</label><div class="ln"></div></div>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="womac">
+      <thead><tr><th class="q">Item</th><th class="sc">0<br>None</th><th class="sc">1<br>Mild</th><th class="sc">2<br>Mod</th><th class="sc">3<br>Sev</th><th class="sc">4<br>Extr</th></tr></thead>
+      <tbody id="womacbody"></tbody>
+    </table>
+    </div>
+    <div class="scorebar">
+      <div class="s">Pain <b>/20</b></div><div class="s">Stiffness <b>/8</b></div><div class="s">Function <b>/68</b></div><div class="s">Total <b>/96</b> (lower = better)</div>
+    </div>
+    <div class="note">⚠️ <b>WOMAC® is a licensed instrument.</b> Obtain a use licence for commercial clinical use, or use <b>KOOS</b> (free, contains WOMAC). This reproduces the standard item structure for planning/education.</div>
+    <div class="signrow">
+      <div class="sg"><div class="sgl"></div><label>Patient signature &amp; date</label></div>
+      <div class="sg"><div class="sgl"></div><label>Assessor / clinician &amp; date</label></div>
+    </div>
+  </div>
+
+  <div class="form brk" id="generic" hidden>
+    <h2>3 · Outcome Measure &amp; Follow-up</h2>
+    <p class="lead">Use the <b>validated outcome measure for this condition</b> (e.g. KOOS knee · DASH shoulder/elbow · ODI spine · HOOS hip · disease-activity index for autoimmune). Record the score at each visit below.</p>
+    <div class="pt">
+      <div class="fld"><label>Patient ID</label><div class="ln"></div></div>
+      <div class="fld"><label>Outcome measure used</label><div class="ln"></div></div>
+      <div class="fld"><label>Assessor</label><div class="ln"></div></div>
+    </div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Parameter</th><th>Baseline</th><th>3 months</th><th>6 months</th><th>12 months</th></tr></thead>
+      <tbody>
+        <tr><td>Primary outcome score</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Pain (VAS 0–10)</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Function score</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Adverse events (Y/N)</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Clinician assessment</td><td style="height:30px"></td><td></td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="signrow">
+      <div class="sg"><div class="sgl"></div><label>Patient signature &amp; date</label></div>
+      <div class="sg"><div class="sgl"></div><label>Assessor / clinician &amp; date</label></div>
+    </div>
+  </div>
+
+  <div class="foot" id="foot">StemCells Protocol · clinical outcome &amp; traceability forms · verify licensing &amp; record-keeping requirements before use.</div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var p = new URLSearchParams(location.search);
+  var tx = (p.get('tx') || '').slice(0, 120).replace(/[<>]/g, '');
+  var measure = (p.get('measure') || 'generic').toLowerCase();
+  if (tx) {
+    document.getElementById('title').textContent = 'Clinical Forms — ' + tx;
+    document.title = 'Clinical Forms — ' + tx;
+    document.getElementById('txsub').textContent =
+      'For: ' + tx + '. Traceability & VAS apply to every therapy; complete & sign at the baseline (pre-therapy) visit, then repeat the outcome measure at follow-up.';
+  }
+  // traceability blank rows
+  var tr = '';
+  for (var i = 0; i < 6; i++) tr += '<tr>' + '<td style="height:30px"></td>'.repeat(8) + '</tr>';
+  document.getElementById('tracerows').innerHTML = tr;
+  // outcome measure toggle
+  var isKnee = measure === 'womac';
+  document.getElementById('womac').hidden = !isKnee;
+  document.getElementById('generic').hidden = isKnee;
+  if (isKnee) {
+    var items = [
+      ['A · PAIN (5 items)', null],
+      ['Walking on a flat surface', 1], ['Going up or down stairs', 1], ['At night while in bed', 1],
+      ['Sitting or lying', 1], ['Standing upright', 1],
+      ['B · STIFFNESS (2 items)', null],
+      ['Stiffness just after waking', 1], ['Stiffness later in the day', 1],
+      ['C · PHYSICAL FUNCTION (17 items) — difficulty in…', null],
+      ['Descending stairs', 1], ['Ascending stairs', 1], ['Rising from sitting', 1], ['Standing', 1],
+      ['Bending to the floor', 1], ['Walking on a flat surface', 1], ['Getting in / out of a car', 1],
+      ['Going shopping', 1], ['Putting on socks / stockings', 1], ['Rising from bed', 1],
+      ['Taking off socks / stockings', 1], ['Lying in bed', 1], ['Getting in / out of the bath', 1],
+      ['Sitting', 1], ['Getting on / off the toilet', 1], ['Heavy domestic duties', 1],
+      ['Light domestic duties', 1]
+    ];
+    var dot = '<td class="sc"><span class="dot"></span></td>';
+    var body = items.map(function(it){
+      if (it[1] === null) return '<tr><td class="sec" colspan="6">' + it[0] + '</td></tr>';
+      return '<tr><td class="q">' + it[0] + '</td>' + dot.repeat(5) + '</tr>';
+    }).join('');
+    document.getElementById('womacbody').innerHTML = body;
+  }
+})();
+</script>
+</body>
+</html>

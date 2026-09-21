@@ -1,0 +1,8 @@
+{
+  "appId": "com.medai.assistant",
+  "appName": "MedAI",
+  "webDir": "client/dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}

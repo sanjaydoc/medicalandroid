@@ -1,0 +1,327 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Prevent any element from causing sideways page scroll (clip is
+       position:sticky-safe, unlike overflow-x:hidden). */
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+  body {
+    @apply text-ink-900 font-sans antialiased;
+    background: #fdfdfc fixed;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full font-semibold transition
+           focus:outline-none focus-visible:ring-2 focus-visible:ring-clay-400 focus-visible:ring-offset-2;
+  }
+  .btn-primary {
+    @apply btn bg-clay-500 text-white hover:bg-clay-600 active:bg-clay-700 px-6 py-3 shadow-sm;
+  }
+  .btn-outline {
+    @apply btn border border-ink-900/15 bg-white text-ink-900 hover:border-clay-400 hover:text-clay-600 px-6 py-3;
+  }
+  .btn-ghost {
+    @apply btn text-ink-700 hover:text-clay-600 px-4 py-2;
+  }
+  .input {
+    @apply w-full rounded-xl border border-ink-900/10 bg-white px-4 py-3 text-ink-900
+           placeholder:text-ink-700/40 focus:border-clay-400 focus:outline-none focus:ring-2 focus:ring-clay-200 transition;
+  }
+  .label {
+    @apply block text-sm font-semibold text-ink-800 mb-1.5;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-cream-200 px-3 py-1 text-xs font-semibold text-ink-700;
+  }
+  .card {
+    @apply rounded-2xl bg-white shadow-card;
+  }
+  /* Soft neumorphic tile for feature / step / category icons. Blue-tinted
+     raised surface on the near-white page background, with a blue icon. */
+  .icon-tile {
+    @apply grid shrink-0 place-items-center rounded-2xl text-clay-600;
+    background: linear-gradient(145deg, #ffffff, #e6edfa);
+    box-shadow:
+      4px 4px 10px rgba(21, 58, 124, 0.12),
+      -4px -4px 10px rgba(255, 255, 255, 0.95),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  }
+  .icon-tile-dark {
+    @apply grid shrink-0 place-items-center rounded-2xl text-clay-300;
+    background: linear-gradient(145deg, #1b1b1a, #0e0e0d);
+    box-shadow:
+      4px 4px 10px rgba(0, 0, 0, 0.5),
+      -3px -3px 8px rgba(255, 255, 255, 0.04);
+  }
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+}
+
+/* Dividing stem-cell loader (shown while the assistant is generating) */
+.cell-loader {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+}
+.cell-loader .m {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid #4285f4;
+  animation: cell-pulse 1.4s ease-in-out infinite;
+}
+.cell-loader .n {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4285f4;
+  transform: translate(-50%, -50%);
+  animation: cell-nuc 1.4s ease-in-out infinite;
+}
+.cell-loader .bud {
+  position: absolute;
+  right: -2px;
+  top: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid #83a9f8;
+  animation: cell-bud 1.4s ease-in-out infinite;
+}
+@keyframes cell-pulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.6; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes cell-nuc {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.8); }
+  50% { transform: translate(-50%, -50%) scale(1.15); }
+}
+@keyframes cell-bud {
+  0%, 60% { transform: scale(0); opacity: 0; }
+  80% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1) translate(3px, -3px); opacity: 0.4; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell-loader .m,
+  .cell-loader .n,
+  .cell-loader .bud {
+    animation-duration: 3s;
+  }
+}
+
+/* Rendered Markdown inside assistant chat bubbles */
+.chat-md p {
+  margin: 0 0 0.5rem;
+}
+.chat-md > :last-child {
+  margin-bottom: 0;
+}
+.chat-md h4 {
+  font-weight: 700;
+  margin: 0.6rem 0 0.25rem;
+}
+.chat-md ul,
+.chat-md ol {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.15rem;
+}
+.chat-md ul {
+  list-style: disc;
+}
+.chat-md ol {
+  list-style: decimal;
+}
+.chat-md li {
+  margin: 0.15rem 0;
+}
+.chat-md strong {
+  font-weight: 700;
+}
+.chat-md code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+.chat-md a {
+  color: #4285f4;
+  text-decoration: underline;
+}
+.chat-md hr {
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin: 0.6rem 0;
+}
+
+/* ── Neumorphic facility-level tray (white control panel on the dark hero) ── */
+.neu-tray {
+  background: #ffffff;
+  border-radius: 26px;
+  box-shadow: 0 34px 70px -24px rgba(0, 0, 0, 0.55), 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.neu-btn {
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 6px 6px 14px rgba(21, 58, 124, 0.13), -6px -6px 14px #ffffff;
+  transition: box-shadow 0.16s ease, transform 0.16s ease;
+}
+.neu-btn:hover {
+  box-shadow: inset 5px 5px 11px rgba(21, 58, 124, 0.13), inset -5px -5px 11px #ffffff;
+}
+.neu-btn:active {
+  transform: scale(0.99);
+}
+.neu-med {
+  box-shadow: 4px 4px 9px rgba(21, 58, 124, 0.18), -4px -4px 9px #ffffff;
+}
+.neu-arw {
+  background: #ffffff;
+  box-shadow: 3px 3px 7px rgba(21, 58, 124, 0.14), -3px -3px 7px #ffffff;
+}
+
+/* ── Neumorphic facility-level cards (white, lower /protocols section) ── */
+.neu-section { background: #ffffff; }
+.neu-card {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 8px 8px 20px rgba(21, 58, 124, 0.10), -8px -8px 20px #ffffff;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.neu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 12px 12px 26px rgba(21, 58, 124, 0.14), -10px -10px 24px #ffffff;
+}
+.neu-well {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: inset 4px 4px 9px rgba(21, 58, 124, 0.11), inset -4px -4px 9px #ffffff;
+}
+
+/* ================= SITE-WIDE NEUMORPHIC THEME =================
+   Restyles the shared design-system classes so every page adopts the soft
+   neumorphic language of the Simulator / Protocols dashboards: raised soft
+   panels on the blue-grey ground (--np-*), depth from paired blue-tinted +
+   white-highlight shadows. Keeps the site's blue accents & gradients. */
+:root {
+  --np-panel: #ffffff;
+  --np-shd: rgba(90, 98, 112, 0.16);
+  --np-shl: #ffffff;
+}
+/* raised soft panel — the many .card usages become neumorphic tiles */
+.card {
+  background: var(--np-panel);
+  border-radius: 20px;
+  box-shadow: 6px 6px 15px rgba(90, 98, 112, 0.14), -6px -6px 13px var(--np-shl);
+}
+/* primary CTA keeps its accent fill but sits proud of the ground */
+.btn-primary {
+  box-shadow: 4px 5px 13px rgba(47, 111, 224, 0.26);
+}
+.btn-primary:active { box-shadow: inset 4px 4px 9px rgba(0, 0, 0, 0.22); }
+.btn-outline {
+  background: var(--np-panel);
+  border-color: transparent;
+  box-shadow: 5px 5px 12px var(--np-shd), -5px -5px 10px var(--np-shl);
+}
+.btn-outline:hover { box-shadow: inset 4px 4px 9px var(--np-shd), inset -4px -4px 9px var(--np-shl); }
+/* recessed inputs */
+.input {
+  background: var(--np-panel);
+  border: 0;
+  box-shadow: inset 4px 4px 9px var(--np-shd), inset -4px -4px 9px var(--np-shl);
+}
+.input:focus { box-shadow: inset 4px 4px 9px var(--np-shd), inset -4px -4px 9px var(--np-shl), 0 0 0 2px rgba(66, 133, 244, 0.30); }
+/* pills recessed into the ground */
+.chip {
+  background: var(--np-panel);
+  box-shadow: inset 2px 2px 5px var(--np-shd), inset -2px -2px 5px var(--np-shl);
+}
+/* raised icon tiles */
+.icon-tile {
+  background: var(--np-panel);
+  box-shadow: 5px 5px 12px var(--np-shd), -5px -5px 10px var(--np-shl);
+}
+/* =============================================================================== */
+
+/* Sweep: shared card-shadow utilities → soft drop shadow only (NO white
+   highlight, so widgets on dark bands — hero search card, chat launcher — don't
+   glow). The white-highlight neumorphism stays on .card, which sits on the ground. */
+.shadow-card { box-shadow: 5px 7px 18px rgba(90, 98, 112, 0.14) !important; }
+.shadow-card-hover:hover, .hover\:shadow-card-hover:hover { box-shadow: 7px 10px 24px rgba(90, 98, 112, 0.18) !important; }
+.hover\:shadow-card:hover { box-shadow: 5px 7px 18px rgba(90, 98, 112, 0.14) !important; }
+
+/* ===============================================================================
+   Native Android app (Capacitor) — status-bar / gesture-bar safe areas.
+   main.tsx adds .cap-native to <html> only inside the packaged app. index.html
+   sets viewport-fit=cover, so env(safe-area-inset-*) reports the real insets.
+   The status bar overlays the WebView by default (content rendered underneath);
+   reserving the top inset on the sticky header pushes the app's header below the
+   status bar and lets its background fill behind it, so nothing collides. */
+html.cap-native header.sticky {
+  padding-top: env(safe-area-inset-top, 0px);
+  background: #fff;
+}
+/* Lift the floating bottom tab bar clear of the system gesture/nav bar. */
+html.cap-native nav.fixed.bottom-3 {
+  bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ===============================================================================
+   Full-screen chat (mobile web + Android app). Assistant.tsx toggles
+   html.chat-fullscreen; the chat fills the viewport below the sticky navbar and
+   the floating bottom nav + page chrome are hidden. */
+html.chat-fullscreen body { padding: 0; }
+html.chat-fullscreen nav.fixed.bottom-3 { display: none !important; }
+html.chat-fullscreen main { padding-bottom: 0 !important; }
+html.chat-fullscreen footer { display: none !important; }
+/* Full-screen chat fills below the navbar and clears BOTH the status bar (top
+   inset) and the Android nav bar / home indicator (bottom inset). */
+.cw-fs-panel { height: calc(100dvh - 64px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+/* The Full-screen button shows only on phone-width web and inside the app. */
+.cw-fsbtn { display: none; }
+@media (max-width: 767px) { .cw-fsbtn { display: inline-flex; } }
+html.cap-native .cw-fsbtn { display: inline-flex; }
+
+/* ── 3D kit box (Kits page) — pure-white premium cuboid ── */
+.kitbox-scene { perspective: 1200px; display: flex; align-items: center; justify-content: center;
+  min-height: 360px; padding: 70px 0 80px; }
+.kitbox {
+  --bw: 280px; --bh: 158px; --bd: 190px;
+  position: relative; width: var(--bw); height: var(--bh);
+  transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(-30deg);
+  animation: kitfloat 7s ease-in-out infinite;
+}
+@keyframes kitfloat {
+  0%, 100% { transform: rotateX(-20deg) rotateY(-30deg) translateY(0); }
+  50%      { transform: rotateX(-20deg) rotateY(-30deg) translateY(-10px); }
+}
+@media (prefers-reduced-motion: reduce) { .kitbox { animation: none; } }
+.kitbox .f { position: absolute; top: 50%; left: 50%; overflow: hidden; border-radius: 5px; }
+/* pure white front & lid; sides shaded slightly for depth (matte, Apple-style) */
+.kitbox .f-front  { width: var(--bw); height: var(--bh); transform: translate(-50%,-50%) translateZ(calc(var(--bd)/2)); background: linear-gradient(160deg,#ffffff,#f6f8fc); box-shadow: inset 0 0 0 1px rgba(21,58,124,.05); }
+.kitbox .f-back   { width: var(--bw); height: var(--bh); transform: translate(-50%,-50%) rotateY(180deg) translateZ(calc(var(--bd)/2)); background: #eef2f8; }
+.kitbox .f-right  { width: var(--bd); height: var(--bh); transform: translate(-50%,-50%) rotateY(90deg) translateZ(calc(var(--bw)/2)); background: linear-gradient(160deg,#eef2f8,#e2e8f2); box-shadow: inset 0 0 0 1px rgba(21,58,124,.05); }
+.kitbox .f-left   { width: var(--bd); height: var(--bh); transform: translate(-50%,-50%) rotateY(-90deg) translateZ(calc(var(--bw)/2)); background: #e6ecf5; }
+.kitbox .f-top    { width: var(--bw); height: var(--bd); transform: translate(-50%,-50%) rotateX(90deg) translateZ(calc(var(--bh)/2)); background: linear-gradient(160deg,#ffffff,#eef2f8); box-shadow: inset 0 0 0 1px rgba(21,58,124,.05), inset 0 3px 12px rgba(255,255,255,.9); }
+.kitbox .f-bottom { width: var(--bw); height: var(--bd); transform: translate(-50%,-50%) rotateX(-90deg) translateZ(calc(var(--bh)/2)); background: #dbe2ee; }
+.kitbox-wrap { position: relative; }
+.kitbox-shadow { position: absolute; left: 50%; bottom: -22px; width: 250px; height: 30px; transform: translateX(-50%); background: rgba(21,58,124,.16); filter: blur(18px); border-radius: 50%; }
+/* subtle lid seam on the front */
+.kitbox .f-front::after { content: ""; position: absolute; left: 0; right: 0; top: 30%; height: 1px; background: rgba(21,58,124,.07); }

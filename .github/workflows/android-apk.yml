@@ -1,0 +1,97 @@
+name: Build Android APK
+
+# Builds the Capacitor Android app and uploads the debug APK as a workflow
+# artifact (download from the Actions run). CI has open network, so the Android
+# SDK + Gradle + Google Maven all resolve — unlike the dev sandbox.
+#
+# Trigger: run manually from the Actions tab, or bump .github/apk-build.txt on
+# main (scoped so ordinary pushes never rebuild the APK).
+#
+# Build-time env comes from repository Secrets (Settings → Secrets and variables
+# → Actions): VITE_CHAT_ENDPOINT (the new Worker URL), VITE_SUPABASE_URL,
+# VITE_SUPABASE_KEY. Missing ones just build an app with that feature disabled.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/apk-build.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 platforms;android-34 build-tools;35.0.0 build-tools;34.0.0'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm i -D @capacitor/cli
+          npm i @capacitor/core @capacitor/android
+
+      - name: Build web app
+        env:
+          VITE_CHAT_ENDPOINT: ${{ secrets.VITE_CHAT_ENDPOINT }}
+          VITE_CHAT_RELAY: ${{ secrets.VITE_CHAT_RELAY }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_KEY }}
+          # HashRouter build — the packaged app is served from a local origin with
+          # no server rewrites, so hash routing is refresh-safe.
+          VITE_STATIC: 'true'
+        run: npm --prefix client run build
+
+      - name: Add & sync Android project
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Patch Gradle — dedupe Kotlin stdlib
+        run: |
+          cat >> android/app/build.gradle <<'EOF'
+
+          // CI fix: Kotlin 1.8+ merged jdk7/jdk8 into the main stdlib; drop the
+          // legacy artifacts to avoid duplicate classes.
+          configurations.all {
+              resolutionStrategy {
+                  force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24'
+              }
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+          }
+          EOF
+
+      - name: Build debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk medai.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: medai-android-apk
+          path: medai.apk
+          if-no-files-found: error

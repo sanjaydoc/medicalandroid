@@ -85,6 +85,24 @@ export default function Assistant() {
     else { setSpec(label); setSpecOpen(false); }
   };
 
+  // Handoff from the home page: a question (+ optional speciality) stashed in
+  // sessionStorage. Apply the speciality and auto-send the question once.
+  const [initialQ, setInitialQ] = useState('');
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('medai_pending');
+      if (!raw) return;
+      sessionStorage.removeItem('medai_pending');
+      const pending = JSON.parse(raw) as { q?: string; spec?: string };
+      if (pending.spec && SPECIALTIES.some((s) => s.label === pending.spec)) {
+        setSpec(pending.spec);
+        setSpecOpen(false);
+      }
+      if (pending.q && pending.q.trim()) setInitialQ(pending.q.trim());
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Online (cloud assistant) vs Offline (on-device LSM + local model). Only the
   // packaged Android app shows this switch. v1 ships ONLINE-FIRST: the on-device
   // engine isn't built yet, so default to Online (respect a saved preference).
@@ -448,7 +466,7 @@ export default function Assistant() {
         {/* chat */}
         {!needsModel && (
           <section className="asd-panel asd-neu asd-chat">
-            <ChatWidget fullPage specialty={spec} offline={NATIVE ? offline : undefined} fullscreen={fullscreen} canFullscreen={canFullscreen} onToggleFullscreen={() => setFullscreen((v) => !v)} />
+            <ChatWidget fullPage specialty={spec} initialMessage={initialQ} offline={NATIVE ? offline : undefined} fullscreen={fullscreen} canFullscreen={canFullscreen} onToggleFullscreen={() => setFullscreen((v) => !v)} />
           </section>
         )}
 

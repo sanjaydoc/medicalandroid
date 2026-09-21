@@ -11,18 +11,19 @@ export const BRAND = {
   supportEmail: 'dr.sanjay@stemcellsprotocol.com',
 };
 
-// Speciality quick-picks for the home + assistant.
+// Speciality quick-picks for the home. Labels MUST match the Assistant's
+// SPECIALTIES labels so a pick carries over cleanly on the handoff.
 export const SPECIALITIES: string[] = [
-  'General Medicine',
+  'General Physician',
   'Cardiology',
-  'Dermatology',
-  'Pediatrics',
-  'Orthopedics',
   'Neurology',
-  'Gynaecology',
-  'Psychiatry',
-  'Gastroenterology',
-  'Pulmonology',
+  'Orthopedics',
+  'Oncology & Haematology',
   'Endocrinology',
-  'ENT',
+  'Pulmonology',
+  'Nephrology',
+  'Dermatology',
+  'Ophthalmology',
+  'Dentistry',
+  'Regenerative Medicine',
 ];

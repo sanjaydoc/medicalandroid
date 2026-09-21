@@ -109,7 +109,7 @@ const OFFLINE_KEY = 'stemcells_chat_offline_v1';
 // this is always false, so the online/offline toggle never shows.
 const NATIVE_APP = isNativeApp();
 
-export default function ChatWidget({ fullPage = false, specialty = '', offline: offlineProp, fullscreen = false, onToggleFullscreen, canFullscreen = true }: { fullPage?: boolean; specialty?: string; offline?: boolean; fullscreen?: boolean; onToggleFullscreen?: () => void; canFullscreen?: boolean }) {
+export default function ChatWidget({ fullPage = false, specialty = '', offline: offlineProp, fullscreen = false, onToggleFullscreen, canFullscreen = true, initialMessage = '' }: { fullPage?: boolean; specialty?: string; offline?: boolean; fullscreen?: boolean; onToggleFullscreen?: () => void; canFullscreen?: boolean; initialMessage?: string }) {
   // Persist the open state for the browser session so a remount (e.g. a mobile
   // browser reloading the page after the native file picker, or a parent
   // re-render) does not "kick the user out" of the chat mid-upload.
@@ -584,6 +584,18 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       abortRef.current = null;
     }
   };
+
+  // Auto-send a question handed over from the home page (once, on mount).
+  const initSentRef = useRef(false);
+  useEffect(() => {
+    if (initSentRef.current) return;
+    const msg = (initialMessage || '').trim();
+    if (!msg) return;
+    initSentRef.current = true;
+    const id = setTimeout(() => { void send(msg); }, 0);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMessage]);
 
   const stop = () => abortRef.current?.abort();
 

@@ -48,7 +48,7 @@ export default function Admin() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [tab, setTab] = useState<(typeof TABLES)[number]['key']>('consultations');
+  const [tab, setTab] = useState<(typeof TABLES)[number]['key']>('chat_logs');
   const [rows, setRows] = useState<Row[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [dataLoading, setDataLoading] = useState(false);
@@ -101,8 +101,6 @@ export default function Admin() {
       setCounts(nextCounts);
 
       let q = supabase.from(tab).select('*');
-      // Waiting list: priority patients (methylation test uploaded) first.
-      if (tab === 'waitlist') q = q.order('priority', { ascending: false });
       // Page views: hide internal admin-page traffic from the analytics.
       if (tab === 'page_views') q = q.neq('page', 'Admin');
       q = q.order('created_at', { ascending: false }).limit(1000);
@@ -411,7 +409,7 @@ export default function Admin() {
             </thead>
             <tbody className="text-ink-900">
               {filtered.map((r, i) => (
-                <tr key={r.id || i} className={`border-t border-cream-200 align-top ${tab === 'waitlist' && r.priority ? 'bg-clay-50' : ''}`}>
+                <tr key={r.id || i} className="border-t border-cream-200 align-top">
                   {active.cols.map((c) => (
                     <td key={c} className="max-w-[280px] px-4 py-2.5">
                       <div className="line-clamp-4 whitespace-pre-wrap break-words">

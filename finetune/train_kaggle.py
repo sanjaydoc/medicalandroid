@@ -49,7 +49,7 @@ model = FastModel.get_peft_model(
     model,
     r=16,
     lora_alpha=32,
-    lora_dropout=0.0,
+    lora_dropout=0.05,
     bias="none",
     finetune_vision_layers=False,
     finetune_language_layers=True,
@@ -86,13 +86,13 @@ trainer = SFTTrainer(
         max_seq_length=MAX_SEQ,
         per_device_train_batch_size=2,
         gradient_accumulation_steps=4,
-        warmup_steps=5,
-        num_train_epochs=1,          # bump to 2-3 for a bigger run
-        learning_rate=2e-4,
+        warmup_ratio=0.05,
+        num_train_epochs=3,          # v6: 3 epochs on the smaller, cleaner set
+        learning_rate=5e-5,          # v6: low LR to avoid catastrophic forgetting
         logging_steps=10,
         optim="adamw_8bit",
         weight_decay=0.01,
-        lr_scheduler_type="linear",
+        lr_scheduler_type="cosine",
         seed=42,
         output_dir="outputs",
         report_to="none",
@@ -139,7 +139,7 @@ DONE. Next:
     the meddroid.part.* files and rejoin them:
         Windows:  copy /b meddroid.part.aa + meddroid.part.ab + ... medgemma-4b-it.Q4_K_M.gguf
   - Also grab medgemma-4b-it.F16-mmproj.gguf and Modelfile.
-  - In Ollama:  ollama create meddroid-v3 -f Modelfile
-  - Benchmark:  set MEDGEMMA_MODEL=meddroid-v3 and run benchmark_medical.py
-    (meddroid-v3 vs base medgemma vs claude). Ship only if it's better.
+  - In Ollama:  ollama create meddroid-v6 -f Modelfile
+  - Benchmark:  set MEDGEMMA_MODEL=meddroid-v6 and run benchmark_medical.py
+    (meddroid-v6 vs base medgemma vs claude). Ship only if it's better.
 """)

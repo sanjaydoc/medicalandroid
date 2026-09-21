@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """
-MedDroid fine-tune — Step 1: build the training dataset.
+MedDroid fine-tune — Step 1: build the training dataset (v6 recipe).
 
-Pulls a few OPENLY-LICENSED medical Q&A datasets, formats them into chat JSONL
-({"messages":[system,user,assistant]}), and weights in your hand-written gold
-seed examples (seed_examples.jsonl) so the model learns MedDroid's voice, safety
-framing and multilingual style.
+v3 lesson: large MULTIPLE-CHOICE sets (medmcqa/medqa) taught a terse
+"the answer is X" style and CORRUPTED MedGemma's factual grounding (it gave an
+8 g/day paracetamol dose and missed a COPD X-ray). v6 fixes this:
+  - DROP the MCQ datasets entirely.
+  - Use conversational prose only: real doctor-patient Q&A (ChatDoctor),
+    medication Q&A, and a little PubMedQA for grounding.
+  - Weight the hand-written MedDroid gold seeds heavily so the model learns the
+    VOICE + safety framing without the generic data overwriting its knowledge.
 
 RULE: only open datasets + your own curated data. NEVER Claude/GPT outputs.
 
-Run (Kaggle / Colab / laptop):
+Run:
     pip install datasets
-    python build_dataset.py
-    # -> writes train.jsonl and val.jsonl next to this file
-
-Tune the SAMPLES numbers to make it bigger/smaller. Each source is wrapped in
-try/except, so if one won't download the rest still work.
+    python build_dataset.py           # -> train.jsonl + val.jsonl
 """
 import json
 import random
@@ -29,17 +29,18 @@ SYSTEM = ("You are MedDroid, an AI medical assistant. Give clear, genuinely usef
           "diagnosis or individualised prescription. Detect the user's language and reply in it. "
           "Lead with emergency advice for red-flag symptoms.")
 
-# How many examples to take from each source (raise for a bigger run).
-SAMPLES = {"medmcqa": 3000, "pubmedqa": 1000, "medqa": 2000, "medicationqa": 700}
-SEED_WEIGHT = 5   # repeat each gold seed example this many times (style weighting)
+# Conversational / prose sources only — NO multiple-choice sets.
+SAMPLES = {"chatdoctor": 2200, "medicationqa": 700, "pubmedqa": 400}
+SEED_WEIGHT = 14        # repeat each gold seed this many times (strong voice weighting)
 VAL_FRACTION = 0.05
 
-rows = []  # list of {"messages":[...]}
+rows = []
 
 def add(user, assistant):
     user = (user or "").strip()
     assistant = (assistant or "").strip()
-    if len(user) < 8 or len(assistant) < 20:
+    # keep substantive prose only; skip stubs and very short answers
+    if len(user) < 12 or len(assistant) < 40:
         return
     rows.append({"messages": [
         {"role": "system", "content": SYSTEM},
@@ -56,32 +57,16 @@ def try_load(fn, name):
         print(f"  {name}: SKIPPED ({e})")
 
 # ------------------------------------------------------------------ sources ---
-def load_medmcqa():
+def load_chatdoctor():
+    # Real patient question -> doctor answer (HealthCareMagic). Conversational.
     from datasets import load_dataset
-    ds = load_dataset("openlifescienceai/medmcqa", split="train")
-    ds = ds.shuffle(seed=42).select(range(min(SAMPLES["medmcqa"], len(ds))))
-    letters = ["opa", "opb", "opc", "opd"]
+    ds = load_dataset("lavita/ChatDoctor-HealthCareMagic-100k", split="train")
+    ds = ds.shuffle(seed=42).select(range(min(SAMPLES["chatdoctor"], len(ds))))
     for r in ds:
-        opts = [r["opa"], r["opb"], r["opc"], r["opd"]]
-        correct = opts[r["cop"]]
-        exp = (r.get("exp") or "").strip()
-        ans = f"The most likely answer is **{correct}**." + (f" {exp}" if exp else "")
-        add(r["question"], ans)
-
-def load_pubmedqa():
-    from datasets import load_dataset
-    ds = load_dataset("pubmed_qa", "pqa_labeled", split="train")
-    ds = ds.shuffle(seed=42).select(range(min(SAMPLES["pubmedqa"], len(ds))))
-    for r in ds:
-        add(r["question"], r.get("long_answer"))
-
-def load_medqa():
-    from datasets import load_dataset
-    ds = load_dataset("GBaker/MedQA-USMLE-4-options", split="train")
-    ds = ds.shuffle(seed=42).select(range(min(SAMPLES["medqa"], len(ds))))
-    for r in ds:
-        ans = r.get("answer") or ""
-        add(r["question"], f"The most likely answer is **{ans}**.")
+        q = (r.get("input") or "").strip()
+        a = (r.get("output") or "").strip()
+        if a and len(a) > 40:
+            add(q, a)
 
 def load_medicationqa():
     from datasets import load_dataset
@@ -92,11 +77,17 @@ def load_medicationqa():
         a = r.get("Answer") or r.get("answer")
         add(q, a)
 
-print("Loading open datasets…")
-try_load(load_medmcqa, "medmcqa (India MCQ)")
-try_load(load_pubmedqa, "pubmedqa")
-try_load(load_medqa, "medqa (USMLE)")
+def load_pubmedqa():
+    from datasets import load_dataset
+    ds = load_dataset("pubmed_qa", "pqa_labeled", split="train")
+    ds = ds.shuffle(seed=42).select(range(min(SAMPLES["pubmedqa"], len(ds))))
+    for r in ds:
+        add(r["question"], r.get("long_answer"))
+
+print("Loading open conversational datasets (no MCQ)…")
+try_load(load_chatdoctor, "chatdoctor (patient-doctor)")
 try_load(load_medicationqa, "medicationqa")
+try_load(load_pubmedqa, "pubmedqa")
 
 # ------------------------------------------------------- gold seed examples ---
 seed_path = HERE / "seed_examples.jsonl"
@@ -120,4 +111,4 @@ dump(HERE / "train.jsonl", train)
 dump(HERE / "val.jsonl", val)
 print(f"\nTotal {len(rows)} examples  ->  train {len(train)} / val {len(val)}")
 print("Wrote train.jsonl and val.jsonl")
-print("Next: Step 2 — QLoRA fine-tune with Unsloth on Kaggle/Colab.")
+print("Next: Step 2 — QLoRA fine-tune with Unsloth (v6: low LR, 3 epochs).")

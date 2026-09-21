@@ -1,15 +1,15 @@
-# CLAUDE.md — MedAI (project memory)
+# CLAUDE.md — MedicalAndroid (project memory)
 
 Auto-loaded each session. Durable memory so no one re-reads chat history.
 
 ## What this is
-**MedAI** — an AI **medical assistant** web + Android app. ChatGPT-style home
+**MedicalAndroid** — an AI **medical assistant** web + Android app. ChatGPT-style home
 (centered "Where should we begin?" + ask box) rendered in the **StemCells Protocol
 Simulator's white neumorphic theme** (`.simd`). Users pick a **speciality** and ask
 medical questions; answers are general information (NOT diagnosis), with an
 escalate-to-clinician stance. Founder: **Dr. Sanjay Anbu**.
 
-Working name "MedAI" is a **placeholder** — rename in one place: `client/src/brand.ts`.
+Working name "MedicalAndroid" is a **placeholder** — rename in one place: `client/src/brand.ts`.
 
 ## Origin
 Forked from the `sanjaydoc/stemcellsprotocol` client to reuse its exact theme +
@@ -24,7 +24,7 @@ delete them when convenient. `App.tsx` routes only: `/` (home), `/assistant`,
   the `clay`/`cream`/`ink` Tailwind palette, Inter/Poppins.
 - **Home:** `client/src/pages/Home.tsx` — ChatGPT-style, own chrome (Navbar hidden
   on `/`). Submitting the ask box stashes `{q, spec}` in `sessionStorage`
-  (`medai_pending`) and routes to `/assistant`. (TODO: have Assistant consume it.)
+  (`medicalandroid_pending`) and routes to `/assistant`. (TODO: have Assistant consume it.)
 - **Assistant/ChatWidget:** reused from StemCells — speciality selector, Online/
   Offline toggle, upload reading, chat logging.
 - **Admin:** `client/src/pages/Admin.tsx` — Supabase-backed KPI cards, per-day
@@ -42,7 +42,7 @@ delete them when convenient. `App.tsx` routes only: `/` (home), `/assistant`,
   StemCells DB. Create tables (`chat_logs`, `signups`, …) with INSERT-only RLS +
   a SELECT policy for the authenticated admin (mirror the StemCells setup).
 - **Hosting:** Cloudflare Pages (build output `client/dist`), + Capacitor Android
-  (`capacitor.config.json`: appId `com.medai.assistant`, webDir `client/dist`).
+  (`capacitor.config.json`: appId `com.medicalandroid.app`, webDir `client/dist`).
 - See `client/.env.example` for all env vars.
 
 ## Build
@@ -56,7 +56,7 @@ delete them when convenient. `App.tsx` routes only: `/` (home), `/assistant`,
 - Never present AI output as a diagnosis, prescription, or personal dose.
 
 ## Open TODOs
-- Wire the home ask box query into the Assistant (read `medai_pending`).
+- Wire the home ask box query into the Assistant (read `medicalandroid_pending`).
 - Trim/delete the unrouted stem-cell pages + unused deps (three.js, jsPDF, sim/).
 - Rebrand remaining copied strings + swap logo/icons + PWA manifest/name.
 - Create the Supabase project + tables; deploy the new Worker; set env; wire the

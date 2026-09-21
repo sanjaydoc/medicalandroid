@@ -84,7 +84,7 @@ export default function Home() {
   const go = (question?: string) => {
     const text = (question ?? q).trim();
     try {
-      sessionStorage.setItem('medai_pending', JSON.stringify({ q: text, spec }));
+      sessionStorage.setItem('medicalandroid_pending', JSON.stringify({ q: text, spec }));
     } catch { /* ignore */ }
     nav('/assistant');
   };

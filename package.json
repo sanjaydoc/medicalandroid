@@ -1,7 +1,7 @@
 {
   "name": "medicalandroid",
   "version": "1.0.0",
-  "description": "MedAI — AI medical assistant (web + Android). ChatGPT-style home in the StemCells Simulator theme, speciality chat, Supabase admin.",
+  "description": "MedicalAndroid — AI medical assistant (web + Android). ChatGPT-style home in the StemCells Simulator theme, speciality chat, Supabase admin.",
   "private": true,
   "scripts": {
     "build": "npm --prefix client run build",

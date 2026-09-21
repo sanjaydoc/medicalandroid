@@ -1,6 +1,6 @@
 {
-  "appId": "com.medai.assistant",
-  "appName": "MedAI",
+  "appId": "com.medicalandroid.app",
+  "appName": "MedicalAndroid",
   "webDir": "client/dist",
   "android": {
     "allowMixedContent": false

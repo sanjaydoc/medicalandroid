@@ -41,8 +41,8 @@ model, tokenizer = FastModel.from_pretrained(
 # v3/v6 (r=8) = a lighter touch = less weight drift = less risk to facts.
 model = FastModel.get_peft_model(
     model,
-    r=8,
-    lora_alpha=16,
+    r=16,
+    lora_alpha=32,
     lora_dropout=0.05,
     bias="none",
     finetune_vision_layers=False,
@@ -96,7 +96,7 @@ trainer.train()
 model.save_pretrained("outputs/lora"); tokenizer.save_pretrained("outputs/lora")
 print("saved LoRA adapter -> outputs/lora")
 try:
-    model.save_pretrained_gguf("outputs", tokenizer, quantization_method="q4_k_m")
+    model.save_pretrained_gguf("outputs", tokenizer, quantization_method="q5_k_m")
     print("Exported GGUF.")
 except Exception as e:
     print("GGUF export failed:", e)
@@ -104,8 +104,8 @@ except Exception as e:
 # ---- 6. split the GGUF into ~500MB parts for reliable download ----
 import glob as _glob, os as _os
 _ggufs = sorted(set(_glob.glob("outputs*/**/*.gguf", recursive=True) + _glob.glob("outputs*/*.gguf")))
-_q4 = [g for g in _ggufs if "q4" in g.lower()]
-_target = _q4[0] if _q4 else (_ggufs[0] if _ggufs else None)
+_main = [g for g in _ggufs if "mmproj" not in g.lower()]  # language model, not the vision projector
+_target = _main[0] if _main else (_ggufs[0] if _ggufs else None)
 if _target:
     _d = _os.path.dirname(_target) or "."
     _b = _os.path.basename(_target)

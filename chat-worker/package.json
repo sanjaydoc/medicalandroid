@@ -1,8 +1,8 @@
 {
-  "name": "stemcells-chat",
+  "name": "medicalandroid-chat",
   "private": true,
   "version": "1.0.0",
-  "description": "Secure chat proxy (Cloudflare Worker) for StemCells Protocol",
+  "description": "Secure chat proxy (Cloudflare Worker) for MedDroid (medicalandroid.com)",
   "scripts": {
     "build": "echo \"No build step needed for the chat worker\""
   }

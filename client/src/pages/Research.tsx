@@ -64,6 +64,40 @@ export default function Research() {
         </p>
       </div>
 
+      {/* Milestone: MedDroid-v9 */}
+      <div className="mx-auto mt-12 max-w-4xl">
+        <div className="card overflow-hidden border-l-4" style={{ borderLeftColor: '#4285F4' }}>
+          <div className="p-6 sm:p-8">
+            <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" style={{ background: '#e8f0fe', color: '#2F6FE0' }}>
+              Milestone · MedDroid-v9
+            </span>
+            <h2 className="mt-3 font-display text-2xl font-extrabold text-ink-900">
+              Our first in-house model just passed its safety benchmark
+            </h2>
+            <p className="mt-3 text-sm text-ink-700/80">
+              After two honest attempts that we measured and set aside, <strong>MedDroid-v9</strong> — our own
+              medical model, fine-tuned from Google's open <strong>MedGemma</strong> — cleared our internal
+              safety benchmark. The breakthrough: we trained it only on <em>language and communication style</em>,
+              never on medical facts, so it gained a warmer, multilingual voice <em>without</em> losing the base
+              model's knowledge.
+            </p>
+            <ul className="mt-4 grid gap-2 text-sm text-ink-700/80 sm:grid-cols-2">
+              <li>✅ Answers in Tamil, Hindi &amp; more — not just English</li>
+              <li>✅ Clear, structured, patient-friendly replies</li>
+              <li>✅ Reads chest X-rays as well as before</li>
+              <li>✅ Kept everyday medicine facts accurate</li>
+              <li>✅ Zero dangerous errors on our benchmark</li>
+              <li>✅ Compact enough to run offline on a phone</li>
+            </ul>
+            <p className="mt-4 text-xs text-ink-700/60">
+              Educational information only — not a diagnosis. Our live assistant still uses proven frontier AI
+              models for complex questions, and exact drug dosing is grounded in a standard reference. We only
+              put a model in front of you once it clears our safety tests.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Why in-house */}
       <div className="mx-auto mt-14 max-w-4xl">
         <h2 className="text-center font-display text-2xl font-extrabold text-ink-900 sm:text-3xl">Why build our own?</h2>
@@ -105,24 +139,26 @@ export default function Research() {
           </div>
           <div className="grid gap-0 sm:grid-cols-3">
             <div className="p-6 sm:p-7">
-              <span className="chip bg-clay-100 text-clay-700">Today</span>
+              <span className="chip bg-clay-100 text-clay-700">Done</span>
               <p className="mt-3 text-sm text-ink-700/75">
-                The assistant is live on the web and Android, backed by a strong cloud model — and, in the app,
-                on-device models that already answer with no internet.
+                <strong>MedDroid-v9</strong> — our first in-house model — passed our safety benchmark:
+                multilingual, well-structured, strong at reading scans, with everyday medicine facts intact and
+                zero dangerous errors.
               </p>
             </div>
             <div className="border-t border-cream-200 p-6 sm:border-l sm:border-t-0 sm:p-7">
               <span className="chip bg-clay-100 text-clay-700">In progress</span>
               <p className="mt-3 text-sm text-ink-700/75">
-                Training and fine-tuning our own medical model on in-house hardware, grounded in WHO dosing,
-                and packaging it to run efficiently on everyday phones.
+                Broadening to more Indian languages and deeper answers, and grounding drug dosing in a standard
+                reference with safety guardrails — while the live assistant keeps using proven frontier models
+                for complex questions.
               </p>
             </div>
             <div className="border-t border-cream-200 p-6 sm:border-l sm:border-t-0 sm:p-7">
               <span className="chip bg-clay-100 text-clay-700">Next</span>
               <p className="mt-3 text-sm text-ink-700/75">
-                Safety benchmarking against known cases, wider language coverage, and tighter guardrails for
-                reading reports and scans.
+                On-device deployment of our model in the app, wider safety benchmarking (scans, reports, more
+                languages), and smarter checks that know when to defer to a doctor.
               </p>
             </div>
           </div>

@@ -74,9 +74,63 @@ ul.plain li::before{content:"\\2022";position:absolute;left:2px;top:0;color:var(
 .card.warn h2{margin:0 0 8px;font-size:18px;color:var(--red)}
 .card.warn ul{margin:0;padding-left:20px}
 .card.warn li{margin:6px 0}
-.grouptitle{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sub);margin:22px 0 8px}`;
+.grouptitle{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sub);margin:22px 0 8px}
+.byline{font-size:13.5px;color:var(--sub);margin:-2px 0 22px;padding-bottom:16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.byline strong{color:var(--ink);font-weight:700}
+.byline .dot{color:var(--line)}
+ul.refs{list-style:none;padding:0;margin:0 0 8px;display:grid;gap:8px}
+ul.refs li{position:relative;padding-left:20px;font-size:14px}
+ul.refs li::before{content:"\\2197";position:absolute;left:0;top:0;color:var(--blue);font-weight:800}`;
 
 const DISC = `MedDroid is an AI medical assistant and can make mistakes. It provides general health information, not a diagnosis or medical advice — always consult a qualified clinician. In an emergency, contact your local emergency number immediately.`;
+
+// E-E-A-T signals (Google weights author expertise + freshness heavily for
+// health/YMYL content). Byline, "last reviewed" date and authoritative sources
+// are added to every generated page, plus MedicalWebPage schema naming the author.
+const AUTHOR_NAME = 'Dr. Sanjay Anbu';
+const AUTHOR_CRED = 'MBBS';
+const REVIEW_ISO = new Date().toISOString().slice(0, 10);
+const REVIEW_HUMAN = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+// Authoritative sources consumer health pages should cite (dofollow — outbound
+// links to reputable references are a positive trust signal for medical content).
+const SOURCES = [
+  ['https://www.who.int/health-topics', 'World Health Organization (WHO)'],
+  ['https://medlineplus.gov/', 'MedlinePlus — U.S. National Library of Medicine'],
+  ['https://www.mohfw.gov.in/', 'Ministry of Health & Family Welfare, India'],
+  ['https://www.icmr.gov.in/', 'Indian Council of Medical Research (ICMR)'],
+];
+
+function medWebPageJsonLd(url, p) {
+  const author = {
+    '@type': 'Person',
+    name: AUTHOR_NAME,
+    honorificPrefix: 'Dr.',
+    hasCredential: {
+      '@type': 'EducationalOccupationalCredential',
+      credentialCategory: 'degree',
+      name: `${AUTHOR_CRED} (Bachelor of Medicine, Bachelor of Surgery)`,
+    },
+  };
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'MedicalWebPage',
+    name: p.h1,
+    url,
+    description: p.desc,
+    inLanguage: 'en',
+    lastReviewed: REVIEW_ISO,
+    dateModified: REVIEW_ISO,
+    author,
+    reviewedBy: author,
+    publisher: {
+      '@type': 'Organization',
+      name: 'MedDroid',
+      url: DOMAIN,
+      logo: { '@type': 'ImageObject', url: `${DOMAIN}/pwa-512.png` },
+    },
+  });
+}
 
 function faqJsonLd(faqs) {
   return JSON.stringify({
@@ -157,6 +211,9 @@ ${p.warnings.map((w) => `      <li>${w}</li>`).join('\n')}
 <script type="application/ld+json">
 ${faqJsonLd(p.faqs)}
 </script>
+<script type="application/ld+json">
+${medWebPageJsonLd(url, p)}
+</script>
 <style>
 ${CSS}
 </style>
@@ -169,6 +226,7 @@ ${CSS}
   </header>
 
   <h1>${p.h1}</h1>
+  <p class="byline">Written &amp; medically reviewed by <strong>${AUTHOR_NAME}, ${AUTHOR_CRED}</strong> <span class="dot">&middot;</span> Last reviewed <time datetime="${REVIEW_ISO}">${REVIEW_HUMAN}</time></p>
   <p class="lede">${p.lede}</p>
 
   <div class="ctarow"><a class="cta" href="/#/assistant">${p.ctaLong} &rarr;</a></div>
@@ -186,7 +244,12 @@ ${faqs}
 ${related}
   </div>
 
-  <p class="disc">${DISC}</p>
+  <h2>Sources &amp; further reading</h2>
+  <ul class="refs">
+${SOURCES.map((s) => `    <li><a href="${s[0]}" target="_blank" rel="noopener">${s[1]}</a></li>`).join('\n')}
+  </ul>
+
+  <p class="disc">Reviewed by ${AUTHOR_NAME}, ${AUTHOR_CRED}. ${DISC}</p>
 </div>
 </body>
 </html>

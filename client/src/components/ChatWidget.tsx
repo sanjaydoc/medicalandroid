@@ -720,7 +720,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                   ))}
                 </div>
               )}
-              <div className="mb-2 hidden flex-wrap items-center gap-x-1.5 gap-y-2 text-xs text-ink-700/60 sm:flex">
+              <div className="mb-2 flex flex-wrap items-center gap-x-1.5 gap-y-2 text-xs text-ink-700/60">
                 <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="9" />
                   <path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18" />

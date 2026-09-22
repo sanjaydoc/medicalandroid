@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
+import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './context/AuthContext';
 import { PwaProvider } from './context/PwaContext';
 import './index.css';
@@ -26,13 +27,15 @@ try {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Router>
-      <AuthProvider>
-        <PwaProvider>
-          <App />
-        </PwaProvider>
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <PwaProvider>
+            <App />
+          </PwaProvider>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   </React.StrictMode>
 );
 

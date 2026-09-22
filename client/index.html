@@ -66,6 +66,45 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- White-screen self-heal. If the app never mounts within a few seconds
+         (e.g. a stale service-worker cache serving asset URLs that no longer
+         exist after a deploy), clear all caches, unregister service workers and
+         reload ONCE. Guarded by sessionStorage so it can never loop. This runs
+         even when the JS bundle fails to load, which an in-app error boundary
+         cannot catch. -->
+    <script>
+      (function () {
+        var KEY = 'md_selfheal';
+        function rootEmpty() {
+          var r = document.getElementById('root');
+          return !r || r.childElementCount === 0;
+        }
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            if (!rootEmpty()) return; // app rendered fine
+            try { if (sessionStorage.getItem(KEY)) return; } catch (e) {}
+            try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+            var reload = function () { location.reload(); };
+            var jobs = [];
+            try {
+              if ('caches' in window) {
+                jobs.push(caches.keys().then(function (ks) {
+                  return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+                }));
+              }
+            } catch (e) {}
+            try {
+              if ('serviceWorker' in navigator) {
+                jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) {
+                  return Promise.all(rs.map(function (r) { return r.unregister(); }));
+                }));
+              }
+            } catch (e) {}
+            Promise.all(jobs).then(reload, reload);
+          }, 8000);
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

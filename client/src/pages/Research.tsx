@@ -98,6 +98,31 @@ export default function Research() {
         </div>
       </div>
 
+      {/* Get the model — open source links */}
+      <div className="mx-auto mt-8 max-w-4xl">
+        <div className="card p-6 sm:p-7">
+          <span className="chip bg-clay-100 text-clay-700">Open source</span>
+          <h2 className="mt-3 font-display text-xl font-extrabold text-ink-900">Get MedDroid-v9</h2>
+          <p className="mt-2 text-sm text-ink-700/75">
+            Our first in-house model is openly published. Explore it, or run it locally in one command:
+          </p>
+          <div className="mt-3 overflow-x-auto rounded-xl bg-ink-900 px-4 py-3 font-mono text-sm text-white">
+            ollama run drsanjayanbu/meddroid-v9
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <a href="https://huggingface.co/CryptoGod97/meddroid-v9" target="_blank" rel="noopener noreferrer" className="btn-primary px-5 py-2.5">
+              View on Hugging Face
+            </a>
+            <a href="https://ollama.com/drsanjayanbu/meddroid-v9" target="_blank" rel="noopener noreferrer" className="btn-outline px-5 py-2.5">
+              View on Ollama
+            </a>
+          </div>
+          <p className="mt-3 text-xs text-ink-700/60">
+            Educational use only — not a medical device. Built on Google MedGemma 4B under the HAI-DEF licence.
+          </p>
+        </div>
+      </div>
+
       {/* Why in-house */}
       <div className="mx-auto mt-14 max-w-4xl">
         <h2 className="text-center font-display text-2xl font-extrabold text-ink-900 sm:text-3xl">Why build our own?</h2>

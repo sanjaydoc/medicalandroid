@@ -89,93 +89,6 @@ If the user clearly wants more depth, they can turn on Doctor mode.`;
 const STYLE_DOCTOR = `ANSWER STYLE — DOCTOR MODE (the toggle is ON):
 The reader wants complete, clinically detailed information. Be thorough and structured: full systematic breakdowns, all findings, mechanisms, typical dosing ranges and adjustments, relevant differentials, interactions and caveats, and the complete structured read for any uploaded scan/tracing/report. Depth and completeness are the priority; still be well-organised with clear headings and tables where useful.`;
 
-// ---------------------------------------------------------------------------
-// Dosing grounding ("RAG-lite"): a small, curated table of typical ADULT doses.
-// When the user's message mentions one of these drugs, we inject the verified
-// figures into the system prompt so the model QUOTES them instead of recalling
-// them from memory (which small models get wrong). Deterministic, no infra.
-// Figures are typical adult doses from standard references; the prompt still
-// tells the user to confirm with a doctor/pharmacist (children, pregnancy and
-// kidney/liver disease differ). Keep this list accurate; add drugs as needed.
-// ---------------------------------------------------------------------------
-const DRUGS = [
-  { names: ['paracetamol', 'acetaminophen', 'crocin', 'dolo', 'calpol'], dose: '500–1000 mg every 4–6 hours as needed', max: '4 g (4000 mg) per day; 3 g/day if elderly, frail, low body weight, liver disease or regular alcohol', caution: 'liver toxicity in overdose; many cold/flu products also contain it — do not double up' },
-  { names: ['ibuprofen', 'brufen', 'combiflam'], dose: '200–400 mg every 4–6 hours with food', max: '1200 mg/day over the counter (up to 2400 mg/day only under medical advice)', caution: 'avoid/caution in ulcers, kidney disease, uncontrolled BP, asthma, pregnancy (esp. 3rd trimester)' },
-  { names: ['aspirin', 'acetylsalicylic'], dose: 'pain/fever: 300–600 mg every 4–6 hours; antiplatelet (heart): 75–150 mg once daily', max: '4 g/day for pain use', caution: 'bleeding risk; avoid in children (Reye’s syndrome)' },
-  { names: ['diclofenac', 'voveran'], dose: '50 mg two to three times daily with food', max: '150 mg/day', caution: 'NSAID — stomach, kidney and cardiovascular risks' },
-  { names: ['aceclofenac'], dose: '100 mg twice daily with food', max: '200 mg/day', caution: 'NSAID cautions' },
-  { names: ['naproxen'], dose: '250–500 mg twice daily', max: '1000 mg/day (1250 mg short-term)', caution: 'NSAID cautions' },
-  { names: ['tramadol'], dose: '50–100 mg every 4–6 hours', max: '400 mg/day', caution: 'prescription opioid; drowsiness, dependence, interactions' },
-  { names: ['amoxicillin', 'amoxycillin', 'mox'], dose: '250–500 mg every 8 hours (or 500–875 mg every 12 hours)', max: 'usually up to 1.75–3 g/day depending on infection', caution: 'prescription antibiotic; penicillin allergy; finish the full course' },
-  { names: ['amoxiclav', 'co-amoxiclav', 'augmentin', 'clavulanate', 'clavulanic'], dose: '625 mg tablet (500 mg amoxicillin / 125 mg clavulanic acid) every 8–12 hours for mild–moderate infections; 1000 mg tablet (875/125) every 12 hours for more severe infections. In India the tablets are commonly sold and referred to as "625 mg" and "1000 mg" — always give the 625 mg / 1000 mg tablet name, not just the 500/125 split', max: 'per prescription', caution: 'prescription antibiotic; penicillin allergy; take with food; finish the full course' },
-  { names: ['azithromycin', 'azithral', 'zithromax'], dose: '500 mg once daily for 3 days (or 500 mg day 1 then 250 mg daily for 4 days)', max: 'per course', caution: 'prescription antibiotic; QT prolongation caution' },
-  { names: ['cefixime', 'taxim-o', 'cefix'], dose: '200 mg twice daily', max: '400 mg/day', caution: 'prescription antibiotic' },
-  { names: ['cephalexin', 'cefalexin'], dose: '250–500 mg every 6 hours', max: 'per prescription', caution: 'prescription antibiotic; penicillin cross-allergy' },
-  { names: ['ciprofloxacin', 'cifran', 'ciplox'], dose: '250–500 mg twice daily', max: '1500 mg/day', caution: 'prescription; tendon rupture, QT, not usually in children/pregnancy' },
-  { names: ['levofloxacin', 'levoflox'], dose: '500 mg once daily', max: '750 mg/day', caution: 'prescription; tendon/QT cautions' },
-  { names: ['doxycycline'], dose: '100 mg twice daily (or once daily)', max: '200 mg/day', caution: 'prescription; avoid in pregnancy and young children' },
-  { names: ['metronidazole', 'flagyl', 'metrogyl'], dose: '400 mg three times daily', max: 'per prescription', caution: 'avoid alcohol during and 48 h after' },
-  { names: ['cetirizine', 'cetrizine', 'alerid', 'cetzine'], dose: '10 mg once daily', max: '10 mg/day', caution: 'may cause drowsiness' },
-  { names: ['levocetirizine'], dose: '5 mg once daily', max: '5 mg/day', caution: 'may cause drowsiness' },
-  { names: ['loratadine'], dose: '10 mg once daily', max: '10 mg/day', caution: 'non-drowsy antihistamine' },
-  { names: ['fexofenadine', 'allegra'], dose: '120–180 mg once daily', max: '180 mg/day', caution: 'non-drowsy antihistamine' },
-  { names: ['chlorpheniramine', 'cpm', 'piriton'], dose: '4 mg every 4–6 hours', max: '24 mg/day', caution: 'sedating' },
-  { names: ['omeprazole'], dose: '20 mg once daily before breakfast', max: '40 mg/day', caution: 'long-term use: B12/magnesium; review need' },
-  { names: ['pantoprazole', 'pantop', 'pan-40', 'pan 40'], dose: '40 mg once daily before breakfast', max: '40 mg/day (80 mg in specific cases)', caution: 'review long-term need' },
-  { names: ['rabeprazole'], dose: '20 mg once daily', max: '20 mg/day', caution: 'review long-term need' },
-  { names: ['famotidine'], dose: '20–40 mg once or twice daily', max: '80 mg/day', caution: '(replaced ranitidine, which was withdrawn)' },
-  { names: ['domperidone'], dose: '10 mg three times daily before meals', max: '30 mg/day, short-term', caution: 'heart-rhythm caution; short courses' },
-  { names: ['ondansetron', 'emeset'], dose: '4–8 mg two to three times daily', max: '24 mg/day', caution: 'QT prolongation caution' },
-  { names: ['metformin'], dose: 'start 500 mg once or twice daily with meals, titrate up', max: '~2000–2550 mg/day', caution: 'take with food; stop if severe illness/dehydration; can lower B12' },
-  { names: ['amlodipine'], dose: '5 mg once daily', max: '10 mg/day', caution: 'ankle swelling common' },
-  { names: ['telmisartan'], dose: '40 mg once daily', max: '80 mg/day', caution: 'avoid in pregnancy; check kidney function/potassium' },
-  { names: ['losartan'], dose: '50 mg once daily', max: '100 mg/day', caution: 'avoid in pregnancy' },
-  { names: ['atenolol'], dose: '25–50 mg once daily', max: '100 mg/day', caution: 'do not stop abruptly; caution in asthma' },
-  { names: ['metoprolol'], dose: '25–100 mg twice daily (immediate-release)', max: '~400 mg/day', caution: 'do not stop abruptly' },
-  { names: ['atorvastatin'], dose: '10–80 mg once daily (evening)', max: '80 mg/day', caution: 'muscle aches; report severe pain' },
-  { names: ['rosuvastatin'], dose: '5–40 mg once daily', max: '40 mg/day', caution: 'muscle aches; report severe pain' },
-  { names: ['clopidogrel'], dose: '75 mg once daily', max: '75 mg/day', caution: 'bleeding risk; do not stop without advice' },
-  { names: ['montelukast'], dose: '10 mg once daily at night', max: '10 mg/day', caution: 'rare mood/behaviour effects' },
-  { names: ['salbutamol', 'albuterol', 'asthalin', 'ventolin'], dose: 'inhaler 1–2 puffs (100 mcg each) as needed', max: 'usually up to ~8 puffs/day — frequent need means see a doctor', caution: 'overuse signals poor control' },
-  { names: ['levothyroxine', 'thyroxine', 'eltroxin', 'thyronorm'], dose: 'INDIVIDUALISED by TSH; commonly 25–150 mcg once daily on an empty stomach', max: 'set by your doctor from blood tests', caution: 'do not self-adjust; take 30–60 min before food' },
-  { names: ['prednisolone', 'prednisone'], dose: 'INDIVIDUALISED (often 5–60 mg/day) — set by the doctor', max: 'per doctor', caution: 'do not stop abruptly after long courses' },
-  { names: ['vitamin d', 'cholecalciferol', 'vitamin d3'], dose: 'deficiency (India): commonly 60,000 IU once weekly for 6–8 weeks, then maintenance', max: 'per doctor', caution: 'high doses need medical guidance' },
-  { names: ['vitamin b12', 'methylcobalamin', 'cobalamin'], dose: 'oral 500–1500 mcg daily (or injections if deficient)', max: 'well tolerated', caution: 'find the cause of deficiency' },
-  { names: ['folic acid', 'folate'], dose: 'commonly 5 mg once daily (India); pregnancy prevention 400 mcg/day', max: 'per doctor', caution: '—' },
-  { names: ['ferrous sulfate', 'ferrous', 'iron tablet', 'iron supplement'], dose: 'about one tablet (≈65 mg elemental iron) once or twice daily', max: 'per doctor', caution: 'take with vitamin C; may cause dark stools/constipation' },
-];
-
-function extractUserText(messages) {
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const m = messages[i];
-    if (!m || m.role !== 'user') continue;
-    if (typeof m.content === 'string') return m.content;
-    if (Array.isArray(m.content)) {
-      return m.content.filter((b) => b && b.type === 'text').map((b) => b.text || '').join(' ');
-    }
-  }
-  return '';
-}
-
-function dosingGrounding(messages) {
-  const text = (extractUserText(messages) || '').toLowerCase();
-  if (!text) return '';
-  const seen = new Set();
-  const hits = [];
-  for (const d of DRUGS) {
-    if (d.names.some((n) => text.includes(n))) {
-      const key = d.names[0];
-      if (seen.has(key)) continue;
-      seen.add(key);
-      hits.push(d);
-    }
-    if (hits.length >= 6) break;
-  }
-  if (!hits.length) return '';
-  const lines = hits.map((d) => `- ${d.names[0].charAt(0).toUpperCase() + d.names[0].slice(1)}: ${d.dose}. Max: ${d.max}. Caution: ${d.caution}.`);
-  return `\n\nVERIFIED ADULT DOSING REFERENCE — use THESE exact figures for the medicine(s) named below; do NOT state any different numbers. These are typical adult doses only: remind the user that children, pregnancy, and kidney/liver disease differ, and to confirm their exact dose with a doctor or pharmacist. If a value is marked INDIVIDUALISED, do not invent a number — say it is set by the doctor.\n${lines.join('\n')}`;
-}
-
 function corsHeaders(origin, allowed) {
   const ok = allowed.length === 0 || allowed.includes(origin);
   return {
@@ -290,7 +203,7 @@ export default {
 
     // Pick the answer style from the UI's "Doctor mode" toggle (default: concise).
     const style = payload?.mode === 'doctor' ? STYLE_DOCTOR : STYLE_CONCISE;
-    const system = `${SYSTEM_PROMPT}\n\n${style}${dosingGrounding(messages)}`;
+    const system = `${SYSTEM_PROMPT}\n\n${style}`;
 
     // Call Anthropic (streaming).
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {

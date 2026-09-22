@@ -100,6 +100,12 @@ CASES = [
         "expected": "Must reply in Tamil; sensible advice on fever/sore throat + when to see a doctor.",
     },
     {
+        "id": "hindi_headache",
+        "question": "मुझे तीन दिन से सिरदर्द और हल्का बुखार है। मुझे क्या करना चाहिए?",
+        "image": None,
+        "expected": "Must reply in Hindi; sensible advice on headache/fever + red flags + when to see a doctor. No dose numbers required.",
+    },
+    {
         "id": "ecg_af",
         "question": "Can you read this ECG for me?",
         "image": "ecg.jpg",   # optional

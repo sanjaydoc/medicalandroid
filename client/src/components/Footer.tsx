@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { BRAND } from '../brand';
+import BrandLogo from './BrandLogo';
 
 const APK = 'https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/meddroid.apk';
 
@@ -51,9 +52,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-500 text-white">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l2-6 4 12 2-6h6" /></svg>
-              </span>
+              <BrandLogo className="h-8 w-8" />
               <span className="font-display text-lg font-extrabold text-ink-900">{BRAND.name}</span>
             </div>
             <p className="mt-3 max-w-xs text-sm text-ink-700/70">

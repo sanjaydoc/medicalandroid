@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BRAND } from '../brand';
+import BrandLogo from './BrandLogo';
 
 // Admin is intentionally NOT listed — the /admin route still works when
 // navigated to directly, but it's hidden from the public nav.
@@ -26,7 +27,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 border-b border-cream-300 bg-cream-100/95">
       <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-          <Logo />
+          <BrandLogo />
           <span className="font-display text-lg font-extrabold tracking-tight text-ink-900 sm:text-xl">
             {BRAND.name}
           </span>
@@ -137,24 +138,5 @@ export default function Navbar() {
         </div>
       )}
     </header>
-  );
-}
-
-function Logo() {
-  return (
-    <svg viewBox="0 0 64 64" className="h-8 w-8">
-      {/* MedDroid: medical cross + ECG pulse */}
-      <rect width="64" height="64" rx="14" fill="#4285F4" />
-      <rect x="27.5" y="13" width="9" height="30" rx="4.5" fill="#EA4335" />
-      <rect x="17" y="23.5" width="30" height="9" rx="4.5" fill="#EA4335" />
-      <path
-        d="M10 46 h11 l4 -9 5 16 4 -10 h20"
-        fill="none"
-        stroke="#fff"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

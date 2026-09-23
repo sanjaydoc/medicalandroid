@@ -17,6 +17,15 @@ import {
   type Clinic,
   type GeoPoint,
 } from '../api/clinics';
+import {
+  parseVital,
+  looksLikeVitalLog,
+  addVital,
+  classify,
+  loadVitals,
+  avgLast,
+  assessEscalation,
+} from '../api/vitals';
 
 interface Attachment {
   file: File;
@@ -416,6 +425,13 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     ]);
   };
 
+  const showVitalHelp = () => {
+    setMessages((m) => [
+      ...m,
+      { role: 'assistant', text: 'To track your health, just type a reading like **“bp 130/85”** or **“sugar 140 fasting”** — I’ll log it, tell you if it’s in range, flag any concern, and track your trend. 📊 Your charts live on your **Account** page.' },
+    ]);
+  };
+
   const useMyLocation = async () => {
     setClinicMode(false);
     try {
@@ -456,6 +472,38 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       setInput('');
       startClinicFlow();
       return;
+    }
+
+    // Chronic-Condition Coach: log a BP / sugar reading (local, no LLM).
+    if (text && !clinicMode && looksLikeVitalLog(text)) {
+      const parsed = parseVital(text);
+      if (parsed) {
+        const rec = addVital(parsed);
+        const c = classify(rec);
+        const all = loadVitals();
+        const esc = assessEscalation(all);
+        const valStr =
+          rec.type === 'bp' ? `${rec.systolic}/${rec.diastolic} mmHg`
+          : rec.type === 'glucose' ? `${rec.glucose} mg/dL (${rec.context})`
+          : `${rec.weight} kg`;
+        let reply = `✅ Logged: **${valStr}** — ${c.label}${c.detail ? ` (${c.detail})` : ''}.`;
+        if (rec.type === 'bp') {
+          const a = avgLast(all, 'bp', 7) as { systolic: number; diastolic: number; count: number } | null;
+          if (a && a.count > 1) reply += ` Your 7-day average is ${a.systolic}/${a.diastolic} over ${a.count} readings.`;
+        } else if (rec.type === 'glucose') {
+          const a = avgLast(all, 'glucose', 7) as { glucose: number; count: number } | null;
+          if (a && a.count > 1) reply += ` Your 7-day average is ${a.glucose} mg/dL over ${a.count} readings.`;
+        }
+        reply += `\n\n${esc.message}`;
+        reply += `\n\n📊 See your full trends & charts on your **Account** page.`;
+        setMessages((m) => [
+          ...m,
+          { role: 'user', text },
+          { role: 'assistant', text: reply, suggestClinic: esc.level === 'urgent' || esc.level === 'soon' },
+        ]);
+        setInput('');
+        return;
+      }
     }
 
     if (!configured) {
@@ -800,6 +848,12 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                     className="rounded-full border border-clay-200 bg-white px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:border-clay-400 hover:bg-clay-50"
                   >
                     📍 Find a clinic near me
+                  </button>
+                  <button
+                    onClick={showVitalHelp}
+                    className="rounded-full border border-clay-200 bg-white px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:border-clay-400 hover:bg-clay-50"
+                  >
+                    🩺 Track BP / sugar
                   </button>
                 </div>
               )}

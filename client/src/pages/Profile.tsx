@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { BRAND } from '../brand';
+import HealthDashboard from '../components/HealthDashboard';
 
 // A regular user's account page. Reachable from the "Account" button. The admin
 // dashboard is a separate, gated route (/admin) — a normal user never lands there.
@@ -20,7 +21,7 @@ export default function Profile() {
   const initial = (user.name || user.email || '?').charAt(0).toUpperCase();
 
   return (
-    <div className="container-x flex min-h-[70vh] items-center justify-center py-10">
+    <div className="container-x flex min-h-[70vh] flex-col items-center py-10">
       <div className="card w-full max-w-md p-6 sm:p-8">
         <div className="flex items-center gap-4">
           <span className="grid h-14 w-14 place-items-center rounded-full bg-clay-100 text-2xl font-bold text-clay-700">
@@ -62,6 +63,11 @@ export default function Profile() {
         <p className="mt-5 text-center text-[11px] text-ink-700/45">
           Need help? Contact {BRAND.supportEmail}
         </p>
+      </div>
+
+      {/* Chronic-Condition Coach dashboard */}
+      <div className="w-full max-w-md">
+        <HealthDashboard />
       </div>
     </div>
   );

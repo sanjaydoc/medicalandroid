@@ -14,6 +14,7 @@ import {
   findNearbyClinics,
   geocodeArea,
   getBrowserLocation,
+  hospitalsNearUrl,
   type Clinic,
   type GeoPoint,
 } from '../api/clinics';
@@ -398,7 +399,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
             }
           : {
               role: 'assistant',
-              text: `I couldn't find hospitals or clinics listed near ${point.label || 'that area'} in the map data. Try a larger nearby town, or search "hospital near me" in Google Maps.`,
+              text: `I couldn't find hospitals or clinics listed near ${point.label || 'that area'} in the free map data — but you can see them on Google Maps:\n\n[🗺️ Open hospitals near you on Google Maps](${hospitalsNearUrl(point)})`,
             };
         return copy;
       });
@@ -407,7 +408,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
         const copy = [...m];
         copy[copy.length - 1] = {
           role: 'assistant',
-          text: `⚠️ ${e instanceof Error ? e.message : 'Could not search just now.'} You can type your area again, e.g. "Anna Nagar, Chennai".`,
+          text: `⚠️ ${e instanceof Error ? e.message : 'The map service is busy just now.'} In the meantime, open hospitals near you directly on Google Maps:\n\n[🗺️ Open hospitals near you on Google Maps](${hospitalsNearUrl(point)})`,
         };
         return copy;
       });

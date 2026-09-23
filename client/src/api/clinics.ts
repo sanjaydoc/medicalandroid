@@ -27,10 +27,10 @@ export interface GeoPoint {
 }
 
 const OVERPASS_ENDPOINTS = [
-  'https://overpass.kumi.systems/api/interpreter',
   'https://overpass-api.de/api/interpreter',
-  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
   'https://overpass.private.coffee/api/interpreter',
+  'https://overpass.osm.ch/api/interpreter',
 ];
 const OVERPASS_TIMEOUT_MS = 15000; // fail fast per mirror, then try the next one
 
@@ -212,4 +212,10 @@ out center ${limit * 6};`;
 /** A Google Maps directions link (works even without our own maps key). */
 export function directionsUrl(c: Clinic): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lon}`;
+}
+
+/** Google Maps hospital search centred on a point — a reliable fallback when the
+ *  OSM query service is busy (no query params, so it survives markdown escaping). */
+export function hospitalsNearUrl(point: GeoPoint): string {
+  return `https://www.google.com/maps/search/hospitals+and+clinics/@${point.lat},${point.lon},14z`;
 }

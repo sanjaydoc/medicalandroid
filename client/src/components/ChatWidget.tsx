@@ -18,7 +18,7 @@ import {
   type GeoPoint,
 } from '../api/clinics';
 import {
-  parseVital,
+  parseVitals,
   looksLikeVitalLog,
   addVital,
   classify,
@@ -474,25 +474,30 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       return;
     }
 
-    // Chronic-Condition Coach: log a BP / sugar reading (local, no LLM).
+    // Chronic-Condition Coach: log one OR MORE BP / sugar readings (local, no LLM).
     if (text && !clinicMode && looksLikeVitalLog(text)) {
-      const parsed = parseVital(text);
-      if (parsed) {
-        const rec = addVital(parsed);
-        const c = classify(rec);
+      const parsedList = parseVitals(text);
+      if (parsedList.length) {
+        const recs = parsedList.map((p) => addVital(p));
         const all = loadVitals();
         const esc = assessEscalation(all);
-        const valStr =
-          rec.type === 'bp' ? `${rec.systolic}/${rec.diastolic} mmHg`
-          : rec.type === 'glucose' ? `${rec.glucose} mg/dL (${rec.context})`
-          : `${rec.weight} kg`;
-        let reply = `✅ Logged: **${valStr}** — ${c.label}${c.detail ? ` (${c.detail})` : ''}.`;
-        if (rec.type === 'bp') {
+        const lines = recs.map((rec) => {
+          const c = classify(rec);
+          const valStr =
+            rec.type === 'bp' ? `${rec.systolic}/${rec.diastolic} mmHg`
+            : rec.type === 'glucose' ? `${rec.glucose} mg/dL (${rec.context})`
+            : `${rec.weight} kg`;
+          return `✅ **${valStr}** — ${c.label}${c.detail ? ` (${c.detail})` : ''}`;
+        });
+        let reply = recs.length > 1 ? `Logged ${recs.length} readings:\n${lines.join('\n')}` : `Logged: ${lines[0].replace(/^✅ /, '')}`;
+        // trend note (per type present)
+        if (recs.some((r) => r.type === 'bp')) {
           const a = avgLast(all, 'bp', 7) as { systolic: number; diastolic: number; count: number } | null;
-          if (a && a.count > 1) reply += ` Your 7-day average is ${a.systolic}/${a.diastolic} over ${a.count} readings.`;
-        } else if (rec.type === 'glucose') {
+          if (a && a.count > 1) reply += `\n\nBP 7-day average: ${a.systolic}/${a.diastolic} (${a.count} readings).`;
+        }
+        if (recs.some((r) => r.type === 'glucose')) {
           const a = avgLast(all, 'glucose', 7) as { glucose: number; count: number } | null;
-          if (a && a.count > 1) reply += ` Your 7-day average is ${a.glucose} mg/dL over ${a.count} readings.`;
+          if (a && a.count > 1) reply += `\nSugar 7-day average: ${a.glucose} mg/dL (${a.count} readings).`;
         }
         reply += `\n\n${esc.message}`;
         reply += `\n\n📊 See your full trends & charts on your **Account** page.`;

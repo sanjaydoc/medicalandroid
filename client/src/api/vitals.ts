@@ -228,6 +228,49 @@ export function parseVital(textRaw: string): Vital | null {
   return null;
 }
 
+/** Parse ALL readings in a message (e.g. "sugar 110 fasting sugar 138 fasting"). */
+export function parseVitals(textRaw: string): Vital[] {
+  const text = textRaw.toLowerCase();
+  const out: Vital[] = [];
+
+  // Every valid BP pair.
+  const bpRe = /(\d{2,3})\s*\/\s*(\d{2,3})/g;
+  let m: RegExpExecArray | null;
+  while ((m = bpRe.exec(text)) !== null) {
+    const sys = parseInt(m[1], 10), dia = parseInt(m[2], 10);
+    if (sys >= 60 && sys <= 260 && dia >= 30 && dia <= 200) {
+      out.push({ id: '', ts: 0, type: 'bp', systolic: sys, diastolic: dia });
+    }
+  }
+
+  // Every glucose value (keyword + number + optional context).
+  const gRe = /(?:sugar|glucose|blood sugar|bsl|rbs|fbs|ppbs)\s*(?:is|=|:)?\s*(\d{2,3})\s*(?:mg\/?dl)?\s*(fasting|fbs|empty stomach|before|post|after|pp|ppbs|random)?/gi;
+  while ((m = gRe.exec(text)) !== null) {
+    const val = parseInt(m[1], 10);
+    if (val >= 30 && val <= 600) {
+      const c = (m[2] || '').toLowerCase();
+      let ctx: GlucoseContext = 'random';
+      if (/fast|fbs|empty|before/.test(c)) ctx = 'fasting';
+      else if (/post|after|pp/.test(c)) ctx = 'post';
+      out.push({ id: '', ts: 0, type: 'glucose', glucose: val, context: ctx });
+    }
+  }
+
+  // Weight (single).
+  const wm = text.match(/(?:weight|wt)\s*(?:is|=|:)?\s*(\d{2,3}(?:\.\d)?)\s*(?:kg)?/) || text.match(/(\d{2,3}(?:\.\d)?)\s*kg\b/);
+  if (wm) {
+    const val = parseFloat(wm[1]);
+    if (val >= 20 && val <= 300) out.push({ id: '', ts: 0, type: 'weight', weight: val });
+  }
+
+  // Fall back to the single parser (handles pulse etc.) if nothing matched.
+  if (!out.length) {
+    const one = parseVital(textRaw);
+    if (one) out.push(one);
+  }
+  return out;
+}
+
 /** Does the text look like the user wants to log a reading? (broader than a clean parse) */
 export function looksLikeVitalLog(textRaw: string): boolean {
   const t = textRaw.toLowerCase();

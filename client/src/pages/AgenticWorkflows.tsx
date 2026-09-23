@@ -34,12 +34,19 @@ const LIVE = [
     to: '/account',
     cta: 'Open in your account',
   },
+  {
+    title: 'Post-discharge Recovery Guide',
+    tag: 'Live',
+    loop: ['Pick procedure', 'Day-by-day plan', 'Wound care', 'Follow-ups'],
+    body: 'Choose your surgery and date to get a day-by-day recovery checklist, wound care, warning signs and follow-up reminders — for C-section, appendix, gallbladder, cataract, knee, angioplasty, dental and more. Synced across devices.',
+    to: '/account',
+    cta: 'Open in your account',
+  },
 ];
 
 const PLANNED = [
   { title: 'Generic-medicine & price finder', body: 'Find the same-composition generic, typical price and nearest Jan Aushadhi / pharmacy — save money on every prescription.' },
   { title: 'Medicine safety checker', body: 'Flag dangerous interactions and duplicate ingredients across all your medicines.' },
-  { title: 'Post-discharge recovery guide', body: 'Day-by-day recovery checklist, wound care and warning signs after a procedure.' },
   { title: 'Caregiver mode', body: 'Manage a parent’s meds, readings & appointments remotely — multiple profiles.' },
   { title: 'Medication Adherence', body: 'Build a schedule, remind you, track doses, nudge refills.' },
   { title: 'Care-Navigation flagship', body: 'Triage → right specialty → nearby clinic → visit-prep → auto follow-up.' },

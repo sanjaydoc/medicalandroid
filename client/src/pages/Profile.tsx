@@ -5,11 +5,13 @@ import { BRAND } from '../brand';
 import HealthDashboard from '../components/HealthDashboard';
 import ImmunizationDashboard from '../components/ImmunizationDashboard';
 import PregnancyDashboard from '../components/PregnancyDashboard';
+import RecoveryDashboard from '../components/RecoveryDashboard';
 
 const TABS = [
   { id: 'health', label: 'My Health' },
   { id: 'children', label: "Children's vaccines" },
   { id: 'pregnancy', label: 'Pregnancy' },
+  { id: 'recovery', label: 'Recovery' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -87,6 +89,15 @@ export default function Profile() {
                 <p className="text-sm text-ink-700/60">Week-by-week guidance, antenatal schedule &amp; danger signs — synced across your devices</p>
               </div>
               <PregnancyDashboard />
+            </div>
+          )}
+          {tab === 'recovery' && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h2 className="font-display text-2xl font-extrabold text-ink-900">Recovery <span className="text-clay-600">Guide</span></h2>
+                <p className="text-sm text-ink-700/60">Day-by-day recovery checklist, wound care, warning signs &amp; follow-ups — synced across your devices</p>
+              </div>
+              <RecoveryDashboard />
             </div>
           )}
         </div>

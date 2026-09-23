@@ -9,6 +9,14 @@ import {
 } from '../api/chat';
 import { saveRow } from '../api/supabase';
 import { BRAND } from '../brand';
+import ClinicCards from './ClinicCards';
+import {
+  findNearbyClinics,
+  geocodeArea,
+  getBrowserLocation,
+  type Clinic,
+  type GeoPoint,
+} from '../api/clinics';
 
 interface Attachment {
   file: File;
@@ -20,6 +28,8 @@ interface UIMsg {
   role: 'user' | 'assistant';
   text: string;
   attachments?: { name: string; kind: 'image' | 'document' }[];
+  clinics?: Clinic[];       // nearby-clinic cards (real OSM data)
+  locationLabel?: string;
 }
 
 const MAX_IMAGE_MB = 5;
@@ -102,6 +112,8 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [clinicMode, setClinicMode] = useState(false); // awaiting the user's area
+  const [clinicBusy, setClinicBusy] = useState(false);
   const [listening, setListening] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [voiceLang, setVoiceLang] = useState(() => {
@@ -340,10 +352,100 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     });
   };
 
+  // ---- Nearby clinic / hospital finder (real OpenStreetMap data, no LLM) ----
+  const looksLikeClinicIntent = (t: string): boolean => {
+    const s = t.toLowerCase();
+    const place = /(hospital|clinic|doctor|physician|specialist|gp|nursing home|medical centre|medical center)/;
+    const near = /(near\s?me|nearby|near by|nearest|closest|around me|in my area|close to me|around here)/;
+    if (near.test(s) && place.test(s)) return true;
+    if (/\b(find|where.*(can|do) i (find|see|go)|show me|recommend|suggest)\b/.test(s) && place.test(s)) return true;
+    return false;
+  };
+
+  const runClinicSearch = async (point: GeoPoint, specialtyHint = '') => {
+    setClinicBusy(true);
+    setMessages((m) => [...m, { role: 'assistant', text: `Finding hospitals & clinics near ${point.label || 'you'}…` }]);
+    try {
+      const clinics = await findNearbyClinics(point, specialtyHint);
+      setMessages((m) => {
+        const copy = [...m];
+        copy[copy.length - 1] = clinics.length
+          ? {
+              role: 'assistant',
+              text: `Here ${clinics.length === 1 ? 'is 1 option' : `are ${clinics.length} options`} near ${point.label || 'you'}. Tap Directions or Call — and please confirm they treat your condition before travelling.`,
+              clinics,
+              locationLabel: point.label,
+            }
+          : {
+              role: 'assistant',
+              text: `I couldn't find hospitals or clinics listed near ${point.label || 'that area'} in the map data. Try a larger nearby town, or search "hospital near me" in Google Maps.`,
+            };
+        return copy;
+      });
+    } catch (e) {
+      setMessages((m) => {
+        const copy = [...m];
+        copy[copy.length - 1] = {
+          role: 'assistant',
+          text: `⚠️ ${e instanceof Error ? e.message : 'Could not search just now.'} You can type your area again, e.g. "Anna Nagar, Chennai".`,
+        };
+        return copy;
+      });
+      setClinicMode(true);
+    } finally {
+      setClinicBusy(false);
+    }
+  };
+
+  const startClinicFlow = () => {
+    setClinicMode(true);
+    setMessages((m) => [
+      ...m,
+      { role: 'assistant', text: 'I can find hospitals & clinics near you. Tap 📍 Use my location below, or just type your area (e.g. "T. Nagar, Chennai").' },
+    ]);
+  };
+
+  const useMyLocation = async () => {
+    setClinicMode(false);
+    try {
+      const p = await getBrowserLocation();
+      await runClinicSearch(p, specialty);
+    } catch (e) {
+      setClinicMode(true);
+      setMessages((m) => [
+        ...m,
+        { role: 'assistant', text: `${e instanceof Error ? e.message : 'Location unavailable.'} No problem — type your area (e.g. "Bandra, Mumbai") and I'll find clinics there.` },
+      ]);
+    }
+  };
+
   const send = async (preset?: string) => {
     const text = (preset ?? input).trim();
-    if ((!text && attachments.length === 0) || busy) return;
+    if ((!text && attachments.length === 0) || busy || clinicBusy) return;
     setError('');
+
+    // If we're waiting for the user's area (clinic flow), treat this as the area.
+    if (clinicMode && text) {
+      setMessages((m) => [...m, { role: 'user', text }]);
+      setInput('');
+      setClinicMode(false);
+      try {
+        const p = await geocodeArea(text);
+        await runClinicSearch(p, specialty);
+      } catch (e) {
+        setClinicMode(true);
+        setMessages((m) => [...m, { role: 'assistant', text: `${e instanceof Error ? e.message : 'Could not find that area.'} Try a nearby town or a more specific area.` }]);
+      }
+      return;
+    }
+
+    // Detect "find a hospital/clinic/doctor near me" and start the location flow.
+    if (text && looksLikeClinicIntent(text)) {
+      setMessages((m) => [...m, { role: 'user', text }]);
+      setInput('');
+      startClinicFlow();
+      return;
+    }
 
     if (!configured) {
       setMessages((m) => [
@@ -671,17 +773,30 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                       {s}
                     </button>
                   ))}
+                  <button
+                    onClick={startClinicFlow}
+                    className="rounded-full border border-clay-200 bg-white px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:border-clay-400 hover:bg-clay-50"
+                  >
+                    📍 Find a clinic near me
+                  </button>
                 </div>
               )}
               {messages.map((m, i) => (
-                <Bubble
-                  key={i}
-                  role={m.role}
-                  text={m.text}
-                  attachments={m.attachments}
-                  loading={busy && i === messages.length - 1 && m.role === 'assistant'}
-                />
+                <div key={i}>
+                  <Bubble
+                    role={m.role}
+                    text={m.text}
+                    attachments={m.attachments}
+                    loading={busy && i === messages.length - 1 && m.role === 'assistant'}
+                  />
+                  {m.clinics && m.clinics.length > 0 && (
+                    <ClinicCards clinics={m.clinics} locationLabel={m.locationLabel} />
+                  )}
+                </div>
               ))}
+              {clinicBusy && (
+                <p className="text-xs font-semibold text-clay-600">Searching the map…</p>
+              )}
               </div>
               {showJump && (
                 <button
@@ -699,6 +814,26 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
 
             {/* Composer */}
             <div className="border-t border-cream-300 bg-white p-3">
+              {clinicMode && (
+                <div className="mb-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={useMyLocation}
+                    disabled={clinicBusy}
+                    className="flex items-center gap-1.5 rounded-full bg-clay-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-clay-600 disabled:opacity-50"
+                  >
+                    📍 Use my location
+                  </button>
+                  <span className="text-xs text-ink-700/60">or type your area below</span>
+                  <button
+                    type="button"
+                    onClick={() => setClinicMode(false)}
+                    className="ml-auto text-xs font-semibold text-ink-700/50 hover:text-ink-800"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              )}
               {error && <p className="mb-2 text-xs font-semibold text-red-600">{error}</p>}
               {attachments.length > 0 && (
                 <div className="mb-2 flex flex-wrap gap-2">

@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import Assistant from './pages/Assistant';
 import About from './pages/About';
 import Research from './pages/Research';
+import AgenticWorkflows from './pages/AgenticWorkflows';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/assistant" element={<Assistant />} />
           <Route path="/about" element={<About />} />
           <Route path="/research" element={<Research />} />
+          <Route path="/workflows" element={<AgenticWorkflows />} />
           <Route path="/account" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/login" element={<Login />} />

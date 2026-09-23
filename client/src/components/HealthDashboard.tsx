@@ -17,13 +17,32 @@ const ESC: Record<string, { bg: string; bd: string; fg: string; icon: string; la
 const DAY = 86400000;
 
 type Section = 'overview' | 'bp' | 'glucose' | 'log' | 'history';
-const NAV: { id: Section; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Overview', icon: '🩺' },
-  { id: 'bp', label: 'Blood Pressure', icon: '💓' },
-  { id: 'glucose', label: 'Blood Sugar', icon: '🩸' },
-  { id: 'log', label: 'Log a reading', icon: '➕' },
-  { id: 'history', label: 'History', icon: '📋' },
+type IconName = 'pulse' | 'heart' | 'droplet' | 'plus' | 'list' | 'shield' | 'bulb' | 'info' | 'steth';
+const NAV: { id: Section; label: string; icon: IconName }[] = [
+  { id: 'overview', label: 'Overview', icon: 'pulse' },
+  { id: 'bp', label: 'Blood Pressure', icon: 'heart' },
+  { id: 'glucose', label: 'Blood Sugar', icon: 'droplet' },
+  { id: 'log', label: 'Log a reading', icon: 'plus' },
+  { id: 'history', label: 'History', icon: 'list' },
 ];
+
+// 2D line icons (Lucide-style) that inherit color via currentColor — themed blue/clay.
+function Icon({ name, className = 'h-4 w-4' }: { name: IconName; className?: string }) {
+  const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden {...p}>
+      {name === 'pulse' && <path d="M3 12h4l2-6 4 12 2-6h6" />}
+      {name === 'heart' && <path d="M12 21s-7-4.5-9.5-9A5 5 0 0 1 12 6a5 5 0 0 1 9.5 3c0 4.5-9.5 12-9.5 12Z" />}
+      {name === 'droplet' && <path d="M12 3s6 5.7 6 10a6 6 0 0 1-12 0c0-4.3 6-10 6-10Z" />}
+      {name === 'plus' && <path d="M12 5v14M5 12h14" />}
+      {name === 'list' && <path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" />}
+      {name === 'shield' && <><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3Z" /><path d="M9 12l2 2 4-4" /></>}
+      {name === 'bulb' && <><path d="M9 18h6M10 22h4" /><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2Z" /></>}
+      {name === 'info' && <><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>}
+      {name === 'steth' && <><path d="M6 3v5a4 4 0 0 0 8 0V3" /><path d="M10 14.5A6.5 6.5 0 0 0 16.5 21 3.5 3.5 0 0 0 20 17.5V15" /><circle cx="20" cy="13" r="2" /></>}
+    </svg>
+  );
+}
 
 export default function HealthDashboard() {
   const [vitals, setVitals] = useState<Vital[]>(loadVitals);
@@ -91,7 +110,7 @@ export default function HealthDashboard() {
     <div className="mt-8 w-full">
       {/* Header — simulator style: icon badge + two-tone title + tag */}
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-clay-100 text-2xl">🩺</span>
+        <span className="grid h-12 w-12 place-items-center rounded-2xl bg-clay-100 text-clay-600"><Icon name="pulse" className="h-6 w-6" /></span>
         <div>
           <h2 className="font-display text-2xl font-extrabold leading-none text-ink-900 sm:text-3xl">
             My <span className="text-clay-600">Health</span>
@@ -113,7 +132,7 @@ export default function HealthDashboard() {
               return (
                 <button key={n.id} onClick={() => go(n.id)}
                   className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition lg:w-full ${active ? 'bg-clay-50 ring-1 ring-clay-200 text-ink-900' : 'text-ink-700/70 hover:bg-cream-100'}`}>
-                  <span className={`grid h-7 w-7 place-items-center rounded-lg text-sm ${active ? 'bg-gradient-to-br from-clay-500 to-clay-400 text-white' : 'bg-cream-200'}`}>{n.icon}</span>
+                  <span className={`grid h-7 w-7 place-items-center rounded-lg ${active ? 'bg-gradient-to-br from-clay-500 to-clay-400 text-white' : 'bg-cream-200 text-ink-700'}`}><Icon name={n.icon} className="h-4 w-4" /></span>
                   {n.label}
                 </button>
               );
@@ -231,8 +250,8 @@ export default function HealthDashboard() {
         {/* RIGHT: status + guidance */}
         <div className="flex flex-col gap-5">
           <div className="card p-5">
-            <div className="mb-2 flex items-center gap-2">
-              <span className="text-clay-500">📈</span>
+            <div className="mb-2 flex items-center gap-2 text-clay-500">
+              <Icon name="pulse" className="h-4 w-4" />
               <h3 className="font-display text-sm font-bold text-ink-900">Health status</h3>
             </div>
             <div className="grid place-items-center py-2">
@@ -248,13 +267,13 @@ export default function HealthDashboard() {
           </div>
 
           <div className="card p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <span className="text-clay-500">🛡️</span>
+            <div className="mb-3 flex items-center gap-2 text-clay-500">
+              <Icon name="shield" className="h-4 w-4" />
               <h3 className="font-display text-sm font-bold text-ink-900">Guidance &amp; safety</h3>
             </div>
-            <GuideItem icon="💡" title="Today's tip" body={nudge} />
-            <GuideItem icon="ℹ️" title="Educational only" body="Reference ranges to help you understand trends — not a diagnosis." />
-            <GuideItem icon="🩺" title="Confirm with a clinician" body="Discuss any concerning trend with your doctor." />
+            <GuideItem icon="bulb" title="Today's tip" body={nudge} />
+            <GuideItem icon="info" title="Educational only" body="Reference ranges to help you understand trends — not a diagnosis." />
+            <GuideItem icon="steth" title="Confirm with a clinician" body="Discuss any concerning trend with your doctor." />
           </div>
         </div>
       </div>
@@ -313,10 +332,10 @@ function Ring({ pct, empty }: { pct: number; empty?: boolean }) {
   );
 }
 
-function GuideItem({ icon, title, body }: { icon: string; title: string; body: string }) {
+function GuideItem({ icon, title, body }: { icon: IconName; title: string; body: string }) {
   return (
     <div className="mb-3 flex gap-2.5 last:mb-0">
-      <span className="text-base leading-none">{icon}</span>
+      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-clay-50 text-clay-600"><Icon name={icon} className="h-3.5 w-3.5" /></span>
       <div>
         <p className="text-xs font-bold text-ink-900">{title}</p>
         <p className="text-xs text-ink-700/65">{body}</p>

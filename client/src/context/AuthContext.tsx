@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '../api/supabase';
 import { setVitalsUser } from '../api/vitals';
+import { setRecordsUser } from '../api/records';
 
 export interface AuthUser {
   id: string;
@@ -42,11 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data }) => {
       setUser(toUser(data.session));
       setVitalsUser(data.session?.user?.id ?? null);
+      setRecordsUser(data.session?.user?.id ?? null);
       setLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(toUser(session));
       setVitalsUser(session?.user?.id ?? null);
+      setRecordsUser(session?.user?.id ?? null);
     });
     return () => sub.subscription.unsubscribe();
   }, []);

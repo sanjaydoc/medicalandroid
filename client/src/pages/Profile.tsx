@@ -1,8 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { BRAND } from '../brand';
 import HealthDashboard from '../components/HealthDashboard';
+import ImmunizationDashboard from '../components/ImmunizationDashboard';
+
+const TABS = [
+  { id: 'health', label: 'My Health' },
+  { id: 'children', label: "Children's vaccines" },
+] as const;
+type TabId = (typeof TABS)[number]['id'];
 
 // A regular user's account page. Reachable from the "Account" button. The admin
 // dashboard is a separate, gated route (/admin) — a normal user never lands there.
@@ -19,6 +26,7 @@ export default function Profile() {
 
   const isAdmin = user.email.toLowerCase() === BRAND.adminEmail.toLowerCase();
   const initial = (user.name || user.email || '?').charAt(0).toUpperCase();
+  const [tab, setTab] = useState<TabId>('health');
 
   return (
     <div className="container-x py-8">
@@ -44,8 +52,33 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Chronic-Condition Coach dashboard */}
-        <HealthDashboard />
+        {/* Health-hub tabs */}
+        <div className="mt-6 flex gap-2 overflow-x-auto">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-bold transition ${
+                tab === t.id ? 'bg-clay-500 text-white' : 'border border-cream-300 text-ink-700 hover:border-clay-400'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-2">
+          {tab === 'health' && <HealthDashboard />}
+          {tab === 'children' && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h2 className="font-display text-2xl font-extrabold text-ink-900">Children's <span className="text-clay-600">Vaccines</span></h2>
+                <p className="text-sm text-ink-700/60">Immunization schedule &amp; reminders — synced across your devices</p>
+              </div>
+              <ImmunizationDashboard />
+            </div>
+          )}
+        </div>
 
         <p className="mt-6 text-center text-[11px] text-ink-700/45">
           Need help? Contact {BRAND.supportEmail}

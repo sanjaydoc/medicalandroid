@@ -18,14 +18,25 @@ const LIVE = [
     to: '/account',
     cta: 'Open your health dashboard',
   },
+  {
+    title: "Children's Vaccine Scheduler",
+    tag: 'Live',
+    loop: ['Add child', 'Full schedule', 'Due-date alerts', 'Tick doses'],
+    body: 'Enter your child’s date of birth and get their complete national/IAP immunization schedule with due dates, overdue alerts and progress — synced across your devices.',
+    to: '/account',
+    cta: 'Open in your account',
+  },
 ];
 
 const PLANNED = [
-  { title: 'Care-Navigation Agent', body: 'Triage → right specialty → nearby clinic → a “what to tell your doctor” brief.' },
-  { title: 'Prescription / Report Decoder', body: 'Photo → explain each medicine/value → flag concerns → build a schedule.' },
-  { title: 'Pre-Visit Prep', body: 'Gather your timeline & meds → a one-page doctor handoff + questions to ask.' },
+  { title: 'Generic-medicine & price finder', body: 'Find the same-composition generic, typical price and nearest Jan Aushadhi / pharmacy — save money on every prescription.' },
+  { title: 'Medicine safety checker', body: 'Flag dangerous interactions and duplicate ingredients across all your medicines.' },
+  { title: 'Pregnancy companion', body: 'Week-by-week guidance, antenatal visit & test schedule, and danger signs.' },
+  { title: 'Post-discharge recovery guide', body: 'Day-by-day recovery checklist, wound care and warning signs after a procedure.' },
+  { title: 'Caregiver mode', body: 'Manage a parent’s meds, readings & appointments remotely — multiple profiles.' },
   { title: 'Medication Adherence', body: 'Build a schedule, remind you, track doses, nudge refills.' },
-  { title: 'Preventive-Care & Vaccination', body: 'A personalised calendar of vaccines & screenings, with reminders.' },
+  { title: 'Care-Navigation flagship', body: 'Triage → right specialty → nearby clinic → visit-prep → auto follow-up.' },
+  { title: 'Prescription / Report Decoder', body: 'Photo → explain each medicine/value → flag concerns → build a schedule.' },
   { title: 'Emergency / First-Aid', body: 'Detect emergencies → first-aid steps → nearest ER → one-tap 108/112.' },
 ];
 

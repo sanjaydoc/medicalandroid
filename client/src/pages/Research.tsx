@@ -51,13 +51,21 @@ const HOW = [
 export default function Research() {
   return (
     <div className="container-x py-10">
-      {/* Hero */}
-      <div className="mx-auto max-w-3xl text-center">
-        <span className="chip bg-clay-100 text-clay-700">Research</span>
-        <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight text-ink-900 sm:text-5xl">
-          We're training a medical AI model — in-house
-        </h1>
-        <p className="mt-4 text-lg text-ink-700/80">
+      {/* Hero — StemCells-style icon badge + two-tone title + pill */}
+      <div className="mx-auto max-w-4xl">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-blue-50 text-blue-600">
+            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v6l-5 9a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3l-5-9V3" /><path d="M8 3h8" /></svg>
+          </span>
+          <div>
+            <h1 className="font-display text-3xl font-extrabold leading-none text-ink-900 sm:text-4xl">
+              Medical AI, <span className="text-blue-600">in-house</span>
+            </h1>
+            <p className="mt-1 text-sm text-ink-700/60">Our own model — tuned, tested, honest</p>
+          </div>
+          <span className="ml-auto rounded-full border border-cream-300 bg-white px-3 py-1 text-xs font-bold text-ink-700/70">Research · honest</span>
+        </div>
+        <p className="mt-5 max-w-2xl text-lg text-ink-700/80">
           {BRAND.name} isn't just a wrapper around someone else's chatbot. We are building our own medical AI
           model, tuned for clinical accuracy, privacy and offline use — so trustworthy health information can
           reach anyone, anywhere, in their own language.

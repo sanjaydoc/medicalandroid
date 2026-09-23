@@ -70,21 +70,33 @@ const PLANNED = [
 export default function AgenticWorkflows() {
   return (
     <div className="container-x py-10">
-      {/* Hero */}
-      <div className="mx-auto max-w-3xl text-center">
-        <span className="chip bg-clay-100 text-clay-700">Agentic health</span>
-        <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight text-ink-900 sm:text-5xl">
-          Not just answers — <span className="text-clay-600">completed care actions</span>
-        </h1>
-        <p className="mt-4 text-lg text-ink-700/80">
+      {/* Hero — StemCells-style icon badge + two-tone title + pill */}
+      <div className="mx-auto max-w-4xl">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-blue-50 text-blue-600">
+            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h4l2-6 4 12 2-6h6" /></svg>
+          </span>
+          <div>
+            <h1 className="font-display text-3xl font-extrabold leading-none text-ink-900 sm:text-4xl">
+              Agentic <span className="text-blue-600">Workflows</span>
+            </h1>
+            <p className="mt-1 text-sm text-ink-700/60">Completed care actions, not just answers</p>
+          </div>
+          <span className="ml-auto rounded-full border border-cream-300 bg-white px-3 py-1 text-xs font-bold text-ink-700/70">Live · educational</span>
+        </div>
+        <p className="mt-5 max-w-2xl text-lg text-ink-700/80">
           {BRAND.name} is moving from a chatbot that <em>replies</em> to an assistant that <em>does</em> —
-          finding you care, tracking your health, and knowing when to escalate. Here’s what’s live and what’s next.
+          finding you care, tracking your health, and knowing when to escalate.
         </p>
       </div>
 
       {/* Live */}
       <div className="mx-auto mt-12 max-w-4xl">
-        <h2 className="font-display text-2xl font-extrabold text-ink-900">Live now</h2>
+        <div className="mb-1 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-green-500" />
+          <span className="text-xs font-bold uppercase tracking-wide text-green-700">Live now</span>
+        </div>
+        <h2 className="font-display text-2xl font-extrabold text-ink-900">Working today</h2>
         <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {LIVE.map((w) => (
             <div key={w.title} className="card flex flex-col p-6">
@@ -111,6 +123,10 @@ export default function AgenticWorkflows() {
 
       {/* Planned */}
       <div className="mx-auto mt-14 max-w-4xl">
+        <div className="mb-1 flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-blue-500" />
+          <span className="text-xs font-bold uppercase tracking-wide text-blue-600">Coming next</span>
+        </div>
         <h2 className="font-display text-2xl font-extrabold text-ink-900">On the roadmap</h2>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {PLANNED.map((w) => (

@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Analytics from './components/Analytics';
 import InstallPrompt from './components/InstallPrompt';
 import Home from './pages/Home';
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
+      {!bareHome && <Footer />}
     </div>
   );
 }

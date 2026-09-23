@@ -30,7 +30,14 @@ interface UIMsg {
   attachments?: { name: string; kind: 'image' | 'document' }[];
   clinics?: Clinic[];       // nearby-clinic cards (real OSM data)
   locationLabel?: string;
+  suggestClinic?: boolean;  // show a "Find a clinic near me" nudge under this reply
 }
+
+// When an assistant reply recommends in-person care, we offer the clinic finder.
+// Requires an action verb near a care word, so it skips boilerplate like
+// "this is not a diagnosis" or "confirm with your doctor".
+const RECOMMENDS_CARE_RE =
+  /\b(see|consult|visit|go to|seek|contact|refer(?:red)?(?: to)?)\b[^.?!]{0,45}\b(doctor|gp|physician|specialist|hospital|clinic|emergency|dermatologist|cardiologist|gyna|gynaecologist|gynecologist|paediatrician|pediatrician|dentist|pharmacist|neurologist|orthopa|ent|a&e|casualty|nearest)\b/i;
 
 const MAX_IMAGE_MB = 5;
 const MAX_PDF_MB = 10;
@@ -544,6 +551,17 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
           return copy;
         });
       }
+      // If the reply recommends in-person care, offer the clinic finder.
+      if (acc.trim() && RECOMMENDS_CARE_RE.test(acc)) {
+        setMessages((m) => {
+          const copy = [...m];
+          const last = copy[copy.length - 1];
+          if (last && last.role === 'assistant' && !last.clinics) {
+            copy[copy.length - 1] = { ...last, suggestClinic: true };
+          }
+          return copy;
+        });
+      }
       // Log the exchange to the clinic database (insert-only, RLS-protected).
       if (acc.trim()) {
         saveRow('chat_logs', {
@@ -791,6 +809,15 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                   />
                   {m.clinics && m.clinics.length > 0 && (
                     <ClinicCards clinics={m.clinics} locationLabel={m.locationLabel} />
+                  )}
+                  {m.suggestClinic && !m.clinics && !clinicMode && (
+                    <button
+                      type="button"
+                      onClick={startClinicFlow}
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-clay-300 bg-clay-50 px-3 py-1.5 text-xs font-bold text-clay-700 transition hover:border-clay-400 hover:bg-clay-100"
+                    >
+                      📍 Find a clinic or hospital near you
+                    </button>
                   )}
                 </div>
               ))}

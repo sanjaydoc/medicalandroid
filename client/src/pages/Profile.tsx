@@ -4,10 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import { BRAND } from '../brand';
 import HealthDashboard from '../components/HealthDashboard';
 import ImmunizationDashboard from '../components/ImmunizationDashboard';
+import PregnancyDashboard from '../components/PregnancyDashboard';
 
 const TABS = [
   { id: 'health', label: 'My Health' },
   { id: 'children', label: "Children's vaccines" },
+  { id: 'pregnancy', label: 'Pregnancy' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -76,6 +78,15 @@ export default function Profile() {
                 <p className="text-sm text-ink-700/60">Immunization schedule &amp; reminders — synced across your devices</p>
               </div>
               <ImmunizationDashboard />
+            </div>
+          )}
+          {tab === 'pregnancy' && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h2 className="font-display text-2xl font-extrabold text-ink-900">Pregnancy <span className="text-clay-600">Companion</span></h2>
+                <p className="text-sm text-ink-700/60">Week-by-week guidance, antenatal schedule &amp; danger signs — synced across your devices</p>
+              </div>
+              <PregnancyDashboard />
             </div>
           )}
         </div>

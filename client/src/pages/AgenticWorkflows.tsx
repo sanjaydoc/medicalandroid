@@ -26,12 +26,19 @@ const LIVE = [
     to: '/account',
     cta: 'Open in your account',
   },
+  {
+    title: 'Pregnancy Companion',
+    tag: 'Live',
+    loop: ['Enter LMP', 'Week-by-week', 'ANC schedule', 'Danger signs'],
+    body: 'Enter your last-period date and get your current week, due date, week-by-week guidance, the full antenatal visit/test schedule and danger signs — synced across your devices.',
+    to: '/account',
+    cta: 'Open in your account',
+  },
 ];
 
 const PLANNED = [
   { title: 'Generic-medicine & price finder', body: 'Find the same-composition generic, typical price and nearest Jan Aushadhi / pharmacy — save money on every prescription.' },
   { title: 'Medicine safety checker', body: 'Flag dangerous interactions and duplicate ingredients across all your medicines.' },
-  { title: 'Pregnancy companion', body: 'Week-by-week guidance, antenatal visit & test schedule, and danger signs.' },
   { title: 'Post-discharge recovery guide', body: 'Day-by-day recovery checklist, wound care and warning signs after a procedure.' },
   { title: 'Caregiver mode', body: 'Manage a parent’s meds, readings & appointments remotely — multiple profiles.' },
   { title: 'Medication Adherence', body: 'Build a schedule, remind you, track doses, nudge refills.' },

@@ -6,9 +6,11 @@ import HealthDashboard from '../components/HealthDashboard';
 import ImmunizationDashboard from '../components/ImmunizationDashboard';
 import PregnancyDashboard from '../components/PregnancyDashboard';
 import RecoveryDashboard from '../components/RecoveryDashboard';
+import MedicinesDashboard from '../components/MedicinesDashboard';
 
 const TABS = [
   { id: 'health', label: 'My Health' },
+  { id: 'medicines', label: 'Medicines' },
   { id: 'children', label: "Children's vaccines" },
   { id: 'pregnancy', label: 'Pregnancy' },
   { id: 'recovery', label: 'Recovery' },
@@ -73,6 +75,15 @@ export default function Profile() {
 
         <div className="mt-2">
           {tab === 'health' && <HealthDashboard />}
+          {tab === 'medicines' && (
+            <div className="mt-6">
+              <div className="mb-4">
+                <h2 className="font-display text-2xl font-extrabold text-ink-900">My <span className="text-clay-600">Medicines</span></h2>
+                <p className="text-sm text-ink-700/60">Generic &amp; price finder + automatic safety check — synced across your devices</p>
+              </div>
+              <MedicinesDashboard />
+            </div>
+          )}
           {tab === 'children' && (
             <div className="mt-6">
               <div className="mb-4">

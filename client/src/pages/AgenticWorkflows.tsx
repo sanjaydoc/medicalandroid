@@ -42,11 +42,17 @@ const LIVE = [
     to: '/account',
     cta: 'Open in your account',
   },
+  {
+    title: 'Generic Medicine & Safety Checker',
+    tag: 'Live',
+    loop: ['Add medicines', 'Find generic + price', 'Jan Aushadhi', 'Interaction check'],
+    body: 'Type your medicines to see the same-composition generic, a branded-vs-generic price comparison and the nearest Jan Aushadhi store — plus an automatic check for dangerous interactions and duplicate ingredients. Synced across devices.',
+    to: '/account',
+    cta: 'Open in your account',
+  },
 ];
 
 const PLANNED = [
-  { title: 'Generic-medicine & price finder', body: 'Find the same-composition generic, typical price and nearest Jan Aushadhi / pharmacy — save money on every prescription.' },
-  { title: 'Medicine safety checker', body: 'Flag dangerous interactions and duplicate ingredients across all your medicines.' },
   { title: 'Caregiver mode', body: 'Manage a parent’s meds, readings & appointments remotely — multiple profiles.' },
   { title: 'Medication Adherence', body: 'Build a schedule, remind you, track doses, nudge refills.' },
   { title: 'Care-Navigation flagship', body: 'Triage → right specialty → nearby clinic → visit-prep → auto follow-up.' },

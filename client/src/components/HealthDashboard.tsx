@@ -1,9 +1,9 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import VitalsChart, { type ChartSeries } from './VitalsChart';
 import {
   loadVitals, addVital, deleteVital, classify, latest, avgLast,
-  assessEscalation, lifestyleNudge, weeklySummary, seriesOf, fmtWhen,
+  assessEscalation, lifestyleNudge, weeklySummary, seriesOf, fmtWhen, syncVitals,
   type Vital, type GlucoseContext,
 } from '../api/vitals';
 
@@ -56,6 +56,14 @@ export default function HealthDashboard() {
   const [err, setErr] = useState('');
 
   const refresh = () => setVitals(loadVitals());
+
+  // Pull cloud readings on mount (merges with local, then re-renders).
+  useEffect(() => {
+    let alive = true;
+    syncVitals().then((merged) => { if (alive && merged) setVitals(merged); });
+    return () => { alive = false; };
+  }, []);
+
   const submit = () => {
     setErr('');
     if (metric === 'bp') {

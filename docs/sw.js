@@ -3,12 +3,12 @@
 // handler deletes every cache whose name !== CACHE, so a bump evicts the stale
 // shell. Paired with updateViaCache:'none' + a controllerchange reload in
 // main.tsx, a new deploy takes effect on the next load with no manual refresh.
-// mue6855t is replaced with a unique id at deploy time (scripts/build-pages.mjs)
+// mue6ler9 is replaced with a unique id at deploy time (scripts/build-pages.mjs)
 // so EVERY deploy ships a genuinely different sw.js. That is what makes the browser
 // install a new worker, run the activate handler (which deletes old caches), and
 // fire controllerchange → the one-time reload in main.tsx. With a constant name the
 // worker never changed, so returning visitors stayed frozen on a stale cache.
-const CACHE = 'meddroid-mue6855t';
+const CACHE = 'meddroid-mue6ler9';
 const SHELL = ['/', '/index.html', '/favicon.svg', '/manifest.webmanifest', '/pwa-192.png', '/pwa-512.png'];
 
 self.addEventListener('install', (event) => {

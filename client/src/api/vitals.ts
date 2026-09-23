@@ -2,6 +2,8 @@
 // v1 stores on-device (localStorage). Educational reference ranges only — NOT a
 // diagnosis. Escalation is deliberately conservative (errs toward "see a doctor").
 
+import { supabase } from './supabase';
+
 export type VitalType = 'bp' | 'glucose' | 'weight';
 export type GlucoseContext = 'fasting' | 'post' | 'random';
 export type Tone = 'good' | 'warn' | 'bad' | 'urgent';
@@ -58,11 +60,81 @@ export function addVital(v: Omit<Vital, 'id' | 'ts'> & { ts?: number }): Vital {
   const rec: Vital = { ...v, id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ts: v.ts && v.ts > 0 ? v.ts : Date.now() };
   all.push(rec);
   save(all);
+  void pushRemote(rec); // mirror to cloud when signed in (fire-and-forget)
   return rec;
 }
 
 export function deleteVital(id: string) {
   save(loadVitals().filter((v) => v.id !== id));
+  if (_uid && supabase) {
+    try { void supabase.from('vitals').delete().eq('user_id', _uid).eq('client_id', id); } catch { /* ignore */ }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cloud sync (Supabase) — local-first, cloud-mirror. Readings live in
+// localStorage for instant/offline use; when the user is signed in they also
+// sync to the `vitals` table (RLS-scoped to the user) so they follow across
+// devices. Requires the SQL in finetune/supabase-vitals.sql to be run once.
+// ---------------------------------------------------------------------------
+let _uid: string | null = null;
+
+/** Called by AuthContext when the signed-in user changes. */
+export function setVitalsUser(id: string | null) {
+  const changed = id !== _uid;
+  _uid = id;
+  if (id && changed) void syncVitals();
+}
+
+function vitalToRow(v: Vital) {
+  return {
+    user_id: _uid, client_id: v.id, type: v.type,
+    ts: new Date(v.ts).toISOString(),
+    systolic: v.systolic ?? null, diastolic: v.diastolic ?? null, pulse: v.pulse ?? null,
+    glucose: v.glucose ?? null, context: v.context ?? null, weight: v.weight ?? null,
+  };
+}
+function rowToVital(r: Record<string, unknown>): Vital {
+  return {
+    id: (r.client_id as string) || (r.id as string),
+    ts: new Date(r.ts as string).getTime(),
+    type: r.type as VitalType,
+    systolic: (r.systolic as number) ?? undefined,
+    diastolic: (r.diastolic as number) ?? undefined,
+    pulse: (r.pulse as number) ?? undefined,
+    glucose: (r.glucose as number) ?? undefined,
+    context: (r.context as GlucoseContext) ?? undefined,
+    weight: (r.weight as number) ?? undefined,
+  };
+}
+
+async function pushRemote(v: Vital) {
+  if (!_uid || !supabase) return;
+  try { await supabase.from('vitals').upsert(vitalToRow(v), { onConflict: 'user_id,client_id' }); } catch { /* offline / not set up */ }
+}
+
+/** Two-way merge: pull the user's cloud rows, push any local-only rows. */
+export async function syncVitals(): Promise<Vital[] | null> {
+  if (!_uid || !supabase) return null;
+  try {
+    const { data, error } = await supabase.from('vitals').select('*').eq('user_id', _uid);
+    if (error) return null;
+    const remote = (data || []).map(rowToVital);
+    const local = loadVitals();
+    const byId = new Map<string, Vital>();
+    for (const v of remote) byId.set(v.id, v);
+    const remoteIds = new Set(remote.map((v) => v.id));
+    const toPush = local.filter((v) => !remoteIds.has(v.id));
+    for (const v of local) if (!byId.has(v.id)) byId.set(v.id, v);
+    const merged = Array.from(byId.values()).sort((a, b) => a.ts - b.ts);
+    save(merged);
+    if (toPush.length) {
+      try { await supabase.from('vitals').upsert(toPush.map(vitalToRow), { onConflict: 'user_id,client_id' }); } catch { /* ignore */ }
+    }
+    return merged;
+  } catch {
+    return null;
+  }
 }
 
 // ---- Classification (educational ranges; ACC/AHA + ADA-style) ----

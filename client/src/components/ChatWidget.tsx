@@ -399,7 +399,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
             }
           : {
               role: 'assistant',
-              text: `I couldn't find hospitals or clinics listed near ${point.label || 'that area'} in the free map data — but you can see them on Google Maps:\n\n[🗺️ Open hospitals near you on Google Maps](${hospitalsNearUrl(point)})`,
+              text: `I couldn't find hospitals or clinics listed near ${point.label || 'that area'} in the free map data — but you can see them on Google Maps:\n\n[Open hospitals near you on Google Maps](${hospitalsNearUrl(point)})`,
             };
         return copy;
       });
@@ -408,7 +408,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
         const copy = [...m];
         copy[copy.length - 1] = {
           role: 'assistant',
-          text: `⚠️ ${e instanceof Error ? e.message : 'The map service is busy just now.'} In the meantime, open hospitals near you directly on Google Maps:\n\n[🗺️ Open hospitals near you on Google Maps](${hospitalsNearUrl(point)})`,
+          text: `⚠️ ${e instanceof Error ? e.message : 'The map service is busy just now.'} In the meantime, open hospitals near you directly on Google Maps:\n\n[Open hospitals near you on Google Maps](${hospitalsNearUrl(point)})`,
         };
         return copy;
       });
@@ -422,14 +422,14 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     setClinicMode(true);
     setMessages((m) => [
       ...m,
-      { role: 'assistant', text: 'I can find hospitals & clinics near you. Tap 📍 Use my location below, or just type your area (e.g. "T. Nagar, Chennai").' },
+      { role: 'assistant', text: 'I can find hospitals & clinics near you. Tap **Use my location** below, or just type your area (e.g. "T. Nagar, Chennai").' },
     ]);
   };
 
   const showVitalHelp = () => {
     setMessages((m) => [
       ...m,
-      { role: 'assistant', text: 'To track your health, just type a reading like **“bp 130/85”** or **“sugar 140 fasting”** — I’ll log it, tell you if it’s in range, flag any concern, and track your trend. 📊 Your charts live on your **Account** page.' },
+      { role: 'assistant', text: 'To track your health, just type a reading like **“bp 130/85”** or **“sugar 140 fasting”** — I’ll log it, tell you if it’s in range, flag any concern, and track your trend. Your charts live on your **Account** page.' },
     ]);
   };
 
@@ -488,9 +488,9 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
             rec.type === 'bp' ? `${rec.systolic}/${rec.diastolic} mmHg`
             : rec.type === 'glucose' ? `${rec.glucose} mg/dL (${rec.context})`
             : `${rec.weight} kg`;
-          return `✅ **${valStr}** — ${c.label}${c.detail ? ` (${c.detail})` : ''}`;
+          return `- **${valStr}** — ${c.label}${c.detail ? ` (${c.detail})` : ''}`;
         });
-        let reply = recs.length > 1 ? `Logged ${recs.length} readings:\n${lines.join('\n')}` : `Logged: ${lines[0].replace(/^✅ /, '')}`;
+        let reply = recs.length > 1 ? `Logged ${recs.length} readings:\n${lines.join('\n')}` : `Logged: ${lines[0].replace(/^- /, '')}`;
         // trend note (per type present)
         if (recs.some((r) => r.type === 'bp')) {
           const a = avgLast(all, 'bp', 7) as { systolic: number; diastolic: number; count: number } | null;
@@ -501,7 +501,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
           if (a && a.count > 1) reply += `\nSugar 7-day average: ${a.glucose} mg/dL (${a.count} readings).`;
         }
         reply += `\n\n${esc.message}`;
-        reply += `\n\n📊 See your full trends & charts on your **Account** page.`;
+        reply += `\n\nSee your full trends & charts on your **Account** page.`;
         setMessages((m) => [
           ...m,
           { role: 'user', text },
@@ -781,14 +781,17 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                       <p className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink-700/50">
                         Save chat as
                       </p>
-                      <button onClick={exportPdf} className="block w-full px-3 py-2 text-left text-sm hover:bg-cream-100">
-                        📄 PDF
+                      <button onClick={exportPdf} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-cream-100">
+                        <DocIcon />
+                        PDF
                       </button>
-                      <button onClick={exportWord} className="block w-full px-3 py-2 text-left text-sm hover:bg-cream-100">
-                        📝 Word (.doc)
+                      <button onClick={exportWord} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-cream-100">
+                        <DocIcon />
+                        Word (.doc)
                       </button>
-                      <button onClick={exportText} className="block w-full px-3 py-2 text-left text-sm hover:bg-cream-100">
-                        📃 Text (.txt)
+                      <button onClick={exportText} className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-cream-100">
+                        <DocIcon />
+                        Text (.txt)
                       </button>
                       <div className="my-1 border-t border-cream-300" />
                       <button
@@ -851,15 +854,17 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                   ))}
                   <button
                     onClick={startClinicFlow}
-                    className="rounded-full border border-clay-200 bg-white px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:border-clay-400 hover:bg-clay-50"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-clay-200 bg-white px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:border-clay-400 hover:bg-clay-50"
                   >
-                    📍 Find a clinic near me
+                    <PinIcon />
+                    Find a clinic near me
                   </button>
                   <button
                     onClick={showVitalHelp}
-                    className="rounded-full border border-clay-200 bg-white px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:border-clay-400 hover:bg-clay-50"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-clay-200 bg-white px-3 py-1.5 text-xs font-semibold text-clay-700 transition hover:border-clay-400 hover:bg-clay-50"
                   >
-                    🩺 Track BP / sugar
+                    <PulseIcon />
+                    Track BP / sugar
                   </button>
                 </div>
               )}
@@ -885,7 +890,8 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                       onClick={startClinicFlow}
                       className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-clay-300 bg-clay-50 px-3 py-1.5 text-xs font-bold text-clay-700 transition hover:border-clay-400 hover:bg-clay-100"
                     >
-                      📍 Find a clinic or hospital near you
+                      <PinIcon />
+                      Find a clinic or hospital near you
                     </button>
                   )}
                 </div>
@@ -918,7 +924,8 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                     disabled={clinicBusy}
                     className="flex items-center gap-1.5 rounded-full bg-clay-500 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-clay-600 disabled:opacity-50"
                   >
-                    📍 Use my location
+                    <PinIcon />
+                    Use my location
                   </button>
                   <span className="text-xs text-ink-700/60">or type your area below</span>
                   <button
@@ -1254,6 +1261,29 @@ function ClipIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+function PinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
+function PulseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12h4l2 5 4-12 2 7h6" />
+    </svg>
+  );
+}
+function DocIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-ink-700/60" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" />
+      <path d="M14 3v5h5M9 13h6M9 17h4" />
     </svg>
   );
 }

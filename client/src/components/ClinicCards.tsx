@@ -143,7 +143,8 @@ export default function ClinicCards({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 rounded-full border border-cream-300 bg-white px-3 py-1.5 text-xs font-bold text-ink-800 transition hover:border-clay-400 hover:text-clay-600"
         >
-          🗺️ View all on Google Maps
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z" /><circle cx="12" cy="10" r="2.5" /></svg>
+          View all on Google Maps
         </a>
         <a
           href={doctorsUrl}
@@ -151,7 +152,8 @@ export default function ClinicCards({
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 rounded-full border border-cream-300 bg-white px-3 py-1.5 text-xs font-bold text-ink-800 transition hover:border-clay-400 hover:text-clay-600"
         >
-          🔎 Search doctors, photos &amp; reviews
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
+          Search doctors, photos &amp; reviews
         </a>
       </div>
       <p className="mt-2 text-[11px] text-ink-700/50">

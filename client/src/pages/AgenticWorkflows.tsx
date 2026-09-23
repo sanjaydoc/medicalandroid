@@ -65,7 +65,7 @@ export default function AgenticWorkflows() {
       {/* Live */}
       <div className="mx-auto mt-12 max-w-4xl">
         <h2 className="font-display text-2xl font-extrabold text-ink-900">Live now</h2>
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+        <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {LIVE.map((w) => (
             <div key={w.title} className="card flex flex-col p-6">
               <div className="flex items-center justify-between">
@@ -92,7 +92,7 @@ export default function AgenticWorkflows() {
       {/* Planned */}
       <div className="mx-auto mt-14 max-w-4xl">
         <h2 className="font-display text-2xl font-extrabold text-ink-900">On the roadmap</h2>
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {PLANNED.map((w) => (
             <div key={w.title} className="card p-5">
               <span className="chip bg-cream-200 text-ink-700/70">Planned</span>

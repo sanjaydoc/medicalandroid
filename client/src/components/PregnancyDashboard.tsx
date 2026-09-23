@@ -75,7 +75,7 @@ export default function PregnancyDashboard() {
   return (
     <div className="w-full">
       {/* Summary */}
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="card p-4">
           <p className="text-xs font-semibold text-ink-700/60">You are at</p>
           <p className="mt-1 font-display text-2xl font-extrabold text-ink-900">{gaText(rec.data.lmp)}</p>
@@ -127,7 +127,7 @@ export default function PregnancyDashboard() {
       {/* Danger signs */}
       <div className="mt-4 rounded-2xl border p-4" style={{ background: '#fdeeec', borderColor: '#f2b8b1' }}>
         <h3 className="mb-2 font-display text-sm font-bold" style={{ color: '#b3261e' }}>⚠️ Seek care immediately if you have</h3>
-        <ul className="grid gap-1.5 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
           {DANGER_SIGNS.map((d) => (
             <li key={d} className="flex items-start gap-2 text-xs text-ink-800"><span style={{ color: '#b3261e' }}>•</span>{d}</li>
           ))}

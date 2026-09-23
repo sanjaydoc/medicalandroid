@@ -93,7 +93,7 @@ export default function ImmunizationDashboard() {
       {sel ? (
         <>
           {/* Summary */}
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="card p-4">
               <p className="text-xs font-semibold text-ink-700/60">{sel.data.name}</p>
               <p className="mt-1 font-display text-xl font-extrabold text-ink-900">{ageLabel(sel.data.dob)}</p>

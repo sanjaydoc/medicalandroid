@@ -30,6 +30,8 @@ interface UIMsg {
   attachments?: { name: string; kind: 'image' | 'document' }[];
   clinics?: Clinic[];       // nearby-clinic cards (real OSM data)
   locationLabel?: string;
+  center?: { lat: number; lon: number }; // search centre (for Google Maps deep-links)
+  specialtyHint?: string;   // specialty context (for "search doctors" deep-link)
   suggestClinic?: boolean;  // show a "Find a clinic near me" nudge under this reply
 }
 
@@ -379,9 +381,11 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
         copy[copy.length - 1] = clinics.length
           ? {
               role: 'assistant',
-              text: `Here ${clinics.length === 1 ? 'is 1 option' : `are ${clinics.length} options`} near ${point.label || 'you'}. Tap Directions or Call — and please confirm they treat your condition before travelling.`,
+              text: `Here ${clinics.length === 1 ? 'is 1 option' : `are ${clinics.length} options`} near ${point.label || 'you'}. Tap a name for photos & reviews, or Directions / Call — and please confirm they treat your condition before travelling.`,
               clinics,
               locationLabel: point.label,
+              center: { lat: point.lat, lon: point.lon },
+              specialtyHint,
             }
           : {
               role: 'assistant',
@@ -808,7 +812,12 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                     loading={busy && i === messages.length - 1 && m.role === 'assistant'}
                   />
                   {m.clinics && m.clinics.length > 0 && (
-                    <ClinicCards clinics={m.clinics} locationLabel={m.locationLabel} />
+                    <ClinicCards
+                      clinics={m.clinics}
+                      locationLabel={m.locationLabel}
+                      center={m.center}
+                      specialty={m.specialtyHint}
+                    />
                   )}
                   {m.suggestClinic && !m.clinics && !clinicMode && (
                     <button

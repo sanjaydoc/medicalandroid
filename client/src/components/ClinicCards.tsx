@@ -33,8 +33,28 @@ function fmtDist(km: number): string {
   return km < 1 ? `${Math.round(km * 1000)} m away` : `${km.toFixed(1)} km away`;
 }
 
-export default function ClinicCards({ clinics, locationLabel }: { clinics: Clinic[]; locationLabel?: string }) {
+export default function ClinicCards({
+  clinics,
+  locationLabel,
+  center,
+  specialty,
+}: {
+  clinics: Clinic[];
+  locationLabel?: string;
+  center?: { lat: number; lon: number };
+  specialty?: string;
+}) {
   if (!clinics.length) return null;
+
+  // Deep-links to the authoritative sources (real photos, reviews, doctor names,
+  // booking) — the user sees the real listing; we never copy/guess that data.
+  const listingUrl = (c: Clinic) =>
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(c.name + (locationLabel ? ', ' + locationLabel : ''))}`;
+  const near = locationLabel || 'me';
+  const allOnMapsUrl = center
+    ? `https://www.google.com/maps/search/${encodeURIComponent(specialty || 'hospitals and clinics')}/@${center.lat},${center.lon},14z`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((specialty || 'hospitals and clinics') + ' near ' + near)}`;
+  const doctorsUrl = `https://www.google.com/search?q=${encodeURIComponent((specialty ? specialty + ' ' : '') + 'doctors near ' + near)}`;
   return (
     <div className="mt-1">
       <p className="mb-2 text-xs font-semibold text-ink-700/60">
@@ -54,9 +74,15 @@ export default function ClinicCards({ clinics, locationLabel }: { clinics: Clini
                     ✓ Nearest
                   </span>
                 )}
-                <h4 className="truncate font-display text-[15px] font-bold leading-snug text-ink-900" title={c.name}>
+                <a
+                  href={listingUrl(c)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block truncate font-display text-[15px] font-bold leading-snug text-ink-900 underline-offset-2 hover:text-clay-700 hover:underline"
+                  title={`${c.name} — view photos, reviews & phone on Google`}
+                >
                   {c.name}
-                </h4>
+                </a>
                 <p className="text-xs font-semibold text-clay-600">
                   {c.kind}
                   {c.specialty ? ` · ${c.specialty}` : ''}
@@ -110,8 +136,27 @@ export default function ClinicCards({ clinics, locationLabel }: { clinics: Clini
           </div>
         ))}
       </div>
-      <p className="mt-1 text-[11px] text-ink-700/50">
-        Listings from OpenStreetMap — always call ahead to confirm timings, availability &amp; that they treat your condition.
+      <div className="mt-1 flex flex-wrap gap-2">
+        <a
+          href={allOnMapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-full border border-cream-300 bg-white px-3 py-1.5 text-xs font-bold text-ink-800 transition hover:border-clay-400 hover:text-clay-600"
+        >
+          🗺️ View all on Google Maps
+        </a>
+        <a
+          href={doctorsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-full border border-cream-300 bg-white px-3 py-1.5 text-xs font-bold text-ink-800 transition hover:border-clay-400 hover:text-clay-600"
+        >
+          🔎 Search doctors, photos &amp; reviews
+        </a>
+      </div>
+      <p className="mt-2 text-[11px] text-ink-700/50">
+        Nearby list from OpenStreetMap; tap a name or the buttons above for photos, reviews, doctor
+        details &amp; booking on Google/Practo. Always call ahead to confirm they treat your condition.
       </p>
     </div>
   );

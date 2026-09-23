@@ -96,7 +96,11 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 flex flex-col gap-2 border-t border-cream-300 pt-6 text-xs text-ink-700/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} {BRAND.name} · <a href="/" className="hover:text-clay-600">medicalandroid.com</a></p>
+          <p>
+            © {new Date().getFullYear()} {BRAND.name} ·{' '}
+            <Link to="/privacy" className="hover:text-clay-600">Privacy</Link> ·{' '}
+            <Link to="/terms" className="hover:text-clay-600">Terms</Link>
+          </p>
           <p>Educational information only — not a diagnosis or a substitute for a clinician. In an emergency call your local emergency number.</p>
         </div>
       </div>

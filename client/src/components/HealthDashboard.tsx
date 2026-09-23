@@ -128,11 +128,12 @@ export default function HealthDashboard() {
         <span className="ml-auto rounded-full border border-cream-300 bg-white px-3 py-1 text-xs font-bold text-ink-700/70">Educational · not a diagnosis</span>
       </div>
 
-      {/* 3-column dashboard */}
-      <div className="grid gap-5 lg:grid-cols-[210px_1fr_300px]">
+      {/* 3-column dashboard. grid-cols-1 (minmax(0,1fr)) on mobile keeps the single
+          column at container width so children shrink instead of overflowing. */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[210px_minmax(0,1fr)_300px]">
 
         {/* LEFT: section rail */}
-        <div className="card h-max p-3">
+        <div className="card h-max min-w-0 p-3">
           <p className="px-2 pb-2 pt-1 text-xs font-bold uppercase tracking-wide text-ink-700/50">Sections</p>
           <div className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
             {NAV.map((n) => {
@@ -256,7 +257,7 @@ export default function HealthDashboard() {
         </div>
 
         {/* RIGHT: status + guidance */}
-        <div className="flex flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5">
           <div className="card p-5">
             <div className="mb-2 flex items-center gap-2 text-clay-500">
               <Icon name="pulse" className="h-4 w-4" />

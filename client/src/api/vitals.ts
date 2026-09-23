@@ -30,7 +30,18 @@ export function loadVitals(): Vital[] {
   try {
     const raw = localStorage.getItem(KEY);
     const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? (arr as Vital[]).sort((a, b) => a.ts - b.ts) : [];
+    if (!Array.isArray(arr)) return [];
+    // Migration: earlier chat-logged readings were saved with ts=0 (a bug).
+    // Stamp any missing/zero timestamp with a recent, staggered time so they
+    // appear on the trend/charts and count toward recent stats.
+    let changed = false;
+    const now = Date.now();
+    const fixed = (arr as Vital[]).map((v, i) => {
+      if (!v.ts || v.ts <= 0) { changed = true; return { ...v, ts: now - (arr.length - i) * 60000 }; }
+      return v;
+    });
+    if (changed) { try { localStorage.setItem(KEY, JSON.stringify(fixed)); } catch { /* ignore */ } }
+    return fixed.sort((a, b) => a.ts - b.ts);
   } catch {
     return [];
   }
@@ -44,7 +55,7 @@ function save(all: Vital[]) {
 
 export function addVital(v: Omit<Vital, 'id' | 'ts'> & { ts?: number }): Vital {
   const all = loadVitals();
-  const rec: Vital = { ...v, id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ts: v.ts ?? Date.now() };
+  const rec: Vital = { ...v, id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ts: v.ts && v.ts > 0 ? v.ts : Date.now() };
   all.push(rec);
   save(all);
   return rec;

@@ -42,9 +42,14 @@ export default function Navbar() {
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
             <div className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-clay-100 font-bold text-clay-700">
+              <Link
+                to="/account"
+                title="Your account & health dashboard"
+                aria-label="Account"
+                className="grid h-9 w-9 place-items-center rounded-full bg-clay-100 font-bold text-clay-700 ring-clay-300 transition hover:ring-2"
+              >
                 {user.name.charAt(0).toUpperCase()}
-              </span>
+              </Link>
               <button
                 onClick={() => {
                   logout();
@@ -91,6 +96,11 @@ export default function Navbar() {
                 {l.label}
               </NavLink>
             ))}
+            {user && (
+              <NavLink to="/account" className={navClass} onClick={() => setOpen(false)}>
+                Account
+              </NavLink>
+            )}
             <div className="mt-2 flex gap-2">
               {user ? (
                 <button

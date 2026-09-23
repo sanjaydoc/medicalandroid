@@ -27,9 +27,12 @@ export interface GeoPoint {
 }
 
 const OVERPASS_ENDPOINTS = [
-  'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
 ];
+const OVERPASS_TIMEOUT_MS = 15000; // fail fast per mirror, then try the next one
 
 /** Haversine distance in km. */
 function distKm(aLat: number, aLon: number, bLat: number, bLon: number): number {
@@ -117,20 +120,31 @@ interface OverpassEl {
 async function overpassQuery(body: string): Promise<OverpassEl[]> {
   let lastErr: unknown;
   for (const ep of OVERPASS_ENDPOINTS) {
+    // Per-mirror timeout so one overloaded server can't hang the whole search —
+    // on timeout/error we fail over to the next mirror instead of spinning forever.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), OVERPASS_TIMEOUT_MS);
     try {
       const res = await fetch(ep, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'data=' + encodeURIComponent(body),
+        signal: ctrl.signal,
       });
+      clearTimeout(timer);
       if (!res.ok) throw new Error(`Overpass ${res.status}`);
       const json = (await res.json()) as { elements?: OverpassEl[] };
       return json.elements || [];
     } catch (e) {
+      clearTimeout(timer);
       lastErr = e;
+      // try the next mirror
     }
   }
-  throw lastErr instanceof Error ? lastErr : new Error('Could not reach the map service.');
+  // Every mirror failed/timed out.
+  throw lastErr
+    ? new Error('The map service is busy right now — please tap "Use my location" or type your area to try again.')
+    : new Error('Could not reach the map service. Please try again.');
 }
 
 /**
@@ -139,7 +153,7 @@ async function overpassQuery(body: string): Promise<OverpassEl[]> {
  */
 export async function findNearbyClinics(point: GeoPoint, specialtyHint = '', limit = 8): Promise<Clinic[]> {
   const { lat, lon } = point;
-  const radii = [4000, 10000, 25000]; // 4km -> 10km -> 25km
+  const radii = [7000, 25000]; // 7km first, widen to 25km only if too few results
   let elements: OverpassEl[] = [];
   for (const r of radii) {
     const q = `[out:json][timeout:25];

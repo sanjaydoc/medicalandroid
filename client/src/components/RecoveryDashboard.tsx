@@ -5,16 +5,19 @@ import {
   PROCEDURES, getProcedure, dayNumber, currentPhaseIndex, taskId, recoveryProgress,
   followUpStatus, followUpDate, fmtDate, type RecoveryData,
 } from '../api/recovery';
+import { activeProfileId, belongsTo } from '../api/profiles';
 
 type RecRec = HealthRecord<RecoveryData>;
 
 export default function RecoveryDashboard() {
-  const [rec, setRec] = useState<RecRec | undefined>(() => listRecords<RecoveryData>('recovery')[0]);
+  const pid = activeProfileId();
+  const forProfile = () => listRecords<RecoveryData>('recovery').filter((r) => belongsTo(r.data.profile, pid))[0];
+  const [rec, setRec] = useState<RecRec | undefined>(forProfile);
   const [procKey, setProcKey] = useState(PROCEDURES[0].key);
   const [startDate, setStartDate] = useState('');
   const [err, setErr] = useState('');
 
-  const reload = () => setRec(listRecords<RecoveryData>('recovery')[0]);
+  const reload = () => setRec(forProfile());
 
   useEffect(() => {
     let alive = true;
@@ -27,7 +30,7 @@ export default function RecoveryDashboard() {
     const t = new Date(startDate).getTime();
     if (!startDate || isNaN(t)) { setErr('Enter the surgery / discharge date.'); return; }
     if (t > Date.now()) { setErr('That date is in the future.'); return; }
-    setRec(upsertRecord<RecoveryData>({ kind: 'recovery', data: { procedureKey: procKey, startDate, done: {} } }));
+    setRec(upsertRecord<RecoveryData>({ kind: 'recovery', data: { procedureKey: procKey, startDate, done: {}, profile: pid } }));
   };
 
   const toggle = (id: string) => {

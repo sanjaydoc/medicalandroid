@@ -5,6 +5,7 @@
 export interface PregnancyData {
   lmp: string;                     // last menstrual period (ISO date)
   done: Record<string, boolean>;   // ANC task key -> completed
+  profile?: string;                // caregiver profile id
 }
 
 const DAY = 86400000;

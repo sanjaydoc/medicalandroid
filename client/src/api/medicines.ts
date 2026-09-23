@@ -128,4 +128,4 @@ export function checkSafety(meds: Drug[]): SafetyIssue[] {
   return issues.filter((x) => { const k = x.title + x.note; if (seen.has(k)) return false; seen.add(k); return true; });
 }
 
-export interface MedicineData { query: string; generic?: string }  // stored per medicine
+export interface MedicineData { query: string; generic?: string; profile?: string }  // stored per medicine

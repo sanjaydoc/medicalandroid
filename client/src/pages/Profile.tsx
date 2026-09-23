@@ -7,6 +7,7 @@ import ImmunizationDashboard from '../components/ImmunizationDashboard';
 import PregnancyDashboard from '../components/PregnancyDashboard';
 import RecoveryDashboard from '../components/RecoveryDashboard';
 import MedicinesDashboard from '../components/MedicinesDashboard';
+import { listProfiles, activeProfileId, setActiveProfile, addProfile, removeProfile } from '../api/profiles';
 
 const TABS = [
   { id: 'health', label: 'My Health' },
@@ -16,6 +17,8 @@ const TABS = [
   { id: 'recovery', label: 'Recovery' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
+// Tabs whose data is per-person (caregiver mode). "My Health" (vitals) stays the owner's.
+const CAREGIVER_TABS = new Set<TabId>(['medicines', 'children', 'pregnancy', 'recovery']);
 
 // A regular user's account page. Reachable from the "Account" button. The admin
 // dashboard is a separate, gated route (/admin) — a normal user never lands there.
@@ -33,6 +36,17 @@ export default function Profile() {
   const isAdmin = user.email.toLowerCase() === BRAND.adminEmail.toLowerCase();
   const initial = (user.name || user.email || '?').charAt(0).toUpperCase();
   const [tab, setTab] = useState<TabId>('health');
+  const [profileId, setProfileId] = useState<string>(activeProfileId());
+  const [, setPTick] = useState(0);
+  const profiles = listProfiles();
+  const chooseProfile = (id: string) => { setActiveProfile(id); setProfileId(id); };
+  const onAddProfile = () => {
+    const name = window.prompt('Add a person to care for (e.g. Mom, Dad, child):');
+    if (!name || !name.trim()) return;
+    const id = addProfile(name.trim(), 'family');
+    chooseProfile(id);
+    setPTick((t) => t + 1);
+  };
 
   return (
     <div className="container-x py-8">
@@ -73,7 +87,36 @@ export default function Profile() {
           ))}
         </div>
 
-        <div className="mt-2">
+        {/* Caregiver profile switcher (applies to per-person tabs) */}
+        {CAREGIVER_TABS.has(tab) && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold text-ink-700/50">Profile:</span>
+            {profiles.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => chooseProfile(p.id)}
+                className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
+                  profileId === p.id ? 'bg-clay-500 text-white' : 'border border-cream-300 text-ink-700 hover:border-clay-400'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
+            <button onClick={onAddProfile} className="rounded-full border border-dashed border-clay-300 px-3 py-1.5 text-xs font-bold text-clay-600 hover:bg-clay-50">
+              + Add person
+            </button>
+            {profileId !== 'self' && (
+              <button
+                onClick={() => { if (confirm('Remove this profile? Their records stay stored but hidden.')) { removeProfile(profileId); setProfileId('self'); setPTick((t) => t + 1); } }}
+                className="ml-auto text-xs font-semibold text-ink-700/45 hover:text-red-600"
+              >
+                Remove profile
+              </button>
+            )}
+          </div>
+        )}
+
+        <div key={`${tab}:${profileId}`} className="mt-2">
           {tab === 'health' && <HealthDashboard />}
           {tab === 'medicines' && (
             <div className="mt-6">

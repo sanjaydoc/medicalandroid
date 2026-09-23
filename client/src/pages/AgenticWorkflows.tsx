@@ -50,10 +50,17 @@ const LIVE = [
     to: '/account',
     cta: 'Open in your account',
   },
+  {
+    title: 'Caregiver Mode',
+    tag: 'Live',
+    loop: ['Add a person', 'Switch profile', 'Their records', 'All synced'],
+    body: 'Manage health records for more than one person — a parent, a child, yourself. Switch profiles and each person’s medicines, vaccines, pregnancy and recovery are kept separate and synced across your devices.',
+    to: '/account',
+    cta: 'Open in your account',
+  },
 ];
 
 const PLANNED = [
-  { title: 'Caregiver mode', body: 'Manage a parent’s meds, readings & appointments remotely — multiple profiles.' },
   { title: 'Medication Adherence', body: 'Build a schedule, remind you, track doses, nudge refills.' },
   { title: 'Care-Navigation flagship', body: 'Triage → right specialty → nearby clinic → visit-prep → auto follow-up.' },
   { title: 'Prescription / Report Decoder', body: 'Photo → explain each medicine/value → flag concerns → build a schedule.' },

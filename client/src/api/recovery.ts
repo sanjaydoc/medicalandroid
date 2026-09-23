@@ -128,6 +128,7 @@ export interface RecoveryData {
   procedureKey: string;
   startDate: string;                 // ISO date of surgery/discharge
   done: Record<string, boolean>;     // task id -> completed
+  profile?: string;                  // caregiver profile id
 }
 
 const DAY = 86400000;

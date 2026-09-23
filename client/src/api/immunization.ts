@@ -30,6 +30,7 @@ export interface ChildData {
   name: string;
   dob: string;                     // ISO date (yyyy-mm-dd)
   done: Record<string, boolean>;   // milestone key -> completed
+  profile?: string;                // caregiver profile id
 }
 
 export type DoseStatus = 'done' | 'overdue' | 'due' | 'upcoming';

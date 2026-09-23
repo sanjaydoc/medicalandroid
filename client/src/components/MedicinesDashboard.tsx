@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { listRecords, upsertRecord, deleteRecord, syncRecords, type HealthRecord } from '../api/records';
 import { lookupDrug, checkSafety, type MedicineData, type Drug } from '../api/medicines';
+import { activeProfileId, belongsTo } from '../api/profiles';
 
 type MedRec = HealthRecord<MedicineData>;
 
 export default function MedicinesDashboard() {
-  const [meds, setMeds] = useState<MedRec[]>(() => listRecords<MedicineData>('medicine'));
+  const pid = activeProfileId();
+  const forProfile = () => listRecords<MedicineData>('medicine').filter((m) => belongsTo(m.data.profile, pid));
+  const [meds, setMeds] = useState<MedRec[]>(forProfile);
   const [q, setQ] = useState('');
   const [note, setNote] = useState('');
 
-  const reload = () => setMeds(listRecords<MedicineData>('medicine'));
+  const reload = () => setMeds(forProfile());
 
   useEffect(() => {
     let alive = true;
@@ -21,7 +24,7 @@ export default function MedicinesDashboard() {
     const name = q.trim();
     if (!name) return;
     const d = lookupDrug(name);
-    upsertRecord<MedicineData>({ kind: 'medicine', data: { query: name, generic: d?.generic } });
+    upsertRecord<MedicineData>({ kind: 'medicine', data: { query: name, generic: d?.generic, profile: pid } });
     setQ('');
     setNote(d ? '' : `“${name}” isn’t in our common-medicines list yet — added it, but ask a pharmacist for its generic & interactions.`);
     reload();

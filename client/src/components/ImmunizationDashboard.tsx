@@ -6,6 +6,7 @@ import {
   SCHEDULE, scheduleFor, nextDue, progress, ageLabel, fmtDate,
   type ChildData, type DoseStatus,
 } from '../api/immunization';
+import { activeProfileId, belongsTo } from '../api/profiles';
 
 const STATUS: Record<DoseStatus, { bg: string; fg: string; label: string }> = {
   done: { bg: 'rgba(47,158,107,.15)', fg: '#237a52', label: 'Done' },
@@ -17,14 +18,16 @@ const STATUS: Record<DoseStatus, { bg: string; fg: string; label: string }> = {
 type ChildRec = HealthRecord<ChildData>;
 
 export default function ImmunizationDashboard() {
-  const [children, setChildren] = useState<ChildRec[]>(() => listRecords<ChildData>('child'));
+  const pid = activeProfileId();
+  const forProfile = () => listRecords<ChildData>('child').filter((c) => belongsTo(c.data.profile, pid));
+  const [children, setChildren] = useState<ChildRec[]>(forProfile);
   const [selId, setSelId] = useState<string>(children[0]?.id || '');
   const [name, setName] = useState('');
   const [dob, setDob] = useState('');
   const [err, setErr] = useState('');
 
   const reload = () => {
-    const list = listRecords<ChildData>('child');
+    const list = forProfile();
     setChildren(list);
     if (!list.find((c) => c.id === selId)) setSelId(list[0]?.id || '');
   };
@@ -41,7 +44,7 @@ export default function ImmunizationDashboard() {
     if (!name.trim()) { setErr('Enter the child’s name.'); return; }
     if (!dob || isNaN(new Date(dob).getTime())) { setErr('Enter a valid date of birth.'); return; }
     if (new Date(dob).getTime() > Date.now()) { setErr('Date of birth can’t be in the future.'); return; }
-    const rec = upsertRecord<ChildData>({ kind: 'child', data: { name: name.trim(), dob, done: {} } });
+    const rec = upsertRecord<ChildData>({ kind: 'child', data: { name: name.trim(), dob, done: {}, profile: pid } });
     setName(''); setDob('');
     reload();
     setSelId(rec.id);

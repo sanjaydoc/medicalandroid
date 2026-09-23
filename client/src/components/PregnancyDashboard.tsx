@@ -7,6 +7,7 @@ import {
   gaWeeks, gaText, dueDate, daysToGo, trimester, weekInfo,
   ancSchedule, DANGER_SIGNS, fmtDate, type PregnancyData, type AncStatus,
 } from '../api/pregnancy';
+import { activeProfileId, belongsTo } from '../api/profiles';
 
 const STATUS: Record<AncStatus, { bg: string; fg: string; label: string }> = {
   done: { bg: 'rgba(47,158,107,.15)', fg: '#237a52', label: 'Done' },
@@ -18,11 +19,13 @@ const STATUS: Record<AncStatus, { bg: string; fg: string; label: string }> = {
 type PregRec = HealthRecord<PregnancyData>;
 
 export default function PregnancyDashboard() {
-  const [rec, setRec] = useState<PregRec | undefined>(() => listRecords<PregnancyData>('pregnancy')[0]);
+  const pid = activeProfileId();
+  const forProfile = () => listRecords<PregnancyData>('pregnancy').filter((r) => belongsTo(r.data.profile, pid))[0];
+  const [rec, setRec] = useState<PregRec | undefined>(forProfile);
   const [lmp, setLmp] = useState('');
   const [err, setErr] = useState('');
 
-  const reload = () => setRec(listRecords<PregnancyData>('pregnancy')[0]);
+  const reload = () => setRec(forProfile());
 
   useEffect(() => {
     let alive = true;
@@ -36,7 +39,7 @@ export default function PregnancyDashboard() {
     if (!lmp || isNaN(t)) { setErr('Enter a valid date.'); return; }
     if (t > Date.now()) { setErr('That date is in the future.'); return; }
     if (Date.now() - t > 300 * 86400000) { setErr('That’s more than 300 days ago — please check the date.'); return; }
-    const r = upsertRecord<PregnancyData>({ kind: 'pregnancy', data: { lmp, done: {} } });
+    const r = upsertRecord<PregnancyData>({ kind: 'pregnancy', data: { lmp, done: {}, profile: pid } });
     setRec(r);
   };
 

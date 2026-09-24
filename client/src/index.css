@@ -364,3 +364,7 @@ html.cap-native .cw-fsbtn { display: inline-flex; }
 .rc-disc{font-size:10.5px;color:#7d8ba8;font-style:italic;margin-top:8px;padding:8px 10px;border-radius:10px;background:#f7f9fc;border:1px solid #eef2f7}
 .rc-step{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.5;padding:4px 0}
 .rc-num{flex:none;width:18px;height:18px;border-radius:50%;background:#e8f0ff;color:#2f6fe0;font-size:11px;font-weight:800;display:grid;place-items:center;margin-top:1px}
+.rc-pages{display:flex;gap:6px;justify-content:center;padding:8px 0;border-top:1px solid #e3e7ee}
+.rc-dot{width:8px;height:8px;border-radius:50%;border:0;background:#cbd5e1;cursor:pointer;padding:0;transition:background .15s}
+.rc-dot.on{background:#2f6fe0}
+.rc-cards .rc-find,.rc-cards .rc-step{animation:rc-rowin .32s both}

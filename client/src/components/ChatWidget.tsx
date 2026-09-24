@@ -12,6 +12,7 @@ import { BRAND } from '../brand';
 import { useAuth } from '../context/AuthContext';
 import ClinicCards from './ClinicCards';
 import ReportCanvas, { parseReport, stripEmoji, type ParsedReport } from './ReportCanvas';
+import type { PageData } from '../api/pdfDoc';
 import {
   findNearbyClinics,
   geocodeArea,
@@ -48,6 +49,7 @@ interface UIMsg {
   isReport?: boolean;       // render this assistant reply as the Report & Scan canvas
   report?: ParsedReport | null; // parsed structured interpretation
   reportImage?: string;     // data URL of the uploaded scan (imaging mode)
+  reportPages?: PageData[]; // rendered pages of the uploaded report (live reader)
 }
 
 // When an assistant reply recommends in-person care, we offer the clinic finder.
@@ -346,7 +348,9 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       // Strip the (potentially large) scan data URL before persisting so we don't
       // blow the localStorage quota; the parsed report + cards are still kept.
       else localStorage.setItem(chatKey(uid), JSON.stringify(
-        messages.slice(-60).map((m) => (m.reportImage ? { ...m, reportImage: '' } : m)),
+        messages.slice(-60).map((m) => (
+          (m.reportImage || m.reportPages) ? { ...m, reportImage: '', reportPages: undefined } : m
+        )),
       ));
     } catch {
       /* storage unavailable — ignore */
@@ -589,6 +593,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     // and render it in the Report & Scan canvas instead of plain text.
     const isReport = attachments.length > 0;
     let reportImage = '';
+    let pdfDataUrl = '';
     const blocks: ContentBlock[] = [];
     for (const a of attachments) {
       try {
@@ -601,6 +606,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
             type: 'document',
             source: { type: 'base64', media_type: 'application/pdf', data },
           });
+          if (!pdfDataUrl) pdfDataUrl = `data:application/pdf;base64,${data}`;
         }
       } catch {
         setError('Could not read one of the attached files.');
@@ -636,6 +642,35 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     setInput('');
     setAttachments([]);
     setBusy(true);
+
+    // Render the uploaded report to real pages (PDF pages via pdf.js, or the
+    // image) so the canvas shows it being read live and can mark real red boxes.
+    // Runs in parallel with the model stream; fills in when ready.
+    if (isReport) {
+      void (async () => {
+        try {
+          const pgs: PageData[] = [];
+          if (pdfDataUrl) {
+            const { renderPdf } = await import('../api/pdfDoc');
+            pgs.push(...(await renderPdf(pdfDataUrl)));
+          } else if (reportImage) {
+            pgs.push({ image: reportImage, w: 0, h: 0, items: [] });
+          }
+          if (pgs.length) {
+            setMessages((m) => {
+              const copy = [...m];
+              for (let i = copy.length - 1; i >= 0; i--) {
+                if (copy[i].role === 'assistant' && copy[i].isReport && !copy[i].reportPages) {
+                  copy[i] = { ...copy[i], reportPages: pgs };
+                  break;
+                }
+              }
+              return copy;
+            });
+          }
+        } catch { /* render failed — canvas falls back gracefully */ }
+      })();
+    }
 
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -958,6 +993,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                       report={m.report}
                       loading={busy && i === messages.length - 1 && !m.report}
                       imageUrl={m.reportImage}
+                      pages={m.reportPages}
                     />
                   ) : (
                     <Bubble

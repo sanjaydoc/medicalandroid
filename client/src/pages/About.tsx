@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { BRAND } from '../brand';
+import VideoDemo from '../components/VideoDemo';
 
 const FOUNDER = {
   name: 'Dr. Sanjay Anbu',
@@ -92,8 +93,19 @@ export default function About() {
         </p>
       </div>
 
+      {/* See it in action */}
+      <div className="mx-auto mt-12 max-w-3xl">
+        <div className="mb-4 text-center">
+          <span className="chip bg-clay-100 text-clay-700">See it in action</span>
+          <h2 className="mt-3 font-display text-2xl font-extrabold text-ink-900 sm:text-3xl">
+            How MedDroid reads a lab report
+          </h2>
+        </div>
+        <VideoDemo id="dZZ9j9gV-pE" title="How MedDroid reads your lab report" />
+      </div>
+
       {/* What we do */}
-      <div className="mx-auto mt-12 grid max-w-4xl gap-6 md:grid-cols-3">
+      <div className="mx-auto mt-14 grid max-w-4xl gap-6 md:grid-cols-3">
         {PILLARS.map((p) => (
           <div key={p.title} className="card p-6">
             <div className="icon-tile h-14 w-14"><Ico>{p.icon}</Ico></div>

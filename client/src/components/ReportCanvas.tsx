@@ -137,12 +137,13 @@ function matchBoxes(report: ParsedReport, pages: PageData[]): PageBox[] {
 }
 
 export default function ReportCanvas({
-  report, loading, imageUrl, pages,
+  report, loading, imageUrl, pages, instant,
 }: {
   report?: ParsedReport | null;
   loading?: boolean;
   imageUrl?: string;
   pages?: PageData[];
+  instant?: boolean; // restored from history — show final state, skip animation
 }) {
   const isImaging = report?.type === 'imaging';
   const hasPages = !!(pages && pages.length);
@@ -152,13 +153,13 @@ export default function ReportCanvas({
 
   // page shown in the reader
   const [pageIdx, setPageIdx] = useState(0);
-  const [scanning, setScanning] = useState(true);
+  const [scanning, setScanning] = useState(!instant);
   const [shownBoxes, setShownBoxes] = useState(0); // boxes revealed on current page
   const [imgBoxes, setImgBoxes] = useState(0);     // illustrative imaging boxes revealed
   const [rows, setRows] = useState<Set<number>>(new Set()); // synthesized-row marks (fallback)
-  const [phase, setPhase] = useState<'read' | 'cards'>('read');
-  const [collapsed, setCollapsed] = useState(false); // scan canvas folded into a clickable card
-  const [segIdx, setSegIdx] = useState(0);           // typewriter: which segment
+  const [phase, setPhase] = useState<'read' | 'cards'>(instant ? 'cards' : 'read');
+  const [collapsed, setCollapsed] = useState(!!instant); // scan canvas folded into a clickable card
+  const [segIdx, setSegIdx] = useState(instant ? 1e9 : 0); // typewriter: which segment (all shown when restored)
   const [wIdx, setWIdx] = useState(0);               // typewriter: words shown in current segment
 
   const labRows = report?.findings || [];
@@ -196,7 +197,7 @@ export default function ReportCanvas({
 
   // ---- report ready: run the marking, then (in a second effect) type the cards ----
   useEffect(() => {
-    if (loading || !report) return;
+    if (loading || !report || instant) return; // restored reports show final state, no animation
     const timers: ReturnType<typeof setTimeout>[] = [];
     setScanning(true); setShownBoxes(0); setImgBoxes(0); setRows(new Set()); setCollapsed(false); setPhase('read');
 
@@ -237,7 +238,7 @@ export default function ReportCanvas({
 
   // ---- typewriter: reveal the cards word by word, one segment after another ----
   useEffect(() => {
-    if (phase !== 'cards' || !segs.length) return;
+    if (phase !== 'cards' || !segs.length || instant) return; // restored: already fully shown
     let si = 0, wi = 0, alive = true;
     const timers: ReturnType<typeof setTimeout>[] = [];
     setSegIdx(0); setWIdx(0);
@@ -267,7 +268,7 @@ export default function ReportCanvas({
   // don't yank them if they've scrolled up to re-read.
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (phase !== 'cards') return;
+    if (phase !== 'cards' || instant) return; // don't move the view for restored reports
     const el = endRef.current;
     if (!el) return;
     let sp: HTMLElement | null = el.parentElement;
@@ -395,6 +396,15 @@ export default function ReportCanvas({
                   </div>
                 );
               })
+            ) : report && isImaging && (report.imageFindings || []).length ? (
+              // restored imaging (scan image not kept in storage): list findings
+              (report.imageFindings || []).map((f, i) => (
+                <div key={i} className={`rc-row${f.status === 'flag' ? ' rc-marked' : ''}`}>
+                  <span className="rc-lab">{f.label}</span>
+                  <span className={`rc-val${f.status === 'flag' ? '' : ' rc-ok'}`}>{f.status === 'flag' ? 'flagged' : 'ok'}</span>
+                  {f.status === 'flag' && f.note && <span className="rc-tag">{f.note}</span>}
+                </div>
+              ))
             ) : (
               // pre-data skeleton
               [0, 1, 2, 3, 4].map((i) => <div key={i} className="rc-skel" style={{ width: `${90 - i * 8}%` }} />)

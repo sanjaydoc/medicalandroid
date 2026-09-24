@@ -50,6 +50,7 @@ interface UIMsg {
   report?: ParsedReport | null; // parsed structured interpretation
   reportImage?: string;     // data URL of the uploaded scan (imaging mode)
   reportPages?: PageData[]; // rendered pages of the uploaded report (live reader)
+  restored?: boolean;       // loaded from storage — render the report in final state, no re-animation
 }
 
 // When an assistant reply recommends in-person care, we offer the clinic finder.
@@ -122,7 +123,9 @@ function loadMessages(uid: string | null): UIMsg[] {
     const raw = localStorage.getItem(chatKey(uid));
     const parsed = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(parsed)) return [];
-    return parsed as UIMsg[];
+    // Mark already-interpreted reports as restored so the canvas shows their final
+    // state instantly on reload instead of re-running the scan/typewriter animation.
+    return (parsed as UIMsg[]).map((m) => (m && m.report ? { ...m, restored: true } : m));
   } catch {
     return [];
   }
@@ -1038,6 +1041,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                       loading={busy && i === messages.length - 1 && !m.report}
                       imageUrl={m.reportImage}
                       pages={m.reportPages}
+                      instant={!!m.restored}
                     />
                   ) : (
                     <Bubble

@@ -389,3 +389,26 @@ html.cap-native .cw-fsbtn { display: inline-flex; }
 .rc-cursor{display:inline-block;width:2px;height:1em;margin-left:2px;vertical-align:-2px;background:#2f6fe0;animation:rc-blink 1s step-end infinite}
 @keyframes rc-blink{50%{opacity:0}}
 @media (prefers-reduced-motion: reduce){.rc-cursor{animation:none}}
+/* home hero: "watch a demo" video cards + modal player */
+.vc-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:22px}
+.vc-card{display:flex;flex-direction:column;gap:8px;width:208px;max-width:44vw;padding:0;border:0;background:transparent;cursor:pointer;text-align:left;font:inherit}
+.vc-thumb{position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0b0d12;box-shadow:0 1px 3px rgba(20,30,50,.08),0 10px 24px rgba(20,30,50,.10);transition:transform .15s,box-shadow .15s}
+.vc-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vc-thumb::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.18);transition:background .15s}
+.vc-card:hover .vc-thumb{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,30,50,.12),0 16px 34px rgba(20,30,50,.16)}
+.vc-card:hover .vc-thumb::after{background:rgba(0,0,0,.28)}
+.vc-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.95);box-shadow:0 4px 14px rgba(0,0,0,.3);transition:transform .15s}
+.vc-card:hover .vc-play{transform:translate(-50%,-50%) scale(1.08)}
+.vc-play svg{width:20px;height:20px;margin-left:2px}
+.vc-title{font-size:13px;font-weight:600;line-height:1.35;color:#2a3346;padding:0 2px}
+.vc-card:focus-visible{outline:none}
+.vc-card:focus-visible .vc-thumb{outline:2px solid #2f6fe0;outline-offset:2px}
+.vc-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(6,10,18,.72);backdrop-filter:blur(2px);animation:vc-fade .15s both}
+@keyframes vc-fade{from{opacity:0}to{opacity:1}}
+.vc-modal-inner{position:relative;width:min(940px,94vw)}
+.vc-player{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);background:#000}
+.vc-player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vc-close{position:absolute;top:-46px;right:0;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;cursor:pointer;transition:background .15s}
+.vc-close:hover{background:rgba(255,255,255,.3)}
+.vc-close svg{width:20px;height:20px}
+@media (max-width:520px){.vc-card{width:100%;max-width:340px}.vc-close{top:-44px}}

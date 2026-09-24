@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SIMD_CSS } from '../theme/simd';
 import { BRAND, SPECIALITIES } from '../brand';
 import { useAuth } from '../context/AuthContext';
+import VideoCards from '../components/VideoCards';
 
 // ChatGPT-style home, rendered in the Simulator's white neumorphic (.simd) theme.
 // A left rail + centered greeting + a neumorphic ask box; submitting carries the
@@ -206,6 +207,8 @@ export default function Home() {
                 What can you do?
               </button>
             </div>
+
+            <VideoCards />
           </div>
 
           <p className="mh-foot">{BRAND.disclaimer}</p>

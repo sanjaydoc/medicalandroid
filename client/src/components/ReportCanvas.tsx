@@ -210,6 +210,14 @@ export default function ReportCanvas({
         <div className="rc-body">
           {scanning && <div className="rc-scan" />}
 
+          {/* Centered loader while the AI is still reading (before findings return) */}
+          {(loading || !report) && (
+            <div className="rc-loader">
+              <span className="rc-spin" />
+              <span>{isImaging ? 'Reading your scan…' : 'Reading your report…'}</span>
+            </div>
+          )}
+
           {/* Real page reader (PDF pages or uploaded image) */}
           {hasPages ? (
             <div className="rc-xray">

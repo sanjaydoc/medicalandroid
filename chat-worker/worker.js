@@ -15,7 +15,9 @@
  */
 
 // Auto-deploy enabled via Git (Workers Builds). Pushes to main deploy this.
-const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
+// Keep this on a CURRENT model — an old/retired model id makes Anthropic reject
+// the call with 403 "Request not allowed". Override per-env with the MODEL var.
+const DEFAULT_MODEL = 'claude-sonnet-5';
 const MAX_TOKENS = 4096;
 const MAX_MESSAGES = 24; // trim very long histories
 const RATE_MAX = 20; // requests…

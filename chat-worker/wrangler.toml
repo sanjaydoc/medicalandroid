@@ -8,8 +8,10 @@ compatibility_date = "2024-11-01"
 # app's Online mode can reach the Worker (otherwise it 403s "Origin not allowed").
 [vars]
 ALLOWED_ORIGINS = "https://medicalandroid.com,https://www.medicalandroid.com,http://localhost:5173,https://localhost,http://localhost,capacitor://localhost"
-# Optional: override the model. Defaults to a current Sonnet inside worker.js.
-# MODEL = "claude-sonnet-4-5-20250929"
+# Optional: override the model. Defaults to a CURRENT Sonnet inside worker.js
+# (claude-sonnet-5). Keep this current — an old/retired model id makes Anthropic
+# reject the call with 403 "Request not allowed".
+# MODEL = "claude-sonnet-5"
 
 # Per-IP rate limiting (20 req/min). OPTIONAL — worker.js safely skips throttling
 # when this binding is absent. To enable it under git auto-deploy, create a KV

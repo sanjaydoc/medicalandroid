@@ -362,3 +362,5 @@ html.cap-native .cw-fsbtn { display: inline-flex; }
 .rc-li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;padding:3px 0}
 .rc-li svg{width:15px;height:15px;flex:none;margin-top:1px;color:#16a34a}
 .rc-disc{font-size:10.5px;color:#7d8ba8;font-style:italic;margin-top:8px;padding:8px 10px;border-radius:10px;background:#f7f9fc;border:1px solid #eef2f7}
+.rc-step{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.5;padding:4px 0}
+.rc-num{flex:none;width:18px;height:18px;border-radius:50%;background:#e8f0ff;color:#2f6fe0;font-size:11px;font-weight:800;display:grid;place-items:center;margin-top:1px}

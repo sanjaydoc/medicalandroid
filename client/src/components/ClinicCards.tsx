@@ -71,7 +71,8 @@ export default function ClinicCards({
               <div className="min-w-0 flex-1">
                 {i === 0 && (
                   <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-clay-100 px-2 py-0.5 text-[11px] font-bold text-clay-700">
-                    ✓ Nearest
+                    <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                    Nearest
                   </span>
                 )}
                 <a

@@ -10,7 +10,7 @@ import {
 import { saveRow } from '../api/supabase';
 import { BRAND } from '../brand';
 import ClinicCards from './ClinicCards';
-import ReportCanvas, { parseReport, type ParsedReport } from './ReportCanvas';
+import ReportCanvas, { parseReport, stripEmoji, type ParsedReport } from './ReportCanvas';
 import {
   findNearbyClinics,
   geocodeArea,
@@ -71,7 +71,8 @@ const REPORT_INSTRUCTION =
   'Rules: for a blood/lab report use type "lab" and fill findings for EVERY test (status "flag" when the value is outside its normal range, else "ok"); omit imageFindings. ' +
   'For an X-ray/CT/MRI/ultrasound/ECG image use type "imaging" and fill imageFindings; omit findings. ' +
   'Always fill simple, seriousLevel, serious and next. Use simple language a patient understands. ' +
-  'Educational only, not a diagnosis. If a reply language was requested above, translate all text values.';
+  'Educational only, not a diagnosis. Do NOT use any emoji, symbols or decorative characters in any text value — plain text only. ' +
+  'If a reply language was requested above, translate all text values.';
 
 const SUGGESTIONS = [
   'Explain my prescription, X-ray, MRI or CT',
@@ -1160,10 +1161,10 @@ function GreetingBubble() {
   return (
     <div className="flex justify-start">
       <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-white p-3.5 text-sm leading-relaxed text-ink-900 ring-1 ring-cream-300">
-        <p className="font-bold text-ink-900">Hi — I'm {BRAND.name}, your medical assistant 👋</p>
+        <p className="font-bold text-ink-900">Hi — I'm {BRAND.name}, your medical assistant</p>
 
         <p className="mt-2.5 text-ink-800">
-          Ask a health question in any language, or <span aria-hidden>📎</span> attach an{' '}
+          Ask a health question in any language, or attach an{' '}
           <span className="font-semibold text-ink-900">ECG, X-ray, MRI, CT, prescription or lab report</span>{' '}
           and I'll explain it in simple words.
         </p>
@@ -1233,6 +1234,7 @@ function Bubble({
 // Minimal, safe Markdown → HTML for assistant replies. Escapes HTML first,
 // then introduces only our own tags, so there is no XSS surface.
 function mdToHtml(src: string): string {
+  src = stripEmoji(src); // guarantee no emoji / 3D icons in any assistant output
   const escape = (s: string) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const inline = (t: string) =>

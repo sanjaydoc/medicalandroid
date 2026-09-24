@@ -30,6 +30,24 @@ export interface ParsedReport {
   next: string[];
 }
 
+// Strip emoji / pictographs so the professional 2D-only look is guaranteed
+// regardless of what the model returns.
+const EMOJI = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{1F1E6}-\u{1F1FF}️‍]/gu;
+export const stripEmoji = (s: string): string =>
+  typeof s === 'string' ? s.replace(EMOJI, '').replace(/[ \t]{2,}/g, ' ').trim() : s;
+
+function cleanReport(o: ParsedReport): ParsedReport {
+  const c = stripEmoji;
+  o.title = c(o.title || '');
+  o.seriousLevel = c(o.seriousLevel || '');
+  o.serious = (o.serious || []).map(c);
+  o.next = (o.next || []).map(c);
+  o.simple = (o.simple || []).map((f) => ({ ...f, title: c(f.title), detail: c(f.detail) }));
+  if (o.findings) o.findings = o.findings.map((f) => ({ ...f, section: c(f.section || ''), label: c(f.label), value: c(f.value || ''), range: c(f.range || ''), note: c(f.note || '') }));
+  if (o.imageFindings) o.imageFindings = o.imageFindings.map((f) => ({ ...f, label: c(f.label), note: c(f.note || '') }));
+  return o;
+}
+
 // Extract a ParsedReport from a model reply that should be a JSON object
 // (optionally wrapped in a ```json fence). Returns null if it isn't valid.
 export function parseReport(raw: string): ParsedReport | null {
@@ -43,7 +61,7 @@ export function parseReport(raw: string): ParsedReport | null {
     if (a < 0 || b <= a) return null;
     const obj = JSON.parse(s.slice(a, b + 1));
     if (!obj || !Array.isArray(obj.simple) || !obj.type) return null;
-    return obj as ParsedReport;
+    return cleanReport(obj as ParsedReport);
   } catch {
     return null;
   }
@@ -211,7 +229,7 @@ export default function ReportCanvas({
           <div className="rc-card" style={{ animationDelay: '320ms' }}>
             <div className="rc-ctitle">{IC.next} What to do next</div>
             {report.next.map((t, i) => (
-              <div key={i} className="rc-li">{IC.check}<span>{t}</span></div>
+              <div key={i} className="rc-step"><span className="rc-num">{i + 1}</span><span>{t}</span></div>
             ))}
             <div className="rc-disc">Illustrative model output — not a diagnosis. Please confirm with your doctor.</div>
           </div>

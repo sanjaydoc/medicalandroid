@@ -261,11 +261,24 @@ export default function ReportCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, segs]);
 
-  // Keep the newest typed line in view as the cards fill in.
+  // Keep the newest typed line in view as the cards fill in — but scroll ONLY
+  // the chat's own scroll container (never bubble to the window, which caused the
+  // view to jitter), and only when the user is already near the bottom, so we
+  // don't yank them if they've scrolled up to re-read.
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (phase !== 'cards') return;
-    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    const el = endRef.current;
+    if (!el) return;
+    let sp: HTMLElement | null = el.parentElement;
+    while (sp) {
+      const oy = getComputedStyle(sp).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && sp.scrollHeight > sp.clientHeight + 4) break;
+      sp = sp.parentElement;
+    }
+    if (!sp) return;
+    const nearBottom = sp.scrollHeight - sp.scrollTop - sp.clientHeight < 240;
+    if (nearBottom) sp.scrollTop = sp.scrollHeight;
   }, [phase, segIdx, collapsed]);
 
   // Once marking is done we show every box/row at once (so re-opening the scan

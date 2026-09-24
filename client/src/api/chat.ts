@@ -223,3 +223,43 @@ export function fileToBase64(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 }
+
+/**
+ * Downscale + recompress an image for upload. Phone photos are 5–12 MB; sent raw
+ * as base64 they inflate ~1.33× and the request is rejected / times out (the chat
+ * shows "briefly unavailable"). We cap the long edge at 1568px — Anthropic resizes
+ * anything larger server-side anyway, so this loses NO model-visible detail — and
+ * re-encode as JPEG, cutting the payload ~20×. Falls back to raw bytes if the
+ * browser can't decode the image (e.g. some HEIC). Returns base64 (no prefix).
+ */
+export async function imageForUpload(
+  file: File,
+  maxDim = 1568,
+  quality = 0.82,
+): Promise<{ data: string; mediaType: string }> {
+  try {
+    if (typeof createImageBitmap !== 'function' || typeof document === 'undefined') throw new Error('unsupported');
+    const bitmap = await createImageBitmap(file);
+    let w = bitmap.width;
+    let h = bitmap.height;
+    const scale = Math.min(1, maxDim / Math.max(w, h));
+    w = Math.max(1, Math.round(w * scale));
+    h = Math.max(1, Math.round(h * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('no 2d context');
+    ctx.fillStyle = '#ffffff'; // flatten any transparency so JPEG stays clean
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    if (typeof bitmap.close === 'function') bitmap.close();
+    const dataUrl = canvas.toDataURL('image/jpeg', quality);
+    const data = dataUrl.split(',')[1] || '';
+    if (!data) throw new Error('encode failed');
+    return { data, mediaType: 'image/jpeg' };
+  } catch {
+    // Fallback: send the original bytes (keeps behaviour for exotic formats).
+    return { data: await fileToBase64(file), mediaType: file.type || 'image/jpeg' };
+  }
+}

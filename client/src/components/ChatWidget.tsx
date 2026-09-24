@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   streamChat,
   fileToBase64,
+  imageForUpload,
   isChatConfigured,
   isNativeApp,
   type ChatMessage,
@@ -59,7 +60,9 @@ interface UIMsg {
 const RECOMMENDS_CARE_RE =
   /\b(see|consult|visit|go to|seek|contact|refer(?:red)?(?: to)?)\b[^.?!]{0,45}\b(doctor|gp|physician|specialist|hospital|clinic|emergency|dermatologist|cardiologist|gyna|gynaecologist|gynecologist|paediatrician|pediatrician|dentist|pharmacist|neurologist|orthopa|ent|a&e|casualty|nearest)\b/i;
 
-const MAX_IMAGE_MB = 5;
+// Images are downscaled client-side before upload (imageForUpload), so we can
+// accept large phone photos here and shrink them — the request stays small.
+const MAX_IMAGE_MB = 25;
 const MAX_PDF_MB = 10;
 
 // When a report/scan is attached, ask the model for a structured interpretation
@@ -410,10 +413,16 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     setError('');
     const next: Attachment[] = [];
     for (const file of Array.from(files)) {
-      const isImage = file.type.startsWith('image/');
-      const isPdf = file.type === 'application/pdf';
+      // Detect by MIME type, and fall back to the file extension — some devices
+      // hand us files with an empty or wrong `type` (common with HEIC/scanned docs).
+      const name = (file.name || '').toLowerCase();
+      const isPdf = file.type === 'application/pdf' || name.endsWith('.pdf');
+      const isImage = !isPdf && (
+        file.type.startsWith('image/') ||
+        /\.(jpe?g|png|gif|webp|bmp|tiff?|heic|heif|avif)$/.test(name)
+      );
       if (!isImage && !isPdf) {
-        setError('Supported: images (JPG/PNG) or PDF.');
+        setError('Supported: images (JPG, PNG, WEBP, HEIC, etc.) or PDF.');
         continue;
       }
       const mb = file.size / (1024 * 1024);
@@ -607,11 +616,14 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     const blocks: ContentBlock[] = [];
     for (const a of attachments) {
       try {
-        const data = await fileToBase64(a.file);
         if (a.kind === 'image') {
-          blocks.push({ type: 'image', source: { type: 'base64', media_type: a.file.type, data } });
-          if (!reportImage) reportImage = `data:${a.file.type};base64,${data}`;
+          // Downscale/recompress so big phone photos don't blow the request size
+          // (the cause of the "briefly unavailable" error on uploads).
+          const { data, mediaType } = await imageForUpload(a.file);
+          blocks.push({ type: 'image', source: { type: 'base64', media_type: mediaType, data } });
+          if (!reportImage) reportImage = `data:${mediaType};base64,${data}`;
         } else {
+          const data = await fileToBase64(a.file);
           blocks.push({
             type: 'document',
             source: { type: 'base64', media_type: 'application/pdf', data },
@@ -1204,13 +1216,13 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                     mobile browsers drop). The input stays in the DOM. */}
                 <label
                   aria-label="Attach a file"
-                  title="Attach an ECG / scan / report (image or PDF)"
+                  title="Attach an ECG / scan / prescription / report (photo, image or PDF)"
                   className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-cream-300 text-ink-700/70 transition hover:border-clay-400 hover:text-clay-600"
                 >
                   <input
                     ref={fileRef}
                     type="file"
-                    accept="image/*,application/pdf"
+                    accept="image/*,.jpg,.jpeg,.png,.gif,.webp,.bmp,.tif,.tiff,.heic,.heif,.avif,application/pdf,.pdf"
                     multiple
                     className="sr-only"
                     onChange={(e) => pickFiles(e.target.files)}

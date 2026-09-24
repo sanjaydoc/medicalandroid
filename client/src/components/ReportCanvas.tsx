@@ -12,11 +12,21 @@ export interface Finding {
 }
 export interface ImageFinding { status: 'flag' | 'ok'; label: string; note?: string; }
 export interface SimpleItem { sev: 'watch' | 'mild' | 'ok'; title: string; detail: string; }
+export interface Med {
+  name: string;
+  strength?: string;
+  dose?: string;      // OD / BD / TDS / 1-0-1 as written
+  freqText?: string;  // plain expansion
+  food?: string;      // before / after / with food (only if stated)
+  duration?: string;  // e.g. 5 days (only if stated)
+  purpose?: string;   // what it's for
+}
 export interface ParsedReport {
-  type: 'lab' | 'imaging';
+  type: 'lab' | 'imaging' | 'rx';
   title?: string;
   findings?: Finding[];
   imageFindings?: ImageFinding[];
+  meds?: Med[];
   simple: SimpleItem[];
   seriousLevel: string;
   serious: string[];
@@ -37,6 +47,7 @@ function cleanReport(o: ParsedReport): ParsedReport {
   o.simple = (o.simple || []).map((f) => ({ ...f, title: c(f.title), detail: c(f.detail) }));
   if (o.findings) o.findings = o.findings.map((f) => ({ ...f, section: c(f.section || ''), label: c(f.label), value: c(f.value || ''), range: c(f.range || ''), note: c(f.note || '') }));
   if (o.imageFindings) o.imageFindings = o.imageFindings.map((f) => ({ ...f, label: c(f.label), note: c(f.note || '') }));
+  if (o.meds) o.meds = o.meds.map((m) => ({ ...m, name: c(m.name), strength: c(m.strength || ''), dose: c(m.dose || ''), freqText: c(m.freqText || ''), food: c(m.food || ''), duration: c(m.duration || ''), purpose: c(m.purpose || '') }));
   return o;
 }
 
@@ -94,6 +105,20 @@ const IC = {
   simple: <svg viewBox="0 0 24 24" style={{ color: '#2f6fe0' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></svg>,
   serious: <svg viewBox="0 0 24 24" style={{ color: '#d97706' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l9 16H3z" /><path d="M12 9v5M12 17h.01" /></svg>,
   next: <svg viewBox="0 0 24 24" style={{ color: '#16a34a' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>,
+  meds: <svg viewBox="0 0 24 24" style={{ color: '#2f6fe0' }} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="8" rx="4" /><path d="M12 8v8" /></svg>,
+};
+
+// Expand a frequency code into a plain badge label (falls back to the raw code).
+const FREQ: Record<string, string> = {
+  od: 'once a day', bd: 'twice a day', bds: 'twice a day', tds: '3 times a day',
+  tid: '3 times a day', qid: '4 times a day', hs: 'at night', sos: 'if needed', stat: 'now, once',
+};
+const freqLabel = (dose?: string, freqText?: string): string => {
+  const d = (dose || '').trim();
+  const key = d.toLowerCase().replace(/[^a-z]/g, '');
+  if (FREQ[key]) return FREQ[key];
+  if (freqText && freqText.trim()) return freqText.trim();
+  return d;
 };
 
 // A red box placed on a real page (percentages of the page image).
@@ -146,6 +171,8 @@ export default function ReportCanvas({
   instant?: boolean; // restored from history — show final state, skip animation
 }) {
   const isImaging = report?.type === 'imaging';
+  const isRx = report?.type === 'rx';
+  const meds = report?.meds || [];
   const hasPages = !!(pages && pages.length);
   const hasText = !!(pages && pages.some((p) => p.items.length));
 
@@ -168,10 +195,16 @@ export default function ReportCanvas({
 
   // Flat, ordered list of card segments to type out word-by-word (simple →
   // serious → next), so the cards fill in like a normal chat reply.
-  interface Seg { card: 'simple' | 'serious' | 'next'; sev?: string; num?: number; level?: boolean; head: string[]; body: string[]; }
+  interface Seg { card: 'meds' | 'simple' | 'serious' | 'next'; sev?: string; num?: number; level?: boolean; medIdx?: number; head: string[]; body: string[]; }
   const segs = useMemo<Seg[]>(() => {
     if (!report) return [];
     const out: Seg[] = [];
+    // Prescriptions: reveal each medicine row first (name drives the tick count).
+    (report.meds || []).forEach((m, i) => out.push({
+      card: 'meds', medIdx: i,
+      head: (m.name || 'Medicine').split(/\s+/).filter(Boolean),
+      body: [],
+    }));
     (report.simple || []).forEach((f) => out.push({
       card: 'simple', sev: SEV[f.sev] || SEV.mild,
       head: (f.title || '').split(/\s+/).filter(Boolean),
@@ -182,7 +215,8 @@ export default function ReportCanvas({
     (report.next || []).forEach((t, i) => out.push({ card: 'next', num: i + 1, head: [], body: (t || '').split(/\s+/).filter(Boolean) }));
     return out;
   }, [report]);
-  const segTotal = (s: Seg) => s.head.length + s.body.length;
+  // Meds reveal as whole rows; give each a small minimum so they pop in sequence.
+  const segTotal = (s: Seg) => (s.card === 'meds' ? Math.max(3, s.head.length) : s.head.length + s.body.length);
 
   // ---- loading: cycle through the real pages, scanning ----
   useEffect(() => {
@@ -290,17 +324,22 @@ export default function ReportCanvas({
 
   const totalFlag = isImaging ? imgFindings.length : (hasText ? boxes.length : labRows.filter((r) => r.status === 'flag').length);
   const headRight = loading || !report
-    ? (hasPages ? `Reading page ${pageIdx + 1} of ${pages!.length}` : 'Reading report')
-    : phase === 'read' ? 'Marking findings' : `${totalFlag} flagged`;
+    ? (hasPages ? `Reading page ${pageIdx + 1} of ${pages!.length}` : (isRx ? 'Reading prescription' : 'Reading report'))
+    : phase === 'read'
+      ? (isRx ? 'Reading medicines' : 'Marking findings')
+      : isRx ? `${meds.length} medicine${meds.length !== 1 ? 's' : ''}` : `${totalFlag} flagged`;
 
   // typewriter render helpers
   const started = (gi: number) => gi < segIdx || (gi === segIdx && wIdx > 0);
   const wordsFor = (gi: number, s: Seg) => (gi < segIdx ? segTotal(s) : gi === segIdx ? wIdx : 0);
   const typing = (gi: number, s: Seg) => gi === segIdx && wIdx < segTotal(s);
-  const headEnd = report?.simple?.length || 0;
-  const serEnd = headEnd + (report?.seriousLevel ? 1 : 0) + (report?.serious?.length || 0);
-  const showSimple = (report?.simple?.length || 0) > 0 && started(0);
-  const showSerious = serEnd > headEnd && started(headEnd);
+  // segment layout: [meds…][simple…][serious…][next…]
+  const medEnd = meds.length;
+  const simpleEnd = medEnd + (report?.simple?.length || 0);
+  const serEnd = simpleEnd + (report?.seriousLevel ? 1 : 0) + (report?.serious?.length || 0);
+  const showMeds = medEnd > 0 && started(0);
+  const showSimple = (report?.simple?.length || 0) > 0 && started(medEnd);
+  const showSerious = serEnd > simpleEnd && started(simpleEnd);
   const showNext = (report?.next?.length || 0) > 0 && started(serEnd);
 
   // Render one segment's revealed words (bold head, then " — " + body).
@@ -328,15 +367,19 @@ export default function ReportCanvas({
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M20 7V5a1 1 0 0 0-1-1h-2M4 17v2a1 1 0 0 0 1 1h2M20 17v2a1 1 0 0 1-1 1h-2" /><path d="M4 12h16" /></svg>
           </span>
           <span className="rc-ftxt">
-            <b>{report?.title || (isImaging ? 'Scan reviewed' : 'Report reviewed')}</b>
-            <span>{totalFlag} finding{totalFlag !== 1 ? 's' : ''} marked · tap to view the marked {isImaging ? 'scan' : 'report'}</span>
+            <b>{report?.title || (isRx ? 'Prescription reviewed' : isImaging ? 'Scan reviewed' : 'Report reviewed')}</b>
+            <span>
+              {isRx
+                ? `${meds.length} medicine${meds.length !== 1 ? 's' : ''} · tap to view the prescription`
+                : `${totalFlag} finding${totalFlag !== 1 ? 's' : ''} marked · tap to view the marked ${isImaging ? 'scan' : 'report'}`}
+            </span>
           </span>
           <span className="rc-fchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg></span>
         </button>
       ) : (
         <div className="rc-canvas">
           <div className="rc-head">
-            <span>{report?.title || (isImaging ? 'Reading image' : 'Reading report')}</span>
+            <span>{report?.title || (isRx ? 'Reading prescription' : isImaging ? 'Reading image' : 'Reading report')}</span>
             {done ? (
               <button type="button" className="rc-hide" onClick={() => setCollapsed(true)}>Hide</button>
             ) : (
@@ -396,6 +439,15 @@ export default function ReportCanvas({
                   </div>
                 );
               })
+            ) : report && isRx && meds.length ? (
+              // restored prescription (photo not kept in storage): list the medicines
+              meds.map((m, i) => (
+                <div key={i} className="rc-row">
+                  <span className="rc-lab">{m.name}{m.strength ? ` ${m.strength}` : ''}</span>
+                  <span className="rc-val rc-ok">{(m.dose || '').trim()}</span>
+                  <span className="rc-rng">{[m.food, m.duration].filter(Boolean).join(' · ')}</span>
+                </div>
+              ))
             ) : report && isImaging && (report.imageFindings || []).length ? (
               // restored imaging (scan image not kept in storage): list findings
               (report.imageFindings || []).map((f, i) => (
@@ -427,6 +479,32 @@ export default function ReportCanvas({
       {/* Summary cards — typed out live, word by word */}
       {phase === 'cards' && report && (
         <div className="rc-cards">
+          {showMeds && (
+            <div className="rc-card">
+              <div className="rc-ctitle">{IC.meds} Medicines prescribed</div>
+              {segs.map((s, gi) => {
+                if (s.card !== 'meds' || !started(gi)) return null;
+                const m = meds[s.medIdx ?? -1];
+                if (!m) return null;
+                const dose = (m.dose || '').trim();
+                const freq = freqLabel(m.dose, m.freqText);
+                return (
+                  <div key={gi} className="rc-med">
+                    <div className="rc-med-h">
+                      <span className="rc-med-name">{m.name}{m.strength ? ` ${m.strength}` : ''}</span>
+                      {dose && <span className="rc-med-dose">{dose}</span>}
+                    </div>
+                    <div className="rc-med-tags">
+                      {freq && <span className="rc-tagp rc-tagp-b">{freq}</span>}
+                      {m.food && <span className="rc-tagp rc-tagp-a">{m.food}</span>}
+                      {m.duration && <span className="rc-tagp rc-tagp-d">{m.duration}</span>}
+                    </div>
+                    {m.purpose && <div className="rc-med-use">{m.purpose}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
           {showSimple && (
             <div className="rc-card">
               <div className="rc-ctitle">{IC.simple} In simple terms</div>

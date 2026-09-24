@@ -4,7 +4,9 @@ import BrandLogo from './BrandLogo';
 import { useAuth } from '../context/AuthContext';
 
 // Desktop-only left navigation for the Assistant page (Claude-style full-screen
-// layout). Hidden below md — mobile keeps the top navbar.
+// layout). Hidden below md — mobile keeps the top navbar. Also holds the
+// "Get the Android app" button and the speciality selector so the main pane can
+// be the chat only.
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 const LINKS: { to: string; label: string; icon: JSX.Element }[] = [
   { to: '/assistant', label: 'Assistant', icon: <svg viewBox="0 0 24 24" {...S}><path d="M12 3l1.9 4.7L18.5 9.5l-4.6 1.8L12 16l-1.9-4.7L5.5 9.5l4.6-1.8L12 3z" /></svg> },
@@ -13,12 +15,21 @@ const LINKS: { to: string; label: string; icon: JSX.Element }[] = [
   { to: '/about', label: 'About', icon: <svg viewBox="0 0 24 24" {...S}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg> },
 ];
 
-export default function AssistantSidebar() {
+export default function AssistantSidebar({
+  spec = '',
+  onSpec,
+  specialties = [],
+  appUrl = '',
+}: {
+  spec?: string;
+  onSpec?: (label: string) => void;
+  specialties?: { key: string; label: string }[];
+  appUrl?: string;
+}) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const cls = ({ isActive }: { isActive: boolean }) =>
-    `asd-nav-item${isActive ? ' on' : ''}`;
+  const cls = ({ isActive }: { isActive: boolean }) => `asd-nav-item${isActive ? ' on' : ''}`;
 
   return (
     <aside className="asd-side">
@@ -41,6 +52,27 @@ export default function AssistantSidebar() {
           </NavLink>
         )}
       </nav>
+
+      {/* Tools: speciality selector + Android app (moved out of the main pane) */}
+      <div className="asd-side-tools">
+        {specialties.length > 0 && (
+          <label className="asd-side-spec">
+            <span className="lbl">Speciality</span>
+            <select value={spec} onChange={(e) => onSpec?.(e.target.value)} aria-label="Answer speciality">
+              <option value="">General (all areas)</option>
+              {specialties.map((s) => (
+                <option key={s.key} value={s.label}>{s.label}</option>
+              ))}
+            </select>
+          </label>
+        )}
+        {appUrl && (
+          <a className="asd-side-app" href={appUrl} target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 20h14" /></svg>
+            Get the Android app
+          </a>
+        )}
+      </div>
 
       <div className="asd-side-foot">
         {user ? (

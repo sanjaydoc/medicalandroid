@@ -108,6 +108,7 @@ const ANDROID = (
   </svg>
 );
 
+const APK_URL = 'https://raw.githubusercontent.com/sanjaydoc/medicalandroid/apk/meddroid.apk';
 const SPEC_KEY = 'stemcells_assistant_specialty_v1';
 // Shared with ChatWidget so the mode persists across the app.
 const OFFLINE_KEY = 'stemcells_chat_offline_v1';
@@ -268,7 +269,7 @@ export default function Assistant() {
   return (
     <div className="asd-shell">
       <style>{ASD_CSS}</style>
-      <AssistantSidebar />
+      <AssistantSidebar spec={spec} onSpec={setSpec} specialties={SPECIALTIES} appUrl={APK_URL} />
       <div className="asd-main">
       <div className={"asd" + (fullscreen ? " fs" : "")}>
       <div className="asd-wrap container-x">
@@ -683,5 +684,30 @@ const ASD_CSS = `
   .asd-side-user .nm{font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .asd-side-btn{display:block;text-align:center;border:0;cursor:pointer;font-family:Inter,sans-serif;font-weight:700;font-size:13.5px;color:#fff;background:#2F6FE0;padding:10px 14px;border-radius:12px;text-decoration:none;}
   .asd-side-btn.ghost{color:#2F6FE0;background:#EAF1FE;}
+  /* Chat fills the whole main pane; app + speciality live in the sidebar */
+  .asd-main{overflow:hidden;}
+  .asd-main .asd{background:#fff;height:100%;min-height:100%;}
+  .asd-main .asd-wrap{padding:0;max-width:none;height:100%;display:flex;flex-direction:column;}
+  .asd-main .asd-wrap > .asd-top,
+  .asd-main .asd-wrap > .asd-appbar,
+  .asd-main .asd-wrap > .asd-lock,
+  .asd-main .asd-wrap > .asd-mode,
+  .asd-main .asd-wrap > .asd-mm,
+  .asd-main .asd-wrap > .asd-whonote,
+  .asd-main .asd-wrap > .asd-loading,
+  .asd-main .asd-wrap > .asd-disc,
+  .asd-main .asd-wrap > .asd-panel:not(.asd-chat){display:none!important;}
+  .asd-main .asd-chat{flex:1;min-height:0;padding:0;margin:0;border-radius:0;box-shadow:none;background:transparent;}
+  .asd-main .asd-chat > div{height:100%;}
+  .asd-main .asd-chat > div > div{height:100%!important;max-height:none!important;min-height:0!important;max-width:900px!important;margin:0 auto!important;border-radius:0!important;box-shadow:none!important;border:0!important;}
+  /* sidebar tools */
+  .asd-side-tools{display:flex;flex-direction:column;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid #e7e2d8;}
+  .asd-side-spec{display:flex;flex-direction:column;gap:5px;}
+  .asd-side-spec .lbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9aa6c2;padding-left:2px;}
+  .asd-side-spec select{width:100%;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#141413;background:#f4f7fb;border:1px solid #e0e6ef;border-radius:11px;padding:9px 10px;cursor:pointer;}
+  .asd-side-spec select:focus{outline:none;border-color:#2F6FE0;}
+  .asd-side-app{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-family:Inter,sans-serif;font-weight:700;font-size:13px;color:#2F6FE0;background:#EAF1FE;border-radius:12px;padding:10px 12px;}
+  .asd-side-app svg{width:16px;height:16px;}
+  .asd-side-app:hover{background:#D6E4FD;}
 }
 `;

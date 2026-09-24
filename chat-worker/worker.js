@@ -253,12 +253,17 @@ export default {
 
     if (!upstream.ok || !upstream.body) {
       let detail = 'Upstream error';
+      let etype = '';
       try {
-        detail = (await upstream.json())?.error?.message || detail;
+        const j = await upstream.json();
+        detail = j?.error?.message || detail;
+        etype = j?.error?.type || '';
       } catch {
         /* ignore */
       }
-      return json(502, { error: detail }, cors);
+      // Surface Anthropic's status + error type so failures are diagnosable
+      // (e.g. permission_error / rate_limit_error / authentication_error).
+      return json(upstream.status || 502, { error: `${detail}${etype ? ` [${etype}, HTTP ${upstream.status}]` : ` [HTTP ${upstream.status}]`}` }, cors);
     }
 
     // Pipe Anthropic's SSE stream straight through to the browser. Doing the

@@ -707,7 +707,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
           const copy = [...m];
           copy[copy.length - 1] = {
             ...copy[copy.length - 1],
-            text: '⚠️ No reply came back — please tap send to try again.',
+            text: 'No reply came back — please tap send to try again.',
           };
           return copy;
         });
@@ -754,7 +754,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
           const copy = [...m];
           const last = copy[copy.length - 1];
           if (last && last.role === 'assistant' && !last.text) {
-            copy[copy.length - 1] = { ...last, text: `⚠️ ${detail}` };
+            copy[copy.length - 1] = { ...last, isReport: false, text: `The assistant is unavailable right now. ${detail}` };
           }
           return copy;
         });

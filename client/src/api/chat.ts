@@ -76,6 +76,9 @@ export async function streamChat(opts: {
   onText: (chunk: string) => void;
   signal?: AbortSignal;
   mode?: 'concise' | 'doctor';
+  // When true, ask the proxy for a structured JSON interpretation (Report & Scan
+  // Decoder) instead of prose, so the client can render the report canvas.
+  report?: boolean;
   // Android only: when true and the on-device plugin is present, run the local
   // LSM + LLM engine (fully offline) instead of the Anthropic proxy.
   offline?: boolean;
@@ -106,12 +109,12 @@ export async function streamChat(opts: {
 
 async function streamOnce(
   endpoint: string,
-  opts: { messages: ChatMessage[]; onText: (chunk: string) => void; signal?: AbortSignal; mode?: 'concise' | 'doctor' },
+  opts: { messages: ChatMessage[]; onText: (chunk: string) => void; signal?: AbortSignal; mode?: 'concise' | 'doctor'; report?: boolean },
 ): Promise<string> {
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages: opts.messages, mode: opts.mode || 'concise' }),
+    body: JSON.stringify({ messages: opts.messages, mode: opts.mode || 'concise', report: !!opts.report }),
     signal: opts.signal,
   });
 

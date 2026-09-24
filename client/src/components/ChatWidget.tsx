@@ -628,6 +628,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
         messages: history,
         signal: ctrl.signal,
         mode: doctorMode ? 'doctor' : 'concise',
+        report: isReport,
         offline,
         onText: (chunk) => {
           acc += chunk;
@@ -933,7 +934,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
               )}
               {messages.map((m, i) => (
                 <div key={i}>
-                  {m.isReport && m.role === 'assistant' ? (
+                  {m.isReport && m.role === 'assistant' && (m.report || (busy && i === messages.length - 1)) ? (
                     <ReportCanvas
                       report={m.report}
                       loading={busy && i === messages.length - 1 && !m.report}

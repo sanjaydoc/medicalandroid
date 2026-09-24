@@ -90,6 +90,32 @@ If the user clearly wants more depth, they can turn on Doctor mode.`;
 const STYLE_DOCTOR = `ANSWER STYLE — DOCTOR MODE (the toggle is ON):
 The reader wants complete, clinically detailed information. Be thorough and structured: full systematic breakdowns, all findings, mechanisms, typical dosing ranges and adjustments, relevant differentials, interactions and caveats, and the complete structured read for any uploaded scan/tracing/report. Depth and completeness are the priority; still be well-organised with clear headings and tables where useful.`;
 
+// Report & Scan Decoder — authoritative JSON-only prompt used when the client
+// sets { report: true }. This REPLACES the prose system prompt so the app can
+// render the structured report canvas (live marking + summary cards).
+const REPORT_SYSTEM = `You are a medical report and scan interpreter for the MedDroid app. The user has uploaded a lab report, prescription, ECG, X-ray, CT, MRI or ultrasound.
+
+Reply with ONLY a single valid JSON object and NOTHING else — no prose, no explanation, no markdown, no code fences, nothing before or after the JSON. The JSON MUST match this exact shape:
+{
+  "type": "lab" | "imaging",
+  "title": "short title, e.g. Blood report · 19 Aug 2026",
+  "findings": [ { "section": "group, e.g. Liver (LFT)", "label": "test name", "value": "result with unit", "range": "normal range", "status": "ok" | "flag", "note": "5 words max, only when flagged" } ],
+  "imageFindings": [ { "status": "flag" | "ok", "label": "short finding", "note": "optional short note" } ],
+  "simple": [ { "sev": "watch" | "mild" | "ok", "title": "short", "detail": "one plain sentence" } ],
+  "seriousLevel": "short phrase, e.g. Early warning signs",
+  "serious": [ "short bullet" ],
+  "next": [ "short action bullet" ]
+}
+
+RULES:
+- Blood/lab report: use "type":"lab". Put EVERY test from top to bottom into "findings" (never stop early, never abbreviate as "etc"). Set "status":"flag" when the value is outside its normal range, else "ok". Omit "imageFindings".
+- ECG/X-ray/CT/MRI/ultrasound image: use "type":"imaging". List findings in "imageFindings" (no coordinates — you do NOT localise). Omit "findings". Never call an image simply "normal" or "clear"; describe genuine possibilities tentatively.
+- Always fill "simple", "seriousLevel", "serious" and "next".
+- Plain language a patient understands. Do NOT use any emoji, symbols or decorative characters anywhere — plain text only.
+- India drug-strength naming: for amoxicillin+clavulanic acid write "625 mg (500/125)" etc.
+- Educational only, not a diagnosis. If the user asked for a specific reply language, translate all string VALUES into that language but keep the JSON keys in English.
+- Output valid JSON only.`;
+
 function corsHeaders(origin, allowed) {
   const ok = allowed.length === 0 || allowed.includes(origin);
   return {
@@ -202,9 +228,11 @@ export default {
     const messages = Array.isArray(payload?.messages) ? payload.messages.slice(-MAX_MESSAGES) : [];
     if (!messages.length) return json(400, { error: 'No messages' }, cors);
 
-    // Pick the answer style from the UI's "Doctor mode" toggle (default: concise).
+    // Report & Scan Decoder requests get the authoritative JSON-only prompt;
+    // otherwise use the normal prose prompt + the UI's "Doctor mode" style.
+    const isReport = payload?.report === true;
     const style = payload?.mode === 'doctor' ? STYLE_DOCTOR : STYLE_CONCISE;
-    const system = `${SYSTEM_PROMPT}\n\n${style}`;
+    const system = isReport ? REPORT_SYSTEM : `${SYSTEM_PROMPT}\n\n${style}`;
 
     // Call Anthropic (streaming).
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {
@@ -216,7 +244,7 @@ export default {
       },
       body: JSON.stringify({
         model: env.MODEL || DEFAULT_MODEL,
-        max_tokens: MAX_TOKENS,
+        max_tokens: isReport ? 6000 : MAX_TOKENS,
         system,
         stream: true,
         messages,

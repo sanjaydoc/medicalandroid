@@ -94,14 +94,23 @@ export default function About() {
       </div>
 
       {/* See it in action */}
-      <div className="mx-auto mt-12 max-w-3xl">
-        <div className="mb-4 text-center">
+      <div className="mx-auto mt-12 max-w-4xl">
+        <div className="mb-5 text-center">
           <span className="chip bg-clay-100 text-clay-700">See it in action</span>
           <h2 className="mt-3 font-display text-2xl font-extrabold text-ink-900 sm:text-3xl">
-            How MedDroid reads a lab report
+            Watch MedDroid in action
           </h2>
         </div>
-        <VideoDemo id="dZZ9j9gV-pE" title="How MedDroid reads your lab report" />
+        <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <VideoDemo id="dZZ9j9gV-pE" title="How MedDroid reads your lab report" />
+            <p className="mt-2 text-center text-sm font-semibold text-ink-800">How MedDroid reads a lab report</p>
+          </div>
+          <div>
+            <VideoDemo id="lzNpJzLYV3Y" title="X-ray interpretation & child dosage with MedDroid" />
+            <p className="mt-2 text-center text-sm font-semibold text-ink-800">Reading an X-ray &amp; child dosage guidance</p>
+          </div>
+        </div>
       </div>
 
       {/* What we do */}

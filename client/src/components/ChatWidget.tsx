@@ -631,7 +631,12 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     }
 
     const uiAttach = attachments.map((a) => ({ name: a.file.name, kind: a.kind }));
-    const history: ChatMessage[] = messages.map((m) => ({ role: m.role, content: m.text }));
+    // Only send messages with real, non-empty content — an empty-content message
+    // (e.g. a report reply whose text was cleared) makes the API reject the whole
+    // request. Also drop our own error bubbles.
+    const history: ChatMessage[] = messages
+      .filter((m) => m.text && m.text.trim())
+      .map((m) => ({ role: m.role, content: m.text }));
     history.push({ role: 'user', content: blocks.length ? blocks : text });
 
     setMessages((m) => [
@@ -721,7 +726,15 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
           const last = copy[copy.length - 1];
           if (last && last.role === 'assistant') {
             copy[copy.length - 1] = parsed
-              ? { ...last, report: parsed, isReport: true, text: '' }
+              ? {
+                  ...last,
+                  report: parsed,
+                  isReport: true,
+                  // Keep a short text summary (not shown — the canvas renders) so
+                  // this turn carries real content in the conversation history and
+                  // never sends an empty message to the API on the next question.
+                  text: `Report interpreted (${parsed.title || 'report'}): ${(parsed.simple || []).map((s) => s.title).filter(Boolean).slice(0, 6).join('; ') || 'summary provided'}.`,
+                }
               : { ...last, isReport: false, text: acc };
           }
           return copy;

@@ -162,12 +162,19 @@ export default function ReportCanvas({
     };
 
     if (hasText && boxes.length) {
-      // real PDF pages + grounded red boxes
-      const firstPage = boxes[0].page;
-      setPageIdx(firstPage);
-      const onPage = boxes.filter((b) => b.page === firstPage);
-      onPage.forEach((_, k) => timers.push(setTimeout(() => setShownBoxes(k + 1), 600 + k * 450)));
-      startCards(600 + onPage.length * 450 + 700);
+      // Real PDF pages + grounded red boxes — walk through each page that has
+      // findings, scanning it and popping its red boxes live, then the next page.
+      const pagesWithBoxes = Array.from(new Set(boxes.map((b) => b.page))).sort((a, b) => a - b);
+      let t = 500;
+      const STEP = 500;   // per box
+      const GAP = 900;    // pause between pages
+      pagesWithBoxes.forEach((p) => {
+        const cnt = boxes.filter((b) => b.page === p).length;
+        timers.push(setTimeout(() => { setPageIdx(p); setShownBoxes(0); }, t));
+        for (let k = 1; k <= cnt; k++) timers.push(setTimeout(() => setShownBoxes(k), t + k * STEP));
+        t += cnt * STEP + GAP;
+      });
+      startCards(t);
     } else if (isImaging && (hasPages || imageUrl)) {
       imgFindings.forEach((_, k) => timers.push(setTimeout(() => setImgBoxes(k + 1), 700 + k * 650)));
       startCards(700 + imgFindings.length * 650 + 700);

@@ -86,6 +86,13 @@ export function setVitalsUser(id: string | null) {
   if (id && changed) void syncVitals();
 }
 
+/** Wipe this device's local vitals cache (used on account switch/logout so one
+ * user's data never bleeds into another account on a shared device). */
+export function clearLocalVitals() {
+  _uid = null;
+  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
+}
+
 function vitalToRow(v: Vital) {
   return {
     user_id: _uid, client_id: v.id, type: v.type,

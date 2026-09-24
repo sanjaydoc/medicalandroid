@@ -1,7 +1,16 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { supabase } from '../api/supabase';
-import { setVitalsUser } from '../api/vitals';
-import { setRecordsUser } from '../api/records';
+import { setVitalsUser, clearLocalVitals } from '../api/vitals';
+import { setRecordsUser, clearLocalRecords } from '../api/records';
+
+// Per-user, device-local data that must NEVER survive an account change on a
+// shared device/browser (chat history + health caches).
+const CHAT_HISTORY_KEY = 'stemcells_chat_history_v1';
+function purgeDeviceUserData() {
+  clearLocalVitals();
+  clearLocalRecords();
+  try { localStorage.removeItem(CHAT_HISTORY_KEY); } catch { /* ignore */ }
+}
 
 export interface AuthUser {
   id: string;
@@ -34,23 +43,42 @@ function toUser(session: any): AuthUser | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  // Tracks the signed-in identity so we can detect an account change on this
+  // device. `undefined` = not initialised yet (first session resolution).
+  const lastUid = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
       return;
     }
+
+    const apply = (session: any) => {
+      const uid = session?.user?.id ?? null;
+      const prev = lastUid.current;
+      setUser(toUser(session));
+
+      // A real identity change on this device (login, logout, or switching
+      // accounts). Wipe the previous user's device-local data BEFORE anything
+      // syncs, then hard-reload so no stale in-memory state (chat messages,
+      // dashboards) from the previous user remains.
+      if (prev !== undefined && prev !== uid) {
+        purgeDeviceUserData();
+        lastUid.current = uid;
+        try { window.location.reload(); } catch { /* ignore */ }
+        return;
+      }
+
+      lastUid.current = uid;
+      setVitalsUser(uid);
+      setRecordsUser(uid);
+    };
+
     supabase.auth.getSession().then(({ data }) => {
-      setUser(toUser(data.session));
-      setVitalsUser(data.session?.user?.id ?? null);
-      setRecordsUser(data.session?.user?.id ?? null);
+      apply(data.session);
       setLoading(false);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(toUser(session));
-      setVitalsUser(session?.user?.id ?? null);
-      setRecordsUser(session?.user?.id ?? null);
-    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => apply(session));
     return () => sub.subscription.unsubscribe();
   }, []);
 

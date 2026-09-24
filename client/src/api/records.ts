@@ -64,6 +64,13 @@ export function setRecordsUser(id: string | null) {
   if (id && changed) void syncRecords();
 }
 
+/** Wipe this device's local records cache (used on account switch/logout so one
+ * user's data never bleeds into another account on a shared device). */
+export function clearLocalRecords() {
+  _uid = null;
+  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
+}
+
 function toRow(r: HealthRecord) {
   return { user_id: _uid, client_id: r.id, kind: r.kind, data: r.data, ts: new Date(r.ts).toISOString(), updated: new Date(r.updated).toISOString() };
 }

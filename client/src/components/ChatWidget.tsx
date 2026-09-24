@@ -317,6 +317,21 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     if (nearBottom) { el.scrollTop = el.scrollHeight; setShowJump(false); }
   }, [messages, open, busy, fullPage]);
 
+  // On open / mount / page refresh, jump straight to the latest message so the
+  // user always lands on the current conversation, not the very first message.
+  // Runs a few times to survive late layout (web fonts, markdown/canvas reflow).
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || (!open && !fullPage) || messages.length === 0) return;
+    const jump = () => { el.scrollTop = el.scrollHeight; setShowJump(false); };
+    jump();
+    const id = requestAnimationFrame(jump);
+    const t1 = setTimeout(jump, 90);
+    const t2 = setTimeout(jump, 300);
+    return () => { cancelAnimationFrame(id); clearTimeout(t1); clearTimeout(t2); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, fullPage]);
+
   // Persist the conversation (keep the last 60 turns to stay well under quota).
   useEffect(() => {
     try {

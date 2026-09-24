@@ -325,3 +325,40 @@ html.cap-native .cw-fsbtn { display: inline-flex; }
 .kitbox-shadow { position: absolute; left: 50%; bottom: -22px; width: 250px; height: 30px; transform: translateX(-50%); background: rgba(21,58,124,.16); filter: blur(18px); border-radius: 50%; }
 /* subtle lid seam on the front */
 .kitbox .f-front::after { content: ""; position: absolute; left: 0; right: 0; top: 30%; height: 1px; background: rgba(21,58,124,.07); }
+
+/* ── Report & Scan Decoder canvas (Design 2 — light clinical, green scanner) ── */
+.rc-canvas{border:1px solid #e3e7ee;border-radius:14px;overflow:hidden;background:#fff;color:#1f2937}
+.rc-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;font-size:12px;font-weight:700;border-bottom:1px solid #e3e7ee;background:#f4f7fb}
+.rc-live{display:inline-flex;align-items:center;gap:6px;color:#16a34a;white-space:nowrap}
+.rc-pip{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:rc-pip 1s infinite}
+@keyframes rc-pip{50%{opacity:.3}}
+.rc-body{position:relative;max-height:320px;overflow:auto;padding:8px 10px;scroll-behavior:smooth}
+.rc-scan{position:absolute;left:0;right:0;height:64px;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(22,163,74,.28),transparent);border-top:1px solid #16a34a;animation:rc-sweep 1.6s linear infinite}
+@keyframes rc-sweep{0%{top:-64px}100%{top:320px}}
+.rc-sec{margin:6px 2px 2px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8}
+.rc-row{position:relative;display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:6px 8px;border-radius:8px;font-size:12.5px;animation:rc-rowin .3s both}
+.rc-lab{font-weight:600;min-width:0}
+.rc-val{font-variant-numeric:tabular-nums;font-weight:700;color:#e11d48}
+.rc-val.rc-ok{color:#16a34a}
+.rc-rng{font-size:10.5px;color:#7d8ba8}
+.rc-row.rc-marked{background:rgba(225,29,72,.06);box-shadow:0 0 0 2px #e11d48 inset;animation:rc-pop .35s ease}
+@keyframes rc-pop{0%{box-shadow:0 0 0 8px rgba(225,29,72,0) inset}100%{box-shadow:0 0 0 2px #e11d48 inset}}
+.rc-tag{position:absolute;right:6px;top:-9px;background:#e11d48;color:#fff;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:999px;white-space:nowrap;z-index:2;animation:rc-rowin .25s both}
+@keyframes rc-rowin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.rc-skel{height:24px;border-radius:8px;margin:7px 0;background:linear-gradient(90deg,#eef2f7 25%,#e2e8f1 37%,#eef2f7 63%);background-size:400px 100%;animation:rc-shim 1.3s infinite}
+@keyframes rc-shim{0%{background-position:-200px 0}100%{background-position:200px 0}}
+.rc-xray{position:relative;background:#000;width:100%}
+.rc-ximg{display:block;width:100%;height:auto}
+.rc-box{position:absolute;border:2px solid #e11d48;border-radius:6px;box-shadow:0 0 12px rgba(225,29,72,.5);animation:rc-rowin .3s both}
+.rc-box b{position:absolute;left:0;top:-18px;background:#e11d48;color:#fff;font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.rc-xcap{font-size:10px;color:#7d8ba8;font-style:italic;padding:7px 10px;text-align:center;border-top:1px solid #e3e7ee}
+.rc-cards{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.rc-card{border-radius:16px;padding:12px 13px;border:1px solid #e6eaf1;background:#fff;color:#1f2937;animation:rc-cardin .4s both}
+@keyframes rc-cardin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.rc-ctitle{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px;margin-bottom:8px}
+.rc-ctitle svg{width:17px;height:17px;flex:none}
+.rc-find{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;padding:3px 0}
+.rc-sev{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:none}
+.rc-li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;padding:3px 0}
+.rc-li svg{width:15px;height:15px;flex:none;margin-top:1px;color:#16a34a}
+.rc-disc{font-size:10.5px;color:#7d8ba8;font-style:italic;margin-top:8px;padding:8px 10px;border-radius:10px;background:#f7f9fc;border:1px solid #eef2f7}

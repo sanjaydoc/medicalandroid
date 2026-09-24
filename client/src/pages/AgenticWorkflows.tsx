@@ -3,6 +3,14 @@ import { BRAND } from '../brand';
 
 const LIVE = [
   {
+    title: 'Report & Scan Decoder',
+    tag: 'Live',
+    loop: ['Upload report / scan', 'AI reads line-by-line', 'Flags abnormalities', 'Plain-language cards'],
+    body: 'Upload a blood report, prescription, X-ray, CT, MRI, ultrasound or ECG. MedDroid opens a live canvas that reads it line-by-line, marks anything abnormal in red, then gives you three clear cards — what it means in simple terms, whether it’s serious, and what to do next.',
+    to: '/assistant',
+    cta: 'Try it in the assistant',
+  },
+  {
     title: 'Find a clinic or hospital',
     tag: 'Live',
     loop: ['Symptoms', 'Right specialty', 'Nearby clinics', 'Directions / Call'],
@@ -63,7 +71,6 @@ const LIVE = [
 const PLANNED = [
   { title: 'Medication Adherence', body: 'Build a schedule, remind you, track doses, nudge refills.' },
   { title: 'Care-Navigation flagship', body: 'Triage → right specialty → nearby clinic → visit-prep → auto follow-up.' },
-  { title: 'Prescription / Report Decoder', body: 'Photo → explain each medicine/value → flag concerns → build a schedule.' },
   { title: 'Emergency / First-Aid', body: 'Detect emergencies → first-aid steps → nearest ER → one-tap 108/112.' },
 ];
 

@@ -10,6 +10,7 @@ import {
 import { saveRow } from '../api/supabase';
 import { BRAND } from '../brand';
 import ClinicCards from './ClinicCards';
+import ReportCanvas, { parseReport, type ParsedReport } from './ReportCanvas';
 import {
   findNearbyClinics,
   geocodeArea,
@@ -43,6 +44,9 @@ interface UIMsg {
   center?: { lat: number; lon: number }; // search centre (for Google Maps deep-links)
   specialtyHint?: string;   // specialty context (for "search doctors" deep-link)
   suggestClinic?: boolean;  // show a "Find a clinic near me" nudge under this reply
+  isReport?: boolean;       // render this assistant reply as the Report & Scan canvas
+  report?: ParsedReport | null; // parsed structured interpretation
+  reportImage?: string;     // data URL of the uploaded scan (imaging mode)
 }
 
 // When an assistant reply recommends in-person care, we offer the clinic finder.
@@ -53,6 +57,21 @@ const RECOMMENDS_CARE_RE =
 
 const MAX_IMAGE_MB = 5;
 const MAX_PDF_MB = 10;
+
+// When a report/scan is attached, ask the model for a structured interpretation
+// so the Report & Scan canvas can render it (live marking + summary cards).
+const REPORT_INSTRUCTION =
+  'The attachment is a medical report or scan. Reply with ONLY one JSON object ' +
+  '(you may wrap it in a ```json fence) and no other text, matching this schema: ' +
+  '{"type":"lab"|"imaging","title":"short e.g. Blood report · 19 Aug 2026",' +
+  '"findings":[{"section":"e.g. Liver (LFT)","label":"Test name","value":"result with unit","range":"normal range","status":"ok"|"flag","note":"<=5 words, only when flagged"}],' +
+  '"imageFindings":[{"status":"flag"|"ok","label":"short finding","note":"optional"}],' +
+  '"simple":[{"sev":"watch"|"mild"|"ok","title":"short","detail":"one plain sentence"}],' +
+  '"seriousLevel":"short phrase e.g. Early warning signs","serious":["short bullet"],"next":["short action bullet"]}. ' +
+  'Rules: for a blood/lab report use type "lab" and fill findings for EVERY test (status "flag" when the value is outside its normal range, else "ok"); omit imageFindings. ' +
+  'For an X-ray/CT/MRI/ultrasound/ECG image use type "imaging" and fill imageFindings; omit findings. ' +
+  'Always fill simple, seriousLevel, serious and next. Use simple language a patient understands. ' +
+  'Educational only, not a diagnosis. If a reply language was requested above, translate all text values.';
 
 const SUGGESTIONS = [
   'Explain my prescription, X-ray, MRI or CT',
@@ -301,7 +320,11 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
   useEffect(() => {
     try {
       if (messages.length === 0) localStorage.removeItem(STORAGE_KEY);
-      else localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-60)));
+      // Strip the (potentially large) scan data URL before persisting so we don't
+      // blow the localStorage quota; the parsed report + cards are still kept.
+      else localStorage.setItem(STORAGE_KEY, JSON.stringify(
+        messages.slice(-60).map((m) => (m.reportImage ? { ...m, reportImage: '' } : m)),
+      ));
     } catch {
       /* storage unavailable — ignore */
     }
@@ -527,12 +550,17 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     }
 
     // Build the content blocks for the API from text + attachments.
+    // An attachment triggers "report mode": we ask the model for structured JSON
+    // and render it in the Report & Scan canvas instead of plain text.
+    const isReport = attachments.length > 0;
+    let reportImage = '';
     const blocks: ContentBlock[] = [];
     for (const a of attachments) {
       try {
         const data = await fileToBase64(a.file);
         if (a.kind === 'image') {
           blocks.push({ type: 'image', source: { type: 'base64', media_type: a.file.type, data } });
+          if (!reportImage) reportImage = `data:${a.file.type};base64,${data}`;
         } else {
           blocks.push({
             type: 'document',
@@ -557,6 +585,10 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       blocks.push({ type: 'text', text: `(Background: the person's area of interest is ${specialty}. Use that only as light context — ALWAYS directly and fully answer the actual question they ask, whatever the topic (e.g. a cold, a medicine, a dose). Do NOT refuse or say you only cover ${specialty}, and do NOT open with a scope description — just answer. General information, not a diagnosis; suggest confirming with a pharmacist or doctor.)` });
     }
 
+    if (isReport) {
+      blocks.push({ type: 'text', text: REPORT_INSTRUCTION });
+    }
+
     const uiAttach = attachments.map((a) => ({ name: a.file.name, kind: a.kind }));
     const history: ChatMessage[] = messages.map((m) => ({ role: m.role, content: m.text }));
     history.push({ role: 'user', content: blocks.length ? blocks : text });
@@ -564,7 +596,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     setMessages((m) => [
       ...m,
       { role: 'user', text: text || '(attachment)', attachments: uiAttach },
-      { role: 'assistant', text: '' },
+      { role: 'assistant', text: '', isReport, reportImage },
     ]);
     setInput('');
     setAttachments([]);
@@ -609,8 +641,23 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
           return copy;
         });
       }
+      // Report mode: parse the structured JSON into the canvas; if the model
+      // didn't return valid JSON, fall back to showing its text as a normal reply.
+      if (isReport && acc.trim()) {
+        const parsed = parseReport(acc);
+        setMessages((m) => {
+          const copy = [...m];
+          const last = copy[copy.length - 1];
+          if (last && last.role === 'assistant') {
+            copy[copy.length - 1] = parsed
+              ? { ...last, report: parsed, isReport: true, text: '' }
+              : { ...last, isReport: false, text: acc };
+          }
+          return copy;
+        });
+      }
       // If the reply recommends in-person care, offer the clinic finder.
-      if (acc.trim() && RECOMMENDS_CARE_RE.test(acc)) {
+      if (acc.trim() && !isReport && RECOMMENDS_CARE_RE.test(acc)) {
         setMessages((m) => {
           const copy = [...m];
           const last = copy[copy.length - 1];
@@ -870,12 +917,20 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
               )}
               {messages.map((m, i) => (
                 <div key={i}>
-                  <Bubble
-                    role={m.role}
-                    text={m.text}
-                    attachments={m.attachments}
-                    loading={busy && i === messages.length - 1 && m.role === 'assistant'}
-                  />
+                  {m.isReport && m.role === 'assistant' ? (
+                    <ReportCanvas
+                      report={m.report}
+                      loading={busy && i === messages.length - 1 && !m.report}
+                      imageUrl={m.reportImage}
+                    />
+                  ) : (
+                    <Bubble
+                      role={m.role}
+                      text={m.text}
+                      attachments={m.attachments}
+                      loading={busy && i === messages.length - 1 && m.role === 'assistant'}
+                    />
+                  )}
                   {m.clinics && m.clinics.length > 0 && (
                     <ClinicCards
                       clinics={m.clinics}

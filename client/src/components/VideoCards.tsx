@@ -6,6 +6,7 @@ import { useState } from 'react';
 const VIDEOS = [
   { id: 'dZZ9j9gV-pE', title: 'How MedDroid reads a lab report' },
   { id: 'lzNpJzLYV3Y', title: 'Read an X-ray & child dosage' },
+  { id: 'KAw2xkIu-cA', title: 'Understand your prescription' },
 ];
 
 export default function VideoCards() {

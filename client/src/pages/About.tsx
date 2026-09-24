@@ -101,7 +101,7 @@ export default function About() {
             Watch MedDroid in action
           </h2>
         </div>
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div>
             <VideoDemo id="dZZ9j9gV-pE" title="How MedDroid reads your lab report" />
             <p className="mt-2 text-center text-sm font-semibold text-ink-800">How MedDroid reads a lab report</p>
@@ -109,6 +109,10 @@ export default function About() {
           <div>
             <VideoDemo id="lzNpJzLYV3Y" title="X-ray interpretation & child dosage with MedDroid" />
             <p className="mt-2 text-center text-sm font-semibold text-ink-800">Reading an X-ray &amp; child dosage guidance</p>
+          </div>
+          <div>
+            <VideoDemo id="KAw2xkIu-cA" title="MedDroid interprets your prescription" />
+            <p className="mt-2 text-center text-sm font-semibold text-ink-800">Understanding your prescription</p>
           </div>
         </div>
       </div>

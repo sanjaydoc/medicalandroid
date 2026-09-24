@@ -26,11 +26,15 @@ export interface Classification {
   detail?: string;
 }
 
-const KEY = 'meddroid_vitals_v1';
+// Storage key is NAMESPACED by the signed-in user id so multiple accounts on the
+// same device never see each other's data (anonymous data lives under the base
+// key). `_uid` is set by setVitalsUser() below.
+const KEY_BASE = 'meddroid_vitals_v1';
+const keyFor = () => (_uid ? `${KEY_BASE}::${_uid}` : KEY_BASE);
 
 export function loadVitals(): Vital[] {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(keyFor());
     const arr = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(arr)) return [];
     // Migration: earlier chat-logged readings were saved with ts=0 (a bug).
@@ -42,7 +46,7 @@ export function loadVitals(): Vital[] {
       if (!v.ts || v.ts <= 0) { changed = true; return { ...v, ts: now - (arr.length - i) * 60000 }; }
       return v;
     });
-    if (changed) { try { localStorage.setItem(KEY, JSON.stringify(fixed)); } catch { /* ignore */ } }
+    if (changed) { try { localStorage.setItem(keyFor(), JSON.stringify(fixed)); } catch { /* ignore */ } }
     return fixed.sort((a, b) => a.ts - b.ts);
   } catch {
     return [];
@@ -51,7 +55,7 @@ export function loadVitals(): Vital[] {
 
 function save(all: Vital[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(all));
+    localStorage.setItem(keyFor(), JSON.stringify(all));
   } catch { /* ignore quota/private-mode */ }
 }
 
@@ -86,11 +90,9 @@ export function setVitalsUser(id: string | null) {
   if (id && changed) void syncVitals();
 }
 
-/** Wipe this device's local vitals cache (used on account switch/logout so one
- * user's data never bleeds into another account on a shared device). */
+/** Wipe the current identity's local vitals cache. */
 export function clearLocalVitals() {
-  _uid = null;
-  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
+  try { localStorage.removeItem(keyFor()); } catch { /* ignore */ }
 }
 
 function vitalToRow(v: Vital) {

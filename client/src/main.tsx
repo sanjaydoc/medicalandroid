@@ -7,6 +7,22 @@ import { AuthProvider } from './context/AuthContext';
 import { PwaProvider } from './context/PwaContext';
 import './index.css';
 
+// ONE-TIME PRIVACY CLEANUP: earlier builds stored chat history and health data
+// under a single shared (non-namespaced) localStorage key, so on a shared device
+// one user's data could show under another account / when logged out. Those keys
+// are now namespaced per user; wipe the legacy shared blobs once so they can't
+// leak. Logged-in users' health data re-syncs from the server; pre-migration
+// chat history (which was un-attributable and the source of the leak) is dropped.
+try {
+  const FLAG = 'meddroid_ns_migrated_v1';
+  if (!localStorage.getItem(FLAG)) {
+    ['stemcells_chat_history_v1', 'meddroid_vitals_v1', 'meddroid_records_v1'].forEach((k) => {
+      try { localStorage.removeItem(k); } catch { /* ignore */ }
+    });
+    localStorage.setItem(FLAG, '1');
+  }
+} catch { /* storage unavailable — ignore */ }
+
 // The static Pages build uses HashRouter so client-side routes work without
 // any server rewrites (and survive a hard refresh on a subpage).
 const Router = import.meta.env.VITE_STATIC === 'true' ? HashRouter : BrowserRouter;

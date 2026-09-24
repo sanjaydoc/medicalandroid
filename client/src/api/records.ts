@@ -13,11 +13,14 @@ export interface HealthRecord<T = unknown> {
   updated: number;   // last modified (for conflict resolution)
 }
 
-const KEY = 'meddroid_records_v1';
+// Namespaced by the signed-in user id so multiple accounts on the same device
+// never see each other's records (anonymous data lives under the base key).
+const KEY_BASE = 'meddroid_records_v1';
+const keyFor = () => (_uid ? `${KEY_BASE}::${_uid}` : KEY_BASE);
 
 function readAll(): HealthRecord[] {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(keyFor());
     const arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr) ? (arr as HealthRecord[]) : [];
   } catch {
@@ -25,7 +28,7 @@ function readAll(): HealthRecord[] {
   }
 }
 function writeAll(list: HealthRecord[]) {
-  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* ignore */ }
+  try { localStorage.setItem(keyFor(), JSON.stringify(list)); } catch { /* ignore */ }
 }
 
 export function listRecords<T = unknown>(kind?: string): HealthRecord<T>[] {
@@ -64,11 +67,9 @@ export function setRecordsUser(id: string | null) {
   if (id && changed) void syncRecords();
 }
 
-/** Wipe this device's local records cache (used on account switch/logout so one
- * user's data never bleeds into another account on a shared device). */
+/** Wipe the current identity's local records cache. */
 export function clearLocalRecords() {
-  _uid = null;
-  try { localStorage.removeItem(KEY); } catch { /* ignore */ }
+  try { localStorage.removeItem(keyFor()); } catch { /* ignore */ }
 }
 
 function toRow(r: HealthRecord) {

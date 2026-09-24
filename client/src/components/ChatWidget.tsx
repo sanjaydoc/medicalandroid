@@ -9,6 +9,7 @@ import {
 } from '../api/chat';
 import { saveRow } from '../api/supabase';
 import { BRAND } from '../brand';
+import { useAuth } from '../context/AuthContext';
 import ClinicCards from './ClinicCards';
 import ReportCanvas, { parseReport, stripEmoji, type ParsedReport } from './ReportCanvas';
 import {
@@ -106,13 +107,17 @@ const LANG_NAME: Record<string, string> = {
 
 // Persist the conversation so history + memory survive closing the widget,
 // navigating away, or reloading the page.
-const STORAGE_KEY = 'stemcells_chat_history_v1';
+// Chat history is NAMESPACED per signed-in user so two accounts on the same
+// device never see each other's conversations, and each user keeps their own
+// history. Anonymous history lives under the base key.
+const CHAT_KEY_BASE = 'stemcells_chat_history_v1';
+const chatKey = (uid: string | null) => (uid ? `${CHAT_KEY_BASE}::${uid}` : CHAT_KEY_BASE);
 const LANG_KEY = 'stemcells_chat_lang_v1';
 const DOCTOR_KEY = 'stemcells_chat_doctor_v1';
 
-function loadMessages(): UIMsg[] {
+function loadMessages(uid: string | null): UIMsg[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(chatKey(uid));
     const parsed = raw ? JSON.parse(raw) : [];
     if (!Array.isArray(parsed)) return [];
     return parsed as UIMsg[];
@@ -146,7 +151,9 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
   useEffect(() => {
     try { sessionStorage.setItem(EXPAND_KEY, expanded ? '1' : '0'); } catch { /* ignore */ }
   }, [expanded]);
-  const [messages, setMessages] = useState<UIMsg[]>(loadMessages);
+  const { user } = useAuth();
+  const uid = user?.id ?? null;
+  const [messages, setMessages] = useState<UIMsg[]>(() => loadMessages(uid));
   const [input, setInput] = useState('');
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [busy, setBusy] = useState(false);
@@ -335,16 +342,28 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
   // Persist the conversation (keep the last 60 turns to stay well under quota).
   useEffect(() => {
     try {
-      if (messages.length === 0) localStorage.removeItem(STORAGE_KEY);
+      if (messages.length === 0) localStorage.removeItem(chatKey(uid));
       // Strip the (potentially large) scan data URL before persisting so we don't
       // blow the localStorage quota; the parsed report + cards are still kept.
-      else localStorage.setItem(STORAGE_KEY, JSON.stringify(
+      else localStorage.setItem(chatKey(uid), JSON.stringify(
         messages.slice(-60).map((m) => (m.reportImage ? { ...m, reportImage: '' } : m)),
       ));
     } catch {
       /* storage unavailable — ignore */
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
+
+  // When the signed-in account changes (login / logout / switch), load THAT
+  // user's own chat history — never carry the previous user's messages over.
+  // (Persist above keys off `messages` only, so this reload happens first and
+  // the next save targets the new user's namespaced key.)
+  const uidRef = useRef<string | null>(uid);
+  useEffect(() => {
+    if (uidRef.current === uid) return;
+    uidRef.current = uid;
+    setMessages(loadMessages(uid));
+  }, [uid]);
 
   // Remember the chosen language across visits.
   useEffect(() => {
@@ -730,7 +749,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     setMessages([]);
     setError('');
     try {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(chatKey(uid));
     } catch {
       /* ignore */
     }

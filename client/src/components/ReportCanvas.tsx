@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { PageData } from '../api/pdfDoc';
 
 // ── Types (shared with ChatWidget) ────────────────────────────────
@@ -157,11 +157,31 @@ export default function ReportCanvas({
   const [imgBoxes, setImgBoxes] = useState(0);     // illustrative imaging boxes revealed
   const [rows, setRows] = useState<Set<number>>(new Set()); // synthesized-row marks (fallback)
   const [phase, setPhase] = useState<'read' | 'cards'>('read');
-  const [reveal, setReveal] = useState(0);         // card lines revealed (typewriter)
+  const [collapsed, setCollapsed] = useState(false); // scan canvas folded into a clickable card
+  const [segIdx, setSegIdx] = useState(0);           // typewriter: which segment
+  const [wIdx, setWIdx] = useState(0);               // typewriter: words shown in current segment
 
   const labRows = report?.findings || [];
   const imgFindings = (report?.imageFindings || []).filter((f) => f.status === 'flag').slice(0, SLOTS.length);
   const boxesForPage = boxes.filter((b) => b.page === pageIdx);
+
+  // Flat, ordered list of card segments to type out word-by-word (simple →
+  // serious → next), so the cards fill in like a normal chat reply.
+  interface Seg { card: 'simple' | 'serious' | 'next'; sev?: string; num?: number; level?: boolean; head: string[]; body: string[]; }
+  const segs = useMemo<Seg[]>(() => {
+    if (!report) return [];
+    const out: Seg[] = [];
+    (report.simple || []).forEach((f) => out.push({
+      card: 'simple', sev: SEV[f.sev] || SEV.mild,
+      head: (f.title || '').split(/\s+/).filter(Boolean),
+      body: (f.detail || '').split(/\s+/).filter(Boolean),
+    }));
+    if (report.seriousLevel) out.push({ card: 'serious', level: true, head: [], body: report.seriousLevel.split(/\s+/).filter(Boolean) });
+    (report.serious || []).forEach((t) => out.push({ card: 'serious', head: [], body: (t || '').split(/\s+/).filter(Boolean) }));
+    (report.next || []).forEach((t, i) => out.push({ card: 'next', num: i + 1, head: [], body: (t || '').split(/\s+/).filter(Boolean) }));
+    return out;
+  }, [report]);
+  const segTotal = (s: Seg) => s.head.length + s.body.length;
 
   // ---- loading: cycle through the real pages, scanning ----
   useEffect(() => {
@@ -174,16 +194,16 @@ export default function ReportCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, hasPages]);
 
-  // ---- report ready: run the marking, then reveal cards ----
+  // ---- report ready: run the marking, then (in a second effect) type the cards ----
   useEffect(() => {
     if (loading || !report) return;
     const timers: ReturnType<typeof setTimeout>[] = [];
-    setScanning(true); setShownBoxes(0); setImgBoxes(0); setRows(new Set()); setReveal(0); setPhase('read');
+    setScanning(true); setShownBoxes(0); setImgBoxes(0); setRows(new Set()); setCollapsed(false); setPhase('read');
 
+    // When the marking finishes: collapse the scan into a tappable card and flip
+    // to the cards phase (the typewriter effect below then types them out).
     const startCards = (delay: number) => {
-      timers.push(setTimeout(() => { setScanning(false); setPhase('cards'); }, delay));
-      const total = (report.simple?.length || 0) + (report.serious?.length || 0) + (report.next?.length || 0);
-      for (let k = 1; k <= total; k++) timers.push(setTimeout(() => setReveal(k), delay + 250 + k * 150));
+      timers.push(setTimeout(() => { setScanning(false); setCollapsed(true); setPhase('cards'); }, delay));
     };
 
     if (hasText && boxes.length) {
@@ -215,118 +235,205 @@ export default function ReportCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, report]);
 
+  // ---- typewriter: reveal the cards word by word, one segment after another ----
+  useEffect(() => {
+    if (phase !== 'cards' || !segs.length) return;
+    let si = 0, wi = 0, alive = true;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    setSegIdx(0); setWIdx(0);
+    const WORD = 45;   // ms per word
+    const PAUSE = 190; // ms between segments
+    const step = () => {
+      if (!alive) return;
+      const seg = segs[si];
+      if (!seg) return;
+      if (wi < segTotal(seg)) {
+        wi++; setSegIdx(si); setWIdx(wi);
+        timers.push(setTimeout(step, WORD));
+      } else {
+        si++; wi = 0;
+        if (si < segs.length) { setSegIdx(si); setWIdx(0); timers.push(setTimeout(step, PAUSE)); }
+        else { setSegIdx(si); } // done
+      }
+    };
+    timers.push(setTimeout(step, 140));
+    return () => { alive = false; timers.forEach(clearTimeout); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, segs]);
+
+  // Keep the newest typed line in view as the cards fill in.
+  const endRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (phase !== 'cards') return;
+    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [phase, segIdx, collapsed]);
+
+  // Once marking is done we show every box/row at once (so re-opening the scan
+  // shows the complete markup, not a mid-animation frame).
+  const done = phase === 'cards';
+  const boxLimit = done ? boxesForPage.length : shownBoxes;
+  const imgLimit = done ? imgFindings.length : imgBoxes;
+
   const totalFlag = isImaging ? imgFindings.length : (hasText ? boxes.length : labRows.filter((r) => r.status === 'flag').length);
   const headRight = loading || !report
     ? (hasPages ? `Reading page ${pageIdx + 1} of ${pages!.length}` : 'Reading report')
     : phase === 'read' ? 'Marking findings' : `${totalFlag} flagged`;
 
-  // flat card-line reveal helper
-  const nSimple = report?.simple?.length || 0;
-  const nSerious = report?.serious?.length || 0;
+  // typewriter render helpers
+  const started = (gi: number) => gi < segIdx || (gi === segIdx && wIdx > 0);
+  const wordsFor = (gi: number, s: Seg) => (gi < segIdx ? segTotal(s) : gi === segIdx ? wIdx : 0);
+  const typing = (gi: number, s: Seg) => gi === segIdx && wIdx < segTotal(s);
+  const headEnd = report?.simple?.length || 0;
+  const serEnd = headEnd + (report?.seriousLevel ? 1 : 0) + (report?.serious?.length || 0);
+  const showSimple = (report?.simple?.length || 0) > 0 && started(0);
+  const showSerious = serEnd > headEnd && started(headEnd);
+  const showNext = (report?.next?.length || 0) > 0 && started(serEnd);
+
+  // Render one segment's revealed words (bold head, then " — " + body).
+  const renderSeg = (gi: number, s: Seg) => {
+    const k = wordsFor(gi, s);
+    const hn = Math.min(k, s.head.length);
+    const bn = Math.max(0, k - s.head.length);
+    const headTxt = s.head.slice(0, hn).join(' ');
+    const bodyTxt = s.body.slice(0, bn).join(' ');
+    const cur = typing(gi, s);
+    return (
+      <>
+        {headTxt && <b>{headTxt}</b>}
+        {bn > 0 && (s.head.length ? ` — ${bodyTxt}` : bodyTxt)}
+        {cur && <span className="rc-cursor" />}
+      </>
+    );
+  };
 
   return (
     <div className="mt-1">
-      <div className="rc-canvas">
-        <div className="rc-head">
-          <span>{report?.title || (isImaging ? 'Reading image' : 'Reading report')}</span>
-          <span className="rc-live"><span className="rc-pip" />{headRight}</span>
-        </div>
+      {collapsed ? (
+        <button type="button" className="rc-fold" onClick={() => setCollapsed(false)} aria-expanded={false}>
+          <span className="rc-fico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M20 7V5a1 1 0 0 0-1-1h-2M4 17v2a1 1 0 0 0 1 1h2M20 17v2a1 1 0 0 1-1 1h-2" /><path d="M4 12h16" /></svg>
+          </span>
+          <span className="rc-ftxt">
+            <b>{report?.title || (isImaging ? 'Scan reviewed' : 'Report reviewed')}</b>
+            <span>{totalFlag} finding{totalFlag !== 1 ? 's' : ''} marked · tap to view the marked {isImaging ? 'scan' : 'report'}</span>
+          </span>
+          <span className="rc-fchev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg></span>
+        </button>
+      ) : (
+        <div className="rc-canvas">
+          <div className="rc-head">
+            <span>{report?.title || (isImaging ? 'Reading image' : 'Reading report')}</span>
+            {done ? (
+              <button type="button" className="rc-hide" onClick={() => setCollapsed(true)}>Hide</button>
+            ) : (
+              <span className="rc-live"><span className="rc-pip" />{headRight}</span>
+            )}
+          </div>
 
-        <div className="rc-body">
-          {scanning && <div className="rc-scan" />}
+          <div className="rc-body">
+            {scanning && <div className="rc-scan" />}
 
-          {/* Centered loader while the AI is still reading (before findings return) */}
-          {(loading || !report) && (
-            <div className="rc-loader">
-              <span className="rc-spin" />
-              <span>{isImaging ? 'Reading your scan…' : 'Reading your report…'}</span>
-            </div>
-          )}
+            {/* Centered loader while the AI is still reading (before findings return) */}
+            {(loading || !report) && (
+              <div className="rc-loader">
+                <span className="rc-spin" />
+                <span>{isImaging ? 'Reading your scan…' : 'Reading your report…'}</span>
+              </div>
+            )}
 
-          {/* Real page reader (PDF pages or uploaded image) */}
-          {hasPages ? (
-            <div className="rc-xray">
-              <img className="rc-ximg" src={pages![pageIdx]?.image || imageUrl} alt={`page ${pageIdx + 1}`} />
-              {/* grounded red boxes (lab PDF) */}
-              {report && hasText && boxesForPage.slice(0, shownBoxes).map((b, i) => (
-                <div key={i} className="rc-box" style={{ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` }}>
-                  <b>{b.label}</b>
-                </div>
-              ))}
-              {/* illustrative boxes (imaging) */}
-              {report && isImaging && imgFindings.slice(0, imgBoxes).map((f, i) => (
-                <div key={i} className="rc-box" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}>
-                  <b>{f.label}</b>
-                </div>
-              ))}
-            </div>
-          ) : imageUrl && isImaging ? (
-            <div className="rc-xray">
-              <img className="rc-ximg" src={imageUrl} alt="scan" />
-              {report && imgFindings.slice(0, imgBoxes).map((f, i) => (
-                <div key={i} className="rc-box" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}><b>{f.label}</b></div>
-              ))}
-            </div>
-          ) : report && !isImaging && labRows.length ? (
-            // synthesized rows fallback
-            labRows.map((r, i) => {
-              const header = i === 0 || labRows[i - 1].section !== r.section;
-              const marked = rows.has(i);
-              return (
-                <div key={i}>
-                  {header && r.section && <div className="rc-sec">{r.section}</div>}
-                  <div className={`rc-row${marked ? ' rc-marked' : ''}`} style={{ animationDelay: `${i * 35}ms` }}>
-                    <span className="rc-lab">{r.label}</span>
-                    <span className={`rc-val${r.status === 'flag' ? '' : ' rc-ok'}`}>{r.value}</span>
-                    <span className="rc-rng">{r.range}</span>
-                    {marked && r.note && <span className="rc-tag">{r.note}</span>}
+            {/* Real page reader (PDF pages or uploaded image) */}
+            {hasPages ? (
+              <div className="rc-xray">
+                <img className="rc-ximg" src={pages![pageIdx]?.image || imageUrl} alt={`page ${pageIdx + 1}`} />
+                {/* grounded red boxes (lab PDF) */}
+                {report && hasText && boxesForPage.slice(0, boxLimit).map((b, i) => (
+                  <div key={i} className="rc-box" style={{ left: `${b.left}%`, top: `${b.top}%`, width: `${b.width}%`, height: `${b.height}%` }}>
+                    <b>{b.label}</b>
                   </div>
-                </div>
-              );
-            })
-          ) : (
-            // pre-data skeleton
-            [0, 1, 2, 3, 4].map((i) => <div key={i} className="rc-skel" style={{ width: `${90 - i * 8}%` }} />)
+                ))}
+                {/* illustrative boxes (imaging) */}
+                {report && isImaging && imgFindings.slice(0, imgLimit).map((f, i) => (
+                  <div key={i} className="rc-box" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}>
+                    <b>{f.label}</b>
+                  </div>
+                ))}
+              </div>
+            ) : imageUrl && isImaging ? (
+              <div className="rc-xray">
+                <img className="rc-ximg" src={imageUrl} alt="scan" />
+                {report && imgFindings.slice(0, imgLimit).map((f, i) => (
+                  <div key={i} className="rc-box" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}><b>{f.label}</b></div>
+                ))}
+              </div>
+            ) : report && !isImaging && labRows.length ? (
+              // synthesized rows fallback
+              labRows.map((r, i) => {
+                const header = i === 0 || labRows[i - 1].section !== r.section;
+                const marked = done ? r.status === 'flag' : rows.has(i);
+                return (
+                  <div key={i}>
+                    {header && r.section && <div className="rc-sec">{r.section}</div>}
+                    <div className={`rc-row${marked ? ' rc-marked' : ''}`} style={{ animationDelay: `${i * 35}ms` }}>
+                      <span className="rc-lab">{r.label}</span>
+                      <span className={`rc-val${r.status === 'flag' ? '' : ' rc-ok'}`}>{r.value}</span>
+                      <span className="rc-rng">{r.range}</span>
+                      {marked && r.note && <span className="rc-tag">{r.note}</span>}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              // pre-data skeleton
+              [0, 1, 2, 3, 4].map((i) => <div key={i} className="rc-skel" style={{ width: `${90 - i * 8}%` }} />)
+            )}
+          </div>
+
+          {hasPages && pages!.length > 1 && (
+            <div className="rc-pages">
+              {pages!.map((_, i) => (
+                <button key={i} type="button" aria-label={`page ${i + 1}`} className={`rc-dot${i === pageIdx ? ' on' : ''}`} onClick={() => { setPageIdx(i); }} />
+              ))}
+            </div>
           )}
-        </div>
-
-        {hasPages && pages!.length > 1 && (
-          <div className="rc-pages">
-            {pages!.map((_, i) => (
-              <button key={i} type="button" aria-label={`page ${i + 1}`} className={`rc-dot${i === pageIdx ? ' on' : ''}`} onClick={() => { setPageIdx(i); }} />
-            ))}
-          </div>
-        )}
-        {report && isImaging && (
-          <div className="rc-xcap">Illustrative regions — the AI describes the image but does not pinpoint exact locations.</div>
-        )}
-      </div>
-
-      {/* Summary cards — typed out live */}
-      {phase === 'cards' && report && (
-        <div className="rc-cards">
-          <div className="rc-card">
-            <div className="rc-ctitle">{IC.simple} In simple terms</div>
-            {report.simple.map((f, i) => i < reveal && (
-              <div key={i} className="rc-find"><span className="rc-sev" style={{ background: SEV[f.sev] || SEV.mild }} /><span><b>{f.title}</b>{f.detail ? ` — ${f.detail}` : ''}</span></div>
-            ))}
-          </div>
-          <div className="rc-card">
-            <div className="rc-ctitle">{IC.serious} Is it serious?</div>
-            {report.seriousLevel && reveal > nSimple && <div style={{ fontSize: 12, fontWeight: 800, color: '#d97706', marginBottom: 6 }}>{report.seriousLevel}</div>}
-            {report.serious.map((t, i) => (nSimple + i) < reveal && (
-              <div key={i} className="rc-find"><span className="rc-sev" style={{ background: '#d97706' }} /><span>{t}</span></div>
-            ))}
-          </div>
-          <div className="rc-card">
-            <div className="rc-ctitle">{IC.next} What to do next</div>
-            {report.next.map((t, i) => (nSimple + nSerious + i) < reveal && (
-              <div key={i} className="rc-step"><span className="rc-num">{i + 1}</span><span>{t}</span></div>
-            ))}
-            <div className="rc-disc">Illustrative model output — not a diagnosis. Please confirm with your doctor.</div>
-          </div>
+          {report && isImaging && (
+            <div className="rc-xcap">Illustrative regions — the AI describes the image but does not pinpoint exact locations.</div>
+          )}
         </div>
       )}
+
+      {/* Summary cards — typed out live, word by word */}
+      {phase === 'cards' && report && (
+        <div className="rc-cards">
+          {showSimple && (
+            <div className="rc-card">
+              <div className="rc-ctitle">{IC.simple} In simple terms</div>
+              {segs.map((s, gi) => s.card === 'simple' && started(gi) && (
+                <div key={gi} className="rc-find"><span className="rc-sev" style={{ background: s.sev }} /><span>{renderSeg(gi, s)}</span></div>
+              ))}
+            </div>
+          )}
+          {showSerious && (
+            <div className="rc-card">
+              <div className="rc-ctitle">{IC.serious} Is it serious?</div>
+              {segs.map((s, gi) => s.card === 'serious' && started(gi) && (
+                s.level
+                  ? <div key={gi} style={{ fontSize: 12, fontWeight: 800, color: '#d97706', marginBottom: 6 }}>{renderSeg(gi, s)}</div>
+                  : <div key={gi} className="rc-find"><span className="rc-sev" style={{ background: '#d97706' }} /><span>{renderSeg(gi, s)}</span></div>
+              ))}
+            </div>
+          )}
+          {showNext && (
+            <div className="rc-card">
+              <div className="rc-ctitle">{IC.next} What to do next</div>
+              {segs.map((s, gi) => s.card === 'next' && started(gi) && (
+                <div key={gi} className="rc-step"><span className="rc-num">{s.num}</span><span>{renderSeg(gi, s)}</span></div>
+              ))}
+              {segIdx >= segs.length && <div className="rc-disc">Illustrative model output — not a diagnosis. Please confirm with your doctor.</div>}
+            </div>
+          )}
+        </div>
+      )}
+      <div ref={endRef} />
     </div>
   );
 }

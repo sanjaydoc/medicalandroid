@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { BRAND } from '../brand';
 import BrandLogo from './BrandLogo';
@@ -5,8 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 // Desktop-only left navigation for the Assistant page (Claude-style full-screen
 // layout). Hidden below md — mobile keeps the top navbar. Also holds the
-// "Get the Android app" button and the speciality selector so the main pane can
-// be the chat only.
+// speciality selector + "Get the Android app" so the main pane is chat-only.
 const S = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 const LINKS: { to: string; label: string; icon: JSX.Element }[] = [
   { to: '/assistant', label: 'Assistant', icon: <svg viewBox="0 0 24 24" {...S}><path d="M12 3l1.9 4.7L18.5 9.5l-4.6 1.8L12 16l-1.9-4.7L5.5 9.5l4.6-1.8L12 3z" /></svg> },
@@ -28,8 +28,21 @@ export default function AssistantSidebar({
 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [ddOpen, setDdOpen] = useState(false);
+  const ddRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ddOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ddRef.current && !ddRef.current.contains(e.target as Node)) setDdOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [ddOpen]);
 
   const cls = ({ isActive }: { isActive: boolean }) => `asd-nav-item${isActive ? ' on' : ''}`;
+  const current = spec || 'General (all areas)';
+  const pick = (label: string) => { onSpec?.(label); setDdOpen(false); };
 
   return (
     <aside className="asd-side">
@@ -53,18 +66,28 @@ export default function AssistantSidebar({
         )}
       </nav>
 
-      {/* Tools: speciality selector + Android app (moved out of the main pane) */}
+      {/* Tools: custom neumorphic speciality dropdown + Android app */}
       <div className="asd-side-tools">
         {specialties.length > 0 && (
-          <label className="asd-side-spec">
+          <div className="asd-side-spec">
             <span className="lbl">Speciality</span>
-            <select value={spec} onChange={(e) => onSpec?.(e.target.value)} aria-label="Answer speciality">
-              <option value="">General (all areas)</option>
-              {specialties.map((s) => (
-                <option key={s.key} value={s.label}>{s.label}</option>
-              ))}
-            </select>
-          </label>
+            <div className="asd-dd" ref={ddRef}>
+              <button type="button" className="asd-dd-btn" onClick={() => setDdOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={ddOpen}>
+                <span className="cur">{current}</span>
+                <span className={'chev' + (ddOpen ? ' up' : '')} aria-hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                </span>
+              </button>
+              {ddOpen && (
+                <div className="asd-dd-menu" role="listbox">
+                  <button type="button" role="option" aria-selected={!spec} className={'asd-dd-opt' + (!spec ? ' on' : '')} onClick={() => pick('')}>General (all areas)</button>
+                  {specialties.map((s) => (
+                    <button key={s.key} type="button" role="option" aria-selected={spec === s.label} className={'asd-dd-opt' + (spec === s.label ? ' on' : '')} onClick={() => pick(s.label)}>{s.label}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         )}
         {appUrl && (
           <a className="asd-side-app" href={appUrl} target="_blank" rel="noopener noreferrer">

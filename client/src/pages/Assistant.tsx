@@ -704,8 +704,18 @@ const ASD_CSS = `
   .asd-side-tools{display:flex;flex-direction:column;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid #e7e2d8;}
   .asd-side-spec{display:flex;flex-direction:column;gap:5px;}
   .asd-side-spec .lbl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9aa6c2;padding-left:2px;}
-  .asd-side-spec select{width:100%;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#141413;background:#f4f7fb;border:1px solid #e0e6ef;border-radius:11px;padding:9px 10px;cursor:pointer;}
-  .asd-side-spec select:focus{outline:none;border-color:#2F6FE0;}
+  .asd-dd{position:relative;}
+  .asd-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:#141413;background:#f5f7fb;border:0;border-radius:12px;padding:10px 12px;cursor:pointer;box-shadow:inset 2px 2px 5px rgba(90,98,112,.16),inset -2px -2px 5px #fff;transition:box-shadow .15s ease;}
+  .asd-dd-btn:hover{box-shadow:inset 1px 1px 3px rgba(90,98,112,.14),inset -1px -1px 3px #fff;}
+  .asd-dd-btn:focus-visible{outline:2px solid #2F6FE0;outline-offset:2px;}
+  .asd-dd-btn .cur{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;}
+  .asd-dd-btn .chev{flex:0 0 auto;display:flex;color:#2F6FE0;transition:transform .18s ease;}
+  .asd-dd-btn .chev svg{width:15px;height:15px;}
+  .asd-dd-btn .chev.up{transform:rotate(180deg);}
+  .asd-dd-menu{position:absolute;left:0;right:0;bottom:calc(100% + 8px);z-index:40;display:flex;flex-direction:column;gap:2px;max-height:340px;overflow-y:auto;padding:6px;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(28,40,64,.18),0 2px 8px rgba(28,40,64,.10),inset 0 0 0 1px rgba(230,234,242,.9);}
+  .asd-dd-opt{display:block;width:100%;text-align:left;font-family:Inter,sans-serif;font-size:12.5px;font-weight:600;color:#2a3346;background:transparent;border:0;border-radius:9px;padding:9px 11px;cursor:pointer;transition:background .12s ease,color .12s ease;}
+  .asd-dd-opt:hover{background:#EAF1FE;color:#2F6FE0;}
+  .asd-dd-opt.on{background:#2F6FE0;color:#fff;}
   .asd-side-app{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-family:Inter,sans-serif;font-weight:700;font-size:13px;color:#2F6FE0;background:#EAF1FE;border-radius:12px;padding:10px 12px;}
   .asd-side-app svg{width:16px;height:16px;}
   .asd-side-app:hover{background:#D6E4FD;}

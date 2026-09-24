@@ -328,10 +328,17 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
 
   // On open / mount / page refresh, jump straight to the latest message so the
   // user always lands on the current conversation, not the very first message.
-  // Runs a few times to survive late layout (web fonts, markdown/canvas reflow).
+  // History loads in two beats — anon first, then the signed-in user's once auth
+  // resolves — so we can't land just once on mount; instead we re-land whenever
+  // the view (re)opens, the account changes, or the history first fills. The
+  // `landedRef` guard stops us yanking the user down mid-read on later updates.
+  const landedRef = useRef(false);
+  useEffect(() => { landedRef.current = false; }, [open, fullPage, uid]);
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || (!open && !fullPage) || messages.length === 0) return;
+    if (landedRef.current) return;
+    landedRef.current = true;
     const jump = () => { el.scrollTop = el.scrollHeight; setShowJump(false); };
     jump();
     const id = requestAnimationFrame(jump);
@@ -339,7 +346,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     const t2 = setTimeout(jump, 300);
     return () => { cancelAnimationFrame(id); clearTimeout(t1); clearTimeout(t2); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, fullPage]);
+  }, [open, fullPage, uid, messages.length]);
 
   // Persist the conversation (keep the last 60 turns to stay well under quota).
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import ChatWidget from '../components/ChatWidget';
+import AssistantSidebar from '../components/AssistantSidebar';
 import { isNativeApp } from '../api/chat';
 import {
   offlineModelPresent, downloadOfflineModel, getDeviceInfo, recommendModel,
@@ -265,8 +266,11 @@ export default function Assistant() {
   }, [offline, modelReady, modelLoaded]);
 
   return (
-    <div className={"asd" + (fullscreen ? " fs" : "")}>
+    <div className="asd-shell">
       <style>{ASD_CSS}</style>
+      <AssistantSidebar />
+      <div className="asd-main">
+      <div className={"asd" + (fullscreen ? " fs" : "")}>
       <div className="asd-wrap container-x">
         {/* top bar */}
         <div className="asd-top">
@@ -523,6 +527,8 @@ export default function Assistant() {
 
         <p className="asd-disc">Educational / research support — not a diagnosis, prescription or medical advice. Always confirm with a qualified clinician.</p>
       </div>
+      </div>
+      </div>
     </div>
   );
 }
@@ -654,4 +660,28 @@ const ASD_CSS = `
 .asd-chat > *{width:100%;}
 .asd-disc{font-size:11.5px;font-style:italic;color:var(--fnt);line-height:1.6;text-align:center;margin:6px 0 0;}
 @media(prefers-reduced-motion:reduce){.asd *{transition:none!important;}}
+/* ── Desktop full-screen shell with left sidebar (Claude-style), md+ only ── */
+.asd-side{display:none;}
+@media(min-width:768px){
+  .asd-shell{display:flex;height:100vh;overflow:hidden;background:#fdfdfc;}
+  .asd-main{flex:1;min-width:0;height:100vh;overflow-y:auto;}
+  .asd-main .asd{min-height:100%;}
+  .asd-side{display:flex;flex-direction:column;width:250px;flex:none;height:100vh;background:#ffffff;border-right:1px solid #e7e2d8;padding:16px 12px;gap:6px;}
+  .asd-side-brand{display:flex;align-items:center;gap:9px;padding:8px 10px 14px;text-decoration:none;}
+  .asd-side-brand span{font-family:Poppins,Inter,sans-serif;font-weight:800;font-size:19px;color:#141413;letter-spacing:-.01em;}
+  .asd-nav{display:flex;flex-direction:column;gap:3px;margin-top:4px;}
+  .asd-nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:12px;text-decoration:none;color:#3a3733;font-family:Inter,sans-serif;font-weight:600;font-size:14px;transition:background .15s,color .15s;}
+  .asd-nav-item .ic{width:20px;height:20px;flex:none;color:#8a94a3;display:grid;place-items:center;}
+  .asd-nav-item .ic svg{width:20px;height:20px;}
+  .asd-nav-item:hover{background:#f4f5f6;}
+  .asd-nav-item.on{background:#EAF1FE;color:#2F6FE0;}
+  .asd-nav-item.on .ic{color:#2F6FE0;}
+  .asd-side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid #e7e2d8;}
+  .asd-side-user{display:flex;align-items:center;gap:10px;text-decoration:none;padding:6px 8px;border-radius:12px;color:#141413;}
+  .asd-side-user:hover{background:#f4f5f6;}
+  .asd-side-user .av{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#2F6FE0;background:#D6E4FD;}
+  .asd-side-user .nm{font-weight:700;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .asd-side-btn{display:block;text-align:center;border:0;cursor:pointer;font-family:Inter,sans-serif;font-weight:700;font-size:13.5px;color:#fff;background:#2F6FE0;padding:10px 14px;border-radius:12px;text-decoration:none;}
+  .asd-side-btn.ghost{color:#2F6FE0;background:#EAF1FE;}
+}
 `;

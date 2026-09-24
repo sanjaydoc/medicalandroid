@@ -29,13 +29,20 @@ export default function App() {
   // The ChatGPT-style home is a full-screen surface with its own chrome; every
   // other page gets the shared top navbar.
   const bareHome = pathname === '/';
+  // The Assistant page is a full-screen app on desktop with its own left sidebar,
+  // so the top navbar is hidden there on desktop (kept on mobile) and no footer.
+  const isAssistant = pathname === '/assistant';
 
   return (
     <div className="flex min-h-screen flex-col">
       <ScrollToTop />
       <Analytics />
       <InstallPrompt />
-      {!bareHome && <Navbar />}
+      {!bareHome && (
+        <div className={isAssistant ? 'md:hidden' : undefined}>
+          <Navbar />
+        </div>
+      )}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -52,7 +59,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      <Footer />
+      {!isAssistant && <Footer />}
     </div>
   );
 }

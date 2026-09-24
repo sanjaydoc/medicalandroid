@@ -125,7 +125,9 @@ async function streamOnce(
     } catch {
       /* ignore */
     }
-    throw new Error(detail || `Request failed (${res.status})`);
+    const err: any = new Error(detail || `Request failed (${res.status})`);
+    err.status = res.status; // let the UI map it to a calm, human message
+    throw err;
   }
 
   // If a same-origin path fell through to the SPA shell (the Pages Function is

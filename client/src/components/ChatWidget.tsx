@@ -777,12 +777,28 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
       }
     } catch (e: any) {
       if (e?.name !== 'AbortError') {
-        const detail = (e?.message || 'Could not reach the assistant.').toString();
+        // Keep the raw upstream detail in the console for diagnosis, but never
+        // show a worried patient a scary "forbidden, HTTP 403" — map it to a
+        // calm, human sentence based on the status.
+        const raw = (e?.message || '').toString();
+        // eslint-disable-next-line no-console
+        console.error('[chat] request failed:', e?.status, raw);
+        const status = Number(e?.status) || 0;
+        let friendly: string;
+        if (status === 429 || /rate|too many/i.test(raw)) {
+          friendly = 'A lot of people are using MedDroid right now — please wait a few seconds and tap send again.';
+        } else if (status === 403 || status === 401 || status === 500 || status === 502 || status === 503) {
+          friendly = 'The assistant is briefly unavailable. Please try again in a moment — if it keeps happening, it usually clears within a few minutes.';
+        } else if (/NOT_CONFIGURED|CHAT_ENDPOINT_UNAVAILABLE|Failed to fetch|reach the assistant|temporarily unreachable/i.test(raw)) {
+          friendly = 'Couldn’t reach the assistant — please check your connection and tap send again.';
+        } else {
+          friendly = 'Something went wrong sending that — please tap send to try again.';
+        }
         setMessages((m) => {
           const copy = [...m];
           const last = copy[copy.length - 1];
           if (last && last.role === 'assistant' && !last.text) {
-            copy[copy.length - 1] = { ...last, isReport: false, text: `The assistant is unavailable right now. ${detail}` };
+            copy[copy.length - 1] = { ...last, isReport: false, text: friendly };
           }
           return copy;
         });

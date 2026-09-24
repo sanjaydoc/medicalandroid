@@ -40,6 +40,30 @@ function cleanReport(o: ParsedReport): ParsedReport {
   return o;
 }
 
+// Best-effort repair for truncated JSON (the stream can get cut off mid-array):
+// close any unclosed strings/arrays/objects so we can still render the summary +
+// whatever findings arrived.
+function repairJson(input: string): any | null {
+  try { return JSON.parse(input); } catch { /* fall through */ }
+  let s = input;
+  const lastBrace = s.lastIndexOf('}');
+  if (lastBrace < 0) return null;
+  s = s.slice(0, lastBrace + 1).replace(/,\s*$/, '');
+  let curly = 0, square = 0, inStr = false, esc = false;
+  for (const ch of s) {
+    if (esc) { esc = false; continue; }
+    if (ch === '\\') { esc = true; continue; }
+    if (ch === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (ch === '{') curly++; else if (ch === '}') curly--;
+    else if (ch === '[') square++; else if (ch === ']') square--;
+  }
+  let tail = '';
+  while (square-- > 0) tail += ']';
+  while (curly-- > 0) tail += '}';
+  try { return JSON.parse(s.replace(/,\s*$/, '') + tail); } catch { return null; }
+}
+
 export function parseReport(raw: string): ParsedReport | null {
   if (!raw) return null;
   try {
@@ -48,8 +72,9 @@ export function parseReport(raw: string): ParsedReport | null {
     if (fence) s = fence[1].trim();
     const a = s.indexOf('{');
     const b = s.lastIndexOf('}');
-    if (a < 0 || b <= a) return null;
-    const obj = JSON.parse(s.slice(a, b + 1));
+    if (a < 0) return null;
+    const candidate = b > a ? s.slice(a, b + 1) : s.slice(a);
+    const obj = repairJson(candidate);
     if (!obj || !Array.isArray(obj.simple) || !obj.type) return null;
     return cleanReport(obj as ParsedReport);
   } catch {

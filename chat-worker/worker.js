@@ -99,15 +99,17 @@ Reply with ONLY a single valid JSON object and NOTHING else — no prose, no exp
 {
   "type": "lab" | "imaging",
   "title": "short title, e.g. Blood report · 19 Aug 2026",
-  "findings": [ { "section": "group, e.g. Liver (LFT)", "label": "test name", "value": "result with unit", "range": "normal range", "status": "ok" | "flag", "note": "5 words max, only when flagged" } ],
-  "imageFindings": [ { "status": "flag" | "ok", "label": "short finding", "note": "optional short note" } ],
   "simple": [ { "sev": "watch" | "mild" | "ok", "title": "short", "detail": "one plain sentence" } ],
   "seriousLevel": "short phrase, e.g. Early warning signs",
   "serious": [ "short bullet" ],
-  "next": [ "short action bullet" ]
+  "next": [ "short action bullet" ],
+  "findings": [ { "section": "group, e.g. Liver (LFT)", "label": "test name", "value": "result with unit", "range": "normal range", "status": "ok" | "flag", "note": "5 words max, only when flagged" } ],
+  "imageFindings": [ { "status": "flag" | "ok", "label": "short finding", "note": "optional short note" } ]
 }
 
 RULES:
+- Output the keys in the order shown above — the summary (simple, seriousLevel, serious, next) BEFORE the long findings list.
+- Keep every string short; notes are 5 words max. Do not add whitespace/indentation.
 - Blood/lab report: use "type":"lab". Put EVERY test from top to bottom into "findings" (never stop early, never abbreviate as "etc"). Set "status":"flag" when the value is outside its normal range, else "ok". Omit "imageFindings".
 - ECG/X-ray/CT/MRI/ultrasound image: use "type":"imaging". List findings in "imageFindings" (no coordinates — you do NOT localise). Omit "findings". Never call an image simply "normal" or "clear"; describe genuine possibilities tentatively.
 - Always fill "simple", "seriousLevel", "serious" and "next".
@@ -244,7 +246,7 @@ export default {
       },
       body: JSON.stringify({
         model: env.MODEL || DEFAULT_MODEL,
-        max_tokens: isReport ? 6000 : MAX_TOKENS,
+        max_tokens: isReport ? 8000 : MAX_TOKENS,
         system,
         stream: true,
         messages,

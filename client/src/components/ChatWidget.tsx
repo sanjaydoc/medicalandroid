@@ -735,7 +735,15 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                   // never sends an empty message to the API on the next question.
                   text: `Report interpreted (${parsed.title || 'report'}): ${(parsed.simple || []).map((s) => s.title).filter(Boolean).slice(0, 6).join('; ') || 'summary provided'}.`,
                 }
-              : { ...last, isReport: false, text: acc };
+              : {
+                  ...last,
+                  isReport: false,
+                  // Never dump raw JSON at the user; if the reply was (broken)
+                  // JSON, ask them to retry, otherwise show the prose reply.
+                  text: /^\s*(```|\{)/.test(acc)
+                    ? 'I couldn’t read that report cleanly this time — please tap send to try again.'
+                    : acc,
+                };
           }
           return copy;
         });

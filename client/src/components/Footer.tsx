@@ -152,7 +152,7 @@ export default function Footer() {
 
             <a href={APK} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#4285F4] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#2F6FE0]">
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" /></svg>
-              Install app
+              Download Android app
             </a>
           </div>
 

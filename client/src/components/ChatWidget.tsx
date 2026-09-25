@@ -98,6 +98,7 @@ const LANG_NAME: Record<string, string> = {
   'mr-IN': 'Marathi',
   'ur-PK': 'Urdu',
   'ar-SA': 'Arabic',
+  'he-IL': 'Hebrew',
   'fr-FR': 'French',
   'de-DE': 'German',
   'es-ES': 'Spanish',
@@ -1190,6 +1191,7 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
                   </optgroup>
                   <optgroup label="International">
                     <option value="ar-SA">العربية (Arabic)</option>
+                    <option value="he-IL">עברית (Hebrew)</option>
                     <option value="fr-FR">Français (French)</option>
                     <option value="de-DE">Deutsch (German)</option>
                     <option value="es-ES">Español (Spanish)</option>

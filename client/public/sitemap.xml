@@ -118,6 +118,13 @@
   <url><loc>https://medicalandroid.com/blood-tests/dengue-test/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/blood-tests/malaria-test/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/blood-tests/hepatitis-b-hbsag/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/blood-tests/hiv-test/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/blood-tests/blood-group-test/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/blood-tests/ra-factor/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/blood-tests/amylase-lipase/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/blood-tests/prolactin/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/blood-tests/vdrl-syphilis/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/blood-tests/metabolic-panel/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/coronary-artery-disease/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/hypertension/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/heart-failure/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
@@ -212,6 +219,16 @@
   <url><loc>https://medicalandroid.com/diseases/contact-dermatitis/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/primary-immunodeficiency/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/allergic-conjunctivitis/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/shingles/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/swine-flu/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/scrub-typhus/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/mpox/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/rsv/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/whooping-cough/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/rubella/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/leprosy/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/filariasis/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://medicalandroid.com/diseases/kala-azar/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/migraine/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/tension-headache/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://medicalandroid.com/diseases/stroke/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>

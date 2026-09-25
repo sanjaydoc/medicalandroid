@@ -653,12 +653,16 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     }
 
     const uiAttach = attachments.map((a) => ({ name: a.file.name, kind: a.kind }));
-    // Only send messages with real, non-empty content — an empty-content message
-    // (e.g. a report reply whose text was cleared) makes the API reject the whole
-    // request. Also drop our own error bubbles.
-    const history: ChatMessage[] = messages
-      .filter((m) => m.text && m.text.trim())
+    // Build the history we send: only real, non-empty content, and NEVER our own
+    // error bubbles (sending those back can poison the request and get it rejected —
+    // the usual "works in incognito but not my browser" cause). Then make sure the
+    // history is valid (starts with a user turn).
+    const ERR_RE = /(briefly unavailable|using meddroid right now|reach the assistant|went wrong sending|no reply came back|read that report cleanly|tap send to try again)/i;
+    const clean: ChatMessage[] = messages
+      .filter((m) => m.text && m.text.trim() && !(m.role === 'assistant' && ERR_RE.test(m.text)))
       .map((m) => ({ role: m.role, content: m.text }));
+    while (clean.length && clean[0].role === 'assistant') clean.shift(); // must start with a user turn
+    const history: ChatMessage[] = clean;
     history.push({ role: 'user', content: blocks.length ? blocks : text });
 
     setMessages((m) => [

@@ -189,7 +189,7 @@ ${p.warnings.map((w) => `      <li>${w}</li>`).join('\n')}
   </div>\n`
     : '';
   return `<!doctype html>
-<html lang="en">
+<html lang="${p.lang || 'en'}">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -449,7 +449,156 @@ function bloodTestPage(b) {
 const SYMPTOM_PAGES = SYMPTOMS.map(symptomPage);
 const BLOODTEST_PAGES = BLOODTESTS.map(bloodTestPage);
 
-const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES];
+// ------------------------------------------------ India-specific specials ----
+// High-intent India searches that don't fit the disease/symptom/bloodtest
+// templates: a head-to-head comparison, a single-number explainer, and a
+// Hindi-language landing page. These use the full page() capabilities.
+const INDIA_SPECIALS = [
+  {
+    slug: 'dengue-vs-typhoid',
+    name: 'Dengue vs Typhoid',
+    title: 'Dengue vs Typhoid: Symptoms, Fever Pattern & Tests | MedDroid',
+    desc: 'Dengue vs typhoid — how the fever, symptoms, tests and platelet count differ, and how doctors tell them apart. Explained in plain language by MedDroid. Not a diagnosis.',
+    h1: 'Dengue vs typhoid: how to tell them apart',
+    lede: 'Both dengue and typhoid cause high fever and are common in India, but they are very different illnesses — one is a mosquito-borne virus, the other a bacterial infection from contaminated food or water. Here is how their symptoms, timeline and tests differ, and why only a blood test can confirm which one you have.',
+    ctaShort: 'Ask MedDroid',
+    ctaLong: 'Ask MedDroid about your fever',
+    lists: [
+      { title: 'Points more towards DENGUE', items: [
+        'Sudden high fever with severe body and joint pain (“breakbone fever”)',
+        'Pain behind the eyes, headache and a skin rash',
+        'Spread by the Aedes mosquito (daytime biter), not food or water',
+        'Falling platelet count on blood tests',
+        'Warning signs: bleeding gums, nose bleeds, black stools, belly pain',
+      ] },
+      { title: 'Points more towards TYPHOID', items: [
+        'Fever that rises step-by-step over days and stays high',
+        'Spread by contaminated food or water',
+        'Abdominal pain, constipation or diarrhoea, poor appetite',
+        'A coated tongue and sometimes a slow pulse',
+        'Rose-coloured spots on the chest or abdomen in some people',
+      ] },
+    ],
+    warnings: [
+      'Bleeding from the gums or nose, blood in vomit or stools (dengue warning sign)',
+      'Severe abdominal pain, persistent vomiting or a swollen belly',
+      'Restlessness, drowsiness, cold clammy skin or fainting',
+      'Very high fever that will not come down, or fever lasting more than a few days',
+      'Reduced urine, breathlessness or a rapid heartbeat',
+    ],
+    noteTitle: 'Only a blood test can confirm it.',
+    note: 'Dengue and typhoid can look similar in the first few days. Do not self-diagnose — a doctor will use tests such as NS1/dengue serology and Widal or blood culture, along with a platelet count, to decide. MedDroid gives general information, not a diagnosis.',
+    faqs: [
+      { q: 'Can you have dengue and typhoid at the same time?', a: 'Yes, co-infection is possible, especially in the monsoon season. That is why doctors often test for both when the fever pattern is unclear.' },
+      { q: 'Which is more dangerous, dengue or typhoid?', a: 'Both can be serious if untreated. Dengue can lead to bleeding and a dangerous drop in blood pressure; typhoid can cause intestinal complications. Early testing and treatment matter for both.' },
+      { q: 'Does the platelet count fall in typhoid too?', a: 'Platelets fall most notably in dengue, but they can dip in typhoid and other infections as well. The count is one clue among many, not a stand-alone diagnosis.' },
+      { q: 'What tests tell them apart?', a: 'Dengue is checked with an NS1 antigen test (early) and IgM/IgG serology, with a falling platelet count. Typhoid is checked with a Widal test or, more reliably, a blood culture. A doctor interprets these together.' },
+    ],
+    related: [
+      ['diseases/dengue', 'Dengue'],
+      ['diseases/typhoid', 'Typhoid'],
+      ['diseases/viral-fever', 'Viral fever'],
+      ['dengue-platelet-count', 'Dengue platelet count'],
+    ],
+  },
+  {
+    slug: 'dengue-platelet-count',
+    name: 'Dengue Platelet Count',
+    title: 'Dengue Platelet Count: Normal Range & When It Is Dangerous | MedDroid',
+    desc: 'Dengue platelet count explained — the normal range, when a low count is dangerous, when platelets are transfused, and how to care for it. Plain language, not a diagnosis.',
+    h1: 'Dengue platelet count: what the number means',
+    lede: 'In dengue, the platelet count often falls as part of the illness, which worries many families. Here is what the numbers mean, when a low count actually becomes dangerous, and what care helps — explained simply.',
+    ctaShort: 'Explain my report',
+    ctaLong: 'Upload your report to MedDroid',
+    table: { caption: 'Platelet count — general guide', rows: [
+      ['Normal', '150,000 – 450,000 /µL'],
+      ['Mildly low', '100,000 – 150,000 /µL'],
+      ['Monitor closely', '50,000 – 100,000 /µL'],
+      ['High risk — under medical care', '20,000 – 50,000 /µL'],
+      ['Danger of spontaneous bleeding', 'below 20,000 /µL'],
+    ] },
+    lists: [
+      { title: 'What actually matters (not just the number)', items: [
+        'A falling trend matters more than any single reading',
+        'Warning signs (bleeding, belly pain, restlessness) matter more than the count alone',
+        'Most people recover as the platelet count rises on its own after the fever settles',
+        'Staying well hydrated with fluids is the mainstay of care',
+      ] },
+      { title: 'Foods and care often advised (supportive only)', items: [
+        'Plenty of oral fluids, ORS, soups and coconut water',
+        'Papaya leaf extract is popular but not a proven cure — do not rely on it',
+        'Rest and paracetamol for fever (avoid aspirin and ibuprofen — they raise bleeding risk)',
+        'Regular platelet monitoring as advised by your doctor',
+      ] },
+    ],
+    warnings: [
+      'Bleeding from the gums or nose, blood in vomit, stools or urine',
+      'Tiny red spots on the skin that do not fade when pressed',
+      'Severe abdominal pain, persistent vomiting or a swollen belly',
+      'Restlessness, drowsiness, cold clammy skin or fainting',
+      'A platelet count that is dropping quickly or is below 20,000',
+    ],
+    noteTitle: 'Platelets are only part of the picture.',
+    note: 'A platelet transfusion is usually needed only for very low counts or active bleeding — not for a number alone. Always let your treating doctor interpret the trend along with your symptoms. MedDroid gives general information, not a diagnosis.',
+    faqs: [
+      { q: 'At what platelet count is dengue dangerous?', a: 'Bleeding risk rises as the count falls below about 20,000/µL, but warning signs and a fast-falling trend can be concerning even at higher counts. Your doctor looks at the whole picture, not one number.' },
+      { q: 'When is a platelet transfusion needed in dengue?', a: 'Usually only for very low counts (often below 10,000–20,000) or active, significant bleeding. Most people recover without a transfusion as platelets rise on their own.' },
+      { q: 'Does papaya leaf juice increase platelets?', a: 'It is a popular home remedy, but the evidence is limited and it is not a substitute for medical care. Hydration, monitoring and treating warning signs are what matter most.' },
+      { q: 'How quickly do platelets recover after dengue?', a: 'They usually start rising within a day or two after the fever settles and return to normal over about a week, though this varies from person to person.' },
+    ],
+    related: [
+      ['diseases/dengue', 'Dengue'],
+      ['dengue-vs-typhoid', 'Dengue vs typhoid'],
+      ['blood-tests/complete-blood-count-cbc', 'Complete blood count (CBC)'],
+      ['ai-medical-assistant', 'AI medical assistant'],
+    ],
+  },
+  {
+    slug: 'diabetes-symptoms-in-hindi',
+    lang: 'hi',
+    name: 'डायबिटीज़ के लक्षण',
+    title: 'डायबिटीज़ (शुगर) के लक्षण — पहचान, कारण और बचाव | MedDroid',
+    desc: 'डायबिटीज़ (शुगर) के शुरुआती लक्षण, कारण, चेतावनी के संकेत और डॉक्टर को कब दिखाएँ — MedDroid के मुफ़्त AI द्वारा आसान हिंदी में समझाया गया। यह निदान नहीं है।',
+    h1: 'डायबिटीज़ (शुगर) के लक्षण — आसान हिंदी में',
+    lede: 'डायबिटीज़ यानी शुगर की बीमारी में खून में ग्लूकोज़ (शर्करा) का स्तर बढ़ जाता है। कई बार शुरुआती लक्षण हल्के होते हैं और लोग इन्हें नज़रअंदाज़ कर देते हैं। नीचे शुगर के आम लक्षण, कारण और चेतावनी के संकेत दिए गए हैं ताकि आप समय रहते जाँच करा सकें।',
+    ctaShort: 'MedDroid से पूछें',
+    ctaLong: 'MedDroid से शुगर के बारे में पूछें',
+    featTitle: 'डायबिटीज़ (शुगर) के आम लक्षण',
+    features: [
+      'बार-बार पेशाब आना, खासकर रात में',
+      'बहुत ज़्यादा प्यास लगना और मुँह सूखना',
+      'बहुत भूख लगना फिर भी वज़न कम होना',
+      'हर समय थकान और कमज़ोरी महसूस होना',
+      'धुंधला दिखाई देना',
+      'घाव या चोट का देर से भरना',
+      'हाथ-पैर में सुन्नपन या झुनझुनी',
+      'बार-बार त्वचा, मसूड़ों या पेशाब में संक्रमण होना',
+    ],
+    warnings: [
+      'बहुत तेज़ प्यास, बार-बार पेशाब और तेज़ थकान के साथ भ्रम या बेहोशी',
+      'साँस लेने में तकलीफ़ या साँस से फल जैसी गंध आना',
+      'लगातार उल्टी और पेट दर्द',
+      'बहुत ज़्यादा या बहुत कम शुगर के कारण चक्कर आना या बेहोश होना',
+      'पैर में ठीक न होने वाला घाव या अल्सर',
+    ],
+    noteTitle: 'यह निदान नहीं है।',
+    note: 'MedDroid केवल सामान्य जानकारी देता है। शुगर की पुष्टि के लिए खून की जाँच (जैसे फास्टिंग शुगर और HbA1c) ज़रूरी है — कृपया किसी योग्य डॉक्टर से सलाह लें।',
+    faqs: [
+      { q: 'शुगर के शुरुआती लक्षण क्या हैं?', a: 'बार-बार पेशाब आना, ज़्यादा प्यास और भूख लगना, बिना कारण वज़न कम होना और थकान — ये शुगर के सबसे आम शुरुआती लक्षण हैं। इनमें से कई संकेत दिखने पर जाँच ज़रूर कराएँ।' },
+      { q: 'क्या बिना लक्षण के भी शुगर हो सकती है?', a: 'हाँ। टाइप 2 डायबिटीज़ कई सालों तक बिना किसी साफ़ लक्षण के रह सकती है, इसलिए 40 की उम्र के बाद या पारिवारिक इतिहास होने पर नियमित जाँच ज़रूरी है।' },
+      { q: 'शुगर की जाँच कैसे होती है?', a: 'फास्टिंग ब्लड शुगर, खाने के बाद की शुगर और HbA1c जैसी खून की जाँचों से शुगर की पुष्टि होती है। डॉक्टर इन नतीजों को मिलाकर बताते हैं।' },
+      { q: 'क्या शुगर को नियंत्रित किया जा सकता है?', a: 'जी हाँ। संतुलित आहार, नियमित व्यायाम, वज़न नियंत्रण और डॉक्टर की बताई दवाओं से शुगर को अच्छी तरह नियंत्रित रखा जा सकता है।' },
+    ],
+    related: [
+      ['diseases/type-2-diabetes', 'Type 2 diabetes'],
+      ['diseases/diabetes-diet', 'Diabetes diet'],
+      ['diseases/prediabetes', 'Prediabetes'],
+      ['ai-symptom-checker', 'AI symptom checker'],
+    ],
+  },
+];
+
+const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES, ...INDIA_SPECIALS];
 
 for (const p of ALL) {
   const dir = join(PUBLIC, ...p.slug.split('/'));

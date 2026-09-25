@@ -5,7 +5,7 @@ import VideoDemo from '../components/VideoDemo';
 const FOUNDER = {
   name: 'Dr. Sanjay Anbu',
   role: 'Founder',
-  credential: 'MBBS · (Bachelor of Medicine and Bachelor of Surgery)',
+  credential: 'MBBS · (Bachelor of Medicine and Bachelor of Surgery) · pursuing Fellowship in Regenerative Medicine',
   photo: '/founder.jpg',
   email: BRAND.supportEmail,
   github: 'https://github.com/sanjaydoc',
@@ -20,7 +20,7 @@ const FOUNDER = {
 
 const FOUNDER_BIO =
   `Dr. Sanjay Anbu is the founder of ${BRAND.name}, working at the intersection of medicine and ` +
-  'artificial intelligence. A physician (MBBS) and builder, he is developing the MedDroid AI medical ' +
+  'artificial intelligence. A physician (MBBS) pursuing a Fellowship in Regenerative Medicine, he is developing the MedDroid AI medical ' +
   'assistant and training an in-house medical AI model — with one goal: to make trustworthy health ' +
   'information understandable to everyone, in their own language, on any device.';
 

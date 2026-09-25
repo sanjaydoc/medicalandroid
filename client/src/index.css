@@ -424,3 +424,6 @@ html.cap-native .cw-fsbtn { display: inline-flex; }
 .rc-tagp-a{background:#eef7ee;color:#1f9d55}
 .rc-tagp-d{background:#fef2e7;color:#c2691a}
 .rc-med-use{margin-top:5px;font-size:11.5px;color:#7d8ba8;line-height:1.4}
+/* imaging: amber "observation" box (vs red flagged box) */
+.rc-box.rc-box-obs{border-color:#d9922b;box-shadow:0 0 12px rgba(217,146,43,.45)}
+.rc-box.rc-box-obs b{background:#d9922b}

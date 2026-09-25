@@ -190,7 +190,14 @@ export default function ReportCanvas({
   const [wIdx, setWIdx] = useState(0);               // typewriter: words shown in current segment
 
   const labRows = report?.findings || [];
-  const imgFindings = (report?.imageFindings || []).filter((f) => f.status === 'flag').slice(0, SLOTS.length);
+  // Imaging: prefer the flagged findings; if the read is clean (no flags), still
+  // mark the first few regions the AI described so the live marking always shows.
+  const imgFlagged = (report?.imageFindings || []).filter((f) => f.status === 'flag');
+  const imgFindings = (imgFlagged.length ? imgFlagged : (report?.imageFindings || [])).slice(0, SLOTS.length);
+  const shortLabel = (s: string) => {
+    const t = (s || '').split(/[:—-]/)[0].trim(); // take the region part before a colon/dash
+    return t.length > 26 ? t.slice(0, 24) + '…' : t;
+  };
   const boxesForPage = boxes.filter((b) => b.page === pageIdx);
 
   // Flat, ordered list of card segments to type out word-by-word (simple →
@@ -408,10 +415,10 @@ export default function ReportCanvas({
                     <b>{b.label}</b>
                   </div>
                 ))}
-                {/* illustrative boxes (imaging) */}
+                {/* illustrative boxes (imaging) — red for flagged, amber for plain observations */}
                 {report && isImaging && imgFindings.slice(0, imgLimit).map((f, i) => (
-                  <div key={i} className="rc-box" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}>
-                    <b>{f.label}</b>
+                  <div key={i} className={`rc-box${f.status === 'flag' ? '' : ' rc-box-obs'}`} style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}>
+                    <b>{shortLabel(f.label)}</b>
                   </div>
                 ))}
               </div>
@@ -419,7 +426,7 @@ export default function ReportCanvas({
               <div className="rc-xray">
                 <img className="rc-ximg" src={imageUrl} alt="scan" />
                 {report && imgFindings.slice(0, imgLimit).map((f, i) => (
-                  <div key={i} className="rc-box" style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}><b>{f.label}</b></div>
+                  <div key={i} className={`rc-box${f.status === 'flag' ? '' : ' rc-box-obs'}`} style={{ left: `${SLOTS[i].x}%`, top: `${SLOTS[i].y}%`, width: `${SLOTS[i].w}%`, height: `${SLOTS[i].h}%` }}><b>{shortLabel(f.label)}</b></div>
                 ))}
               </div>
             ) : report && !isImaging && labRows.length ? (

@@ -703,10 +703,13 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     abortRef.current = ctrl;
 
     let acc = '';
-    const runStream = async () => {
+    // `minimal` sends ONLY the current turn (no stored history). Fresh/incognito
+    // sessions have no history, which is why they always work — so on a failure we
+    // fall back to this to self-heal a stale or poisoned local history.
+    const runStream = async (minimal = false) => {
       acc = '';
       await streamChat({
-        messages: history,
+        messages: minimal ? history.slice(-1) : history,
         signal: ctrl.signal,
         mode: doctorMode ? 'doctor' : 'concise',
         report: isReport,
@@ -723,11 +726,23 @@ export default function ChatWidget({ fullPage = false, specialty = '', offline: 
     };
 
     try {
-      await runStream();
-      // Empty reply = a transient hiccup (brief model overload / dropped
-      // stream). Retry once automatically before giving up.
-      if (!acc.trim() && !ctrl.signal.aborted) {
+      try {
         await runStream();
+        // Empty reply = a transient hiccup (brief model overload / dropped
+        // stream). Retry once automatically before giving up.
+        if (!acc.trim() && !ctrl.signal.aborted) {
+          await runStream();
+        }
+      } catch (streamErr: any) {
+        // Self-heal: if the request was rejected before anything streamed — the
+        // usual cause of "works in incognito but not my browser" (a stale or
+        // poisoned local chat history) — retry ONCE sending only this turn.
+        if (streamErr?.name === 'AbortError' || streamErr?.__streamed || ctrl.signal.aborted) throw streamErr;
+        const st = Number(streamErr?.status) || 0;
+        const retryable = st === 400 || st === 403 || st === 413 || st === 500 || st === 502 || st === 503
+          || /reach the assistant|Failed to fetch|temporarily unreachable/i.test(String(streamErr?.message || ''));
+        if (!retryable) throw streamErr;
+        await runStream(true); // minimal: current message only — throws again if it still fails
       }
       if (!acc.trim() && !ctrl.signal.aborted) {
         setMessages((m) => {

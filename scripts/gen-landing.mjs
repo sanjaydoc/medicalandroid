@@ -5,6 +5,7 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SYMPTOMS, BLOODTESTS, LAB_NOTE } from './clusters.mjs';
+import { DRUGS } from './drugs.mjs';
 import { DEPARTMENTS } from './departments.mjs';
 import g1 from './diseases/g1.mjs';
 import g2 from './diseases/g2.mjs';
@@ -446,8 +447,35 @@ function bloodTestPage(b) {
   };
 }
 
+// ------------------------------------------------------- medicine cluster ------
+function drugPage(d) {
+  const low = d.name.split(' (')[0].toLowerCase();
+  const lists = [];
+  if ((d.sideEffects || []).length) lists.push({ title: 'Common side effects', items: d.sideEffects });
+  if ((d.precautions || []).length) lists.push({ title: 'Before taking it — precautions', items: d.precautions });
+  return {
+    slug: `medicines/${d.slug}`,
+    name: d.name,
+    title: `${d.name}: Uses, Side Effects & Precautions | MedDroid`,
+    desc: (d.desc || `${d.name}: what it is used for, common side effects and precautions, explained in plain language by MedDroid. Educational information, not a prescription.`).slice(0, 155),
+    h1: `${d.name}: uses, side effects & precautions`,
+    lede: d.lede,
+    ctaShort: 'Ask MedDroid',
+    ctaLong: `Ask MedDroid about ${low}`,
+    featTitle: 'What it is used for',
+    features: d.uses,
+    lists,
+    warnings: d.warnings,
+    noteTitle: 'Not a prescription.',
+    note: `MedDroid gives general educational information about ${low}. It cannot prescribe or set your dose — always follow your doctor or pharmacist and the leaflet inside the pack.`,
+    faqs: d.faqs,
+    related: d.related || [['medicine-side-effects', 'Medicine side effects'], ['ai-medical-assistant', 'AI medical assistant'], ['ai-doctor', 'AI doctor']],
+  };
+}
+
 const SYMPTOM_PAGES = SYMPTOMS.map(symptomPage);
 const BLOODTEST_PAGES = BLOODTESTS.map(bloodTestPage);
+const DRUG_PAGES = DRUGS.map(drugPage);
 
 // ------------------------------------------------ India-specific specials ----
 // High-intent India searches that don't fit the disease/symptom/bloodtest
@@ -1092,7 +1120,7 @@ const QA_PAGES = [
   },
 ];
 
-const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES, ...INDIA_SPECIALS, ...AI_PAGES, ...QA_PAGES];
+const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES, ...INDIA_SPECIALS, ...AI_PAGES, ...QA_PAGES, ...DRUG_PAGES];
 
 for (const p of ALL) {
   const dir = join(PUBLIC, ...p.slug.split('/'));

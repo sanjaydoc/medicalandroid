@@ -17,6 +17,7 @@ import { MENTAL_QA } from './mental-qa.mjs';
 import { NUTRITION_QA } from './nutrition-qa.mjs';
 import { MEDICINE_FOR } from './medicine-for.mjs';
 import { SKIN_HAIR_QA } from './skin-hair-qa.mjs';
+import { ELDERLY_QA } from './elderly-qa.mjs';
 import { DEPARTMENTS } from './departments.mjs';
 import g1 from './diseases/g1.mjs';
 import g2 from './diseases/g2.mjs';
@@ -1194,7 +1195,7 @@ const QA_PAGES = [
   },
 ];
 
-const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES, ...INDIA_SPECIALS, ...AI_PAGES, ...QA_PAGES, ...DRUG_PAGES, ...CHILD_QA, ...WOMEN_QA, ...FIRST_AID, ...MENS_QA, ...MENTAL_QA, ...NUTRITION_QA, ...MEDICINE_FOR, ...SKIN_HAIR_QA];
+const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES, ...INDIA_SPECIALS, ...AI_PAGES, ...QA_PAGES, ...DRUG_PAGES, ...CHILD_QA, ...WOMEN_QA, ...FIRST_AID, ...MENS_QA, ...MENTAL_QA, ...NUTRITION_QA, ...MEDICINE_FOR, ...SKIN_HAIR_QA, ...ELDERLY_QA];
 
 for (const p of ALL) {
   const dir = join(PUBLIC, ...p.slug.split('/'));

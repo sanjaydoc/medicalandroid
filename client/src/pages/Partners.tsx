@@ -332,9 +332,9 @@ const isDesktop = () => !!mdx();
 
 const REL = 'https://github.com/sanjaydoc/medicalandroid/releases/latest/download/';
 const DOWNLOADS: [string, string, string][] = [
-  ['win', 'Windows', 'MedDroid-Partners-Setup.exe'],
-  ['mac', 'macOS', 'MedDroid-Partners.dmg'],
-  ['linux', 'Linux', 'MedDroid-Partners.AppImage'],
+  ['win', 'Windows', 'MedDroid-Providers-Setup.exe'],
+  ['mac', 'macOS', 'MedDroid-Providers.dmg'],
+  ['linux', 'Linux', 'MedDroid-Providers.AppImage'],
 ];
 function detectOS(): string {
   if (typeof navigator === 'undefined') return '';

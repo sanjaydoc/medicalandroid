@@ -1,5 +1,5 @@
-appId: com.meddroid.partners
-productName: MedDroid Partners
+appId: com.meddroid.providers
+productName: MedDroid Providers
 copyright: © MedDroid · medicalandroid.com
 
 directories:
@@ -24,7 +24,7 @@ icon: build/icon.png
 win:
   target:
     - nsis
-  artifactName: MedDroid-Partners-Setup.${ext}
+  artifactName: MedDroid-Providers-Setup.${ext}
 
 nsis:
   oneClick: false
@@ -32,20 +32,20 @@ nsis:
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: MedDroid Partners
+  shortcutName: MedDroid Providers
 
 mac:
   target:
     - dmg
   category: public.app-category.medical
-  artifactName: MedDroid-Partners.${ext}
+  artifactName: MedDroid-Providers.${ext}
 
 linux:
   target:
     - AppImage
     - deb
   category: Office
-  artifactName: MedDroid-Partners.${ext}
+  artifactName: MedDroid-Providers.${ext}
   maintainer: MedDroid <dr.sanjay@medicalandroid.com>
 
 # Installers publish to the medicalandroid repo's Releases (same repo the APK uses).

@@ -12,7 +12,7 @@ function createWindow() {
     minWidth: 980,
     minHeight: 640,
     backgroundColor: '#ffffff',
-    title: 'MedDroid Partners',
+    title: 'MedDroid Providers',
     icon: path.join(__dirname, 'build', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -22,8 +22,8 @@ function createWindow() {
     },
   });
 
-  // Load the bundled web app straight into the Partners console (HashRouter build).
-  win.loadFile(path.join(__dirname, 'app', 'index.html'), { hash: '/partners' });
+  // Load the bundled web app straight into the Providers console (HashRouter build).
+  win.loadFile(path.join(__dirname, 'app', 'index.html'), { hash: '/providers' });
 
   // External links open in the system browser, not inside the app window.
   win.webContents.setWindowOpenHandler(({ url }) => {

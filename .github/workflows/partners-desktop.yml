@@ -1,4 +1,4 @@
-name: Build Partners Desktop
+name: Build Providers Desktop
 
 # Builds the MedDroid Partners desktop installers (Windows / macOS / Linux) and
 # publishes them to this repo's Releases via electron-builder. The web UI is built

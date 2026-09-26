@@ -1,8 +1,8 @@
 {
-  "name": "meddroid-partners-desktop",
-  "productName": "MedDroid Partners",
+  "name": "meddroid-providers-desktop",
+  "productName": "MedDroid Providers",
   "version": "1.0.0",
-  "description": "MedDroid Partners — offline hospital-systems console with a local, encrypted database. Partner data stays on the partner's machine.",
+  "description": "MedDroid Providers — offline hospital-systems console with a local, encrypted database. Provider data stays on the provider's machine.",
   "homepage": "https://medicalandroid.com",
   "author": "MedDroid <support@medicalandroid.com>",
   "license": "UNLICENSED",

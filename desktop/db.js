@@ -26,7 +26,7 @@ function loadKey(app, safeStorage) {
 }
 
 function openDb(app, safeStorage) {
-  const dbPath = path.join(app.getPath('userData'), 'meddroid-partners.db');
+  const dbPath = path.join(app.getPath('userData'), 'meddroid-providers.db');
   const key = loadKey(app, safeStorage);
   const d = new Database(dbPath);
   // SQLCipher: apply the key BEFORE any other statement.

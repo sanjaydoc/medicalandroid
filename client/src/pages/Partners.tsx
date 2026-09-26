@@ -329,6 +329,21 @@ const LOCK_CLOSED = '<svg class="bic" viewBox="0 0 24 24"><rect x="5" y="11" wid
 type MdxDB = { available: boolean; platform?: string; list: (sys: string) => string[][]; add: (sys: string, values: string[]) => boolean };
 const mdx = (): MdxDB | null => (typeof window !== 'undefined' && (window as any).mdxDB) || null;
 const isDesktop = () => !!mdx();
+
+const REL = 'https://github.com/sanjaydoc/medicalandroid/releases/latest/download/';
+const DOWNLOADS: [string, string, string][] = [
+  ['win', 'Windows', 'MedDroid-Partners-Setup.exe'],
+  ['mac', 'macOS', 'MedDroid-Partners.dmg'],
+  ['linux', 'Linux', 'MedDroid-Partners.AppImage'],
+];
+function detectOS(): string {
+  if (typeof navigator === 'undefined') return '';
+  const p = (navigator.userAgent + ' ' + ((navigator as any).platform || '')).toLowerCase();
+  if (p.includes('win')) return 'win';
+  if (p.includes('mac') || p.includes('iphone') || p.includes('ipad')) return 'mac';
+  if (p.includes('linux') || p.includes('android')) return 'linux';
+  return '';
+}
 function loadRecords(sys: string): string[][] {
   const d = mdx(); if (d) { try { return d.list(sys) || []; } catch { return []; } }
   try { return JSON.parse(localStorage.getItem('mdx_data_' + sys) || '[]'); } catch { return []; }
@@ -568,6 +583,7 @@ export default function Partners() {
   };
 
   const inst = instances[active];
+  const os = detectOS();
   const wrapStyle = accent ? ({ ['--accent' as any]: accent, ['--accent2' as any]: accent }) : undefined;
 
   return (
@@ -595,13 +611,23 @@ export default function Partners() {
           </div>
         </div>
 
-        {/* desktop app CTA (website only) */}
+        {/* desktop app downloads (website only) */}
         {!isDesktop() && (
-          <a className="dlbanner" href="https://github.com/sanjaydoc/medicalandroid/releases/latest" target="_blank" rel="noreferrer">
-            <svg className="dlic" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5" /><path d="M4 21h16" /></svg>
-            <span className="dltxt"><b>Get the desktop app</b> — run it on your own machine. Your hospital data stays local &amp; encrypted, never on our servers.</span>
-            <span className="dlgo">Download →</span>
-          </a>
+          <div className="dlsec">
+            <div className="dlhead">
+              <svg className="dlic" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5" /><path d="M4 21h16" /></svg>
+              <div><b>Get the desktop app</b><span>Runs on your own machine · hospital data stays local &amp; encrypted, never on our servers.</span></div>
+            </div>
+            <div className="dlrow">
+              {DOWNLOADS.map(([k, label, file]) => (
+                <a key={k} className={'dlopt' + (os === k ? ' primary' : '')} href={REL + file}>
+                  <svg className="osic" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5" /><path d="M4 21h16" /></svg>
+                  {label}{os === k ? ' · your OS' : ''}
+                </a>
+              ))}
+            </div>
+            <a className="dlall" href="https://github.com/sanjaydoc/medicalandroid/releases/latest" target="_blank" rel="noreferrer">All downloads &amp; Linux .deb →</a>
+          </div>
         )}
         {isDesktop() && (
           <div className="dlbanner local">
@@ -875,6 +901,17 @@ const CSS = `
 .mdx .dlbanner .dltxt b{color:var(--ink)}
 .mdx .dlbanner .dlgo{margin-left:auto;flex:0 0 auto;font-weight:800;font-size:13px;color:var(--accentInk);background:var(--accent);padding:9px 15px;border-radius:999px;box-shadow:var(--shadow-out-sm);white-space:nowrap}
 .mdx .dlbanner.local{cursor:default}
+.mdx .dlsec{background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow-out);border:var(--pborder);padding:16px 18px;margin-bottom:16px}
+.mdx .dlhead{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.mdx .dlhead .dlic{width:24px;height:24px;flex:0 0 24px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mdx .dlhead b{font-size:15px;font-weight:800;display:block;color:var(--ink)}
+.mdx .dlhead span{font-size:12.5px;color:var(--sub);font-weight:600}
+.mdx .dlrow{display:flex;gap:10px;flex-wrap:wrap}
+.mdx .dlopt{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:var(--font);font-weight:800;font-size:13px;color:var(--ink);background:var(--panel2);box-shadow:var(--shadow-out-sm);border:var(--pborder);border-radius:12px;padding:11px 16px;transition:transform .12s}
+.mdx .dlopt:hover{transform:translateY(-1px)}
+.mdx .dlopt.primary{background:var(--accent);color:var(--accentInk)}
+.mdx .dlopt .osic{width:16px;height:16px;flex:0 0 16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mdx .dlall{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;color:var(--accent);text-decoration:none}
 .mdx .console{background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow-out);border:var(--pborder);padding:18px;margin-bottom:16px}
 .mdx .cmd-row{display:flex;gap:10px;align-items:center}
 .mdx .cmd-in{flex:1;display:flex;align-items:center;gap:10px;background:var(--panel2);border-radius:var(--r-sm);box-shadow:var(--shadow-in);padding:12px 14px;border:var(--pborder)}

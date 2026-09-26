@@ -24,7 +24,7 @@ icon: build/icon.png
 win:
   target:
     - nsis
-  artifactName: MedDroid-Partners-Setup-${version}.${ext}
+  artifactName: MedDroid-Partners-Setup.${ext}
 
 nsis:
   oneClick: false
@@ -38,14 +38,14 @@ mac:
   target:
     - dmg
   category: public.app-category.medical
-  artifactName: MedDroid-Partners-${version}.${ext}
+  artifactName: MedDroid-Partners.${ext}
 
 linux:
   target:
     - AppImage
     - deb
   category: Office
-  artifactName: MedDroid-Partners-${version}.${ext}
+  artifactName: MedDroid-Partners.${ext}
   maintainer: MedDroid <dr.sanjay@medicalandroid.com>
 
 # Installers publish to the medicalandroid repo's Releases (same repo the APK uses).

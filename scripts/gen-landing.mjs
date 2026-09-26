@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { SYMPTOMS, BLOODTESTS, LAB_NOTE } from './clusters.mjs';
 import { DRUGS } from './drugs.mjs';
 import { DRUG_CLASSES } from './drugs-bulk.mjs';
+import { DRUG_CLASSES_2 } from './drugs-bulk2.mjs';
 import { DEPARTMENTS } from './departments.mjs';
 import g1 from './diseases/g1.mjs';
 import g2 from './diseases/g2.mjs';
@@ -531,7 +532,7 @@ const BLOODTEST_PAGES = BLOODTESTS.map(bloodTestPage);
 const _curatedDrugSlugs = new Set(DRUGS.map((d) => `medicines/${d.slug}`));
 const _bulkSeen = new Set();
 const BULK_DRUG_PAGES = [];
-for (const cls of DRUG_CLASSES) {
+for (const cls of [...DRUG_CLASSES, ...DRUG_CLASSES_2]) {
   for (const m of cls.members) {
     const slug = `medicines/${m.slug}`;
     if (_curatedDrugSlugs.has(slug) || _bulkSeen.has(slug)) continue; // curated wins, no dupes

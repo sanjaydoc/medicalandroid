@@ -697,8 +697,8 @@ function CustomForm({ onApply }: { onApply: (color: string, logo: string) => voi
 /* =============================== scoped CSS =============================== */
 const CSS = `
 .mdx{--r:22px;--r-sm:14px;--font:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--ok:#22b07d;--warn:#f5a623;--bad:#EA4335;--tr:.5s cubic-bezier(.2,.8,.25,1);
-  --bg:#e6ecf6;--panel:#edf2fb;--panel2:#e9eff9;--ink:#152038;--sub:#61708f;--line:#d7e0f0;--accent:#2F6FE0;--accent2:#4285F4;--accentInk:#fff;--chipbg:#e3ebf9;--chipink:#1b4fae;
-  --shadow-out:-7px -7px 16px #ffffff,7px 7px 18px #c5d0e6;--shadow-out-sm:-4px -4px 9px #ffffff,4px 4px 10px #cad4e8;--shadow-in:inset -4px -4px 9px #ffffff,inset 4px 4px 10px #ccd6ea;--pborder:1px solid transparent;
+  --bg:#fdfdfc;--panel:#ffffff;--panel2:#f6f8fb;--ink:#152038;--sub:#61708f;--line:#eceff4;--accent:#2F6FE0;--accent2:#4285F4;--accentInk:#fff;--chipbg:#eef1f7;--chipink:#1b4fae;
+  --shadow-out:0 12px 30px rgba(20,32,56,.08);--shadow-out-sm:0 5px 14px rgba(20,32,56,.07);--shadow-in:inset 0 1px 3px rgba(20,32,56,.06);--pborder:1px solid rgba(20,32,56,.06);
   font-family:var(--font);color:var(--ink);background:var(--bg);min-height:100vh}
 .mdx[data-skin="dark"]{--bg:#1e1e22;--panel:#2b2b31;--panel2:#232329;--ink:#f3f4f8;--sub:#9a9aa6;--line:#3a3a44;--accent:#4285F4;--accent2:#5b9bff;--accentInk:#fff;--chipbg:#33343d;--chipink:#a9c6ff;
   --shadow-out:-7px -7px 16px #34343e,7px 7px 18px #131315;--shadow-out-sm:-3px -3px 8px #34343e,4px 4px 10px #131315;--shadow-in:inset -4px -4px 9px #34343e,inset 4px 4px 10px #131315}
@@ -832,7 +832,7 @@ const CSS = `
 .mdx .err{color:var(--bad);font-size:12.5px;font-weight:700;margin-top:12px}
 .mdx .auth-foot{color:var(--sub);font-size:11px;text-align:center;margin-top:14px;line-height:1.6}
 /* ===== Light (Soft Console) = white flip-clock shells, dark faces, white text ===== */
-.mdx[data-skin="console"] .tile,.mdx[data-skin="console"] .panel,.mdx[data-skin="console"] .pipe{background:#17191e;color:#fff;border:8px solid #f4f8ff;border-radius:22px;box-shadow:7px 7px 16px #c3cfe6,-7px -7px 16px #ffffff}
+.mdx[data-skin="console"] .tile,.mdx[data-skin="console"] .panel,.mdx[data-skin="console"] .pipe{background:#17191e;color:#fff;border:8px solid #ffffff;border-radius:22px;box-shadow:0 14px 32px rgba(20,32,56,.14)}
 .mdx[data-skin="console"] .tile .v{color:#fff;font-weight:800}
 .mdx[data-skin="console"] .tile .l,.mdx[data-skin="console"] .tile .s{color:rgba(255,255,255,.62)}
 .mdx[data-skin="console"] .panel h3{color:#fff}.mdx[data-skin="console"] .panel h3 .c{color:rgba(255,255,255,.5)}

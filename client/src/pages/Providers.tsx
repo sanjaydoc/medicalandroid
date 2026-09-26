@@ -589,7 +589,8 @@ export default function Providers() {
   return (
     <div className="mdx" data-skin={skin} style={wrapStyle}>
       <style>{CSS}</style>
-      <div className="wrap">
+      <div className="layout">
+        <aside className="side">
         {/* top bar */}
         <div className="top">
           <div className="logo" aria-hidden="true">
@@ -663,7 +664,9 @@ export default function Providers() {
             ))}
           </div>
         </div>
+        </aside>
 
+        <main className="main">
         {/* workspace toolbar */}
         <div className="wstop">
           <span className="state">
@@ -718,6 +721,7 @@ export default function Providers() {
         <div className="foot">
           Demo workspace · sample data only. Systems shown are what providers already run; MedDroid connects via ABDM / FHIR / DICOM and adds the patient layer on top.
         </div>
+        </main>
       </div>
 
       {toastMsg && <div className="toast">{toastMsg}</div>}
@@ -886,6 +890,21 @@ const CSS = `
   --shadow-out:-7px -7px 16px #34343e,7px 7px 18px #131315;--shadow-out-sm:-3px -3px 8px #34343e,4px 4px 10px #131315;--shadow-in:inset -4px -4px 9px #34343e,inset 4px 4px 10px #131315}
 .mdx *{box-sizing:border-box}
 .mdx .wrap{max-width:1080px;margin:0 auto;padding:0 16px;padding-block:26px 60px}
+/* Assistant-style two-column: controls on the left, flip stage on the right */
+.mdx .layout{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;padding:18px 16px;align-items:start}
+.mdx .side{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;display:flex;flex-direction:column;gap:14px;padding-right:4px}
+.mdx .main{min-width:0;display:flex;flex-direction:column;gap:14px}
+/* the left menu's blocks already carry their own margins; neutralize doubling */
+.mdx .side > *{margin-bottom:0!important}
+.mdx .side .top{flex-wrap:wrap;gap:12px}
+.mdx .side .skins{margin-left:0;width:100%;justify-content:center}
+.mdx .side .cmd-row{flex-wrap:wrap}
+.mdx .side .cmd-in{flex:1 1 100%}
+.mdx .side .cg .catlab{flex-basis:100%}
+@media (max-width:900px){
+  .mdx .layout{grid-template-columns:1fr;padding:14px}
+  .mdx .side{position:static;max-height:none;overflow:visible}
+}
 .mdx .top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
 .mdx .logo{width:46px;height:46px;flex:0 0 46px;border-radius:14px;background:var(--accent2);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(66,133,244,.4);overflow:hidden}
 .mdx .logo svg{width:34px;height:34px}.mdx .logo img{width:100%;height:100%;object-fit:contain}

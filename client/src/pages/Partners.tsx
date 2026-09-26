@@ -573,8 +573,12 @@ export default function Partners() {
             <div className="sub">One workspace · speaks into any hospital system · for partner labs, clinics &amp; hospitals</div>
           </div>
           <div className="skins" role="group" aria-label="Theme">
-            <button className="skin-btn" aria-pressed={skin === 'console'} onClick={() => setSkin('console')}>☀ Light</button>
-            <button className="skin-btn" aria-pressed={skin === 'dark'} onClick={() => setSkin('dark')}>🌙 Dark</button>
+            <button className="skin-btn" aria-pressed={skin === 'console'} onClick={() => setSkin('console')}>
+              <svg className="sic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>Light
+            </button>
+            <button className="skin-btn" aria-pressed={skin === 'dark'} onClick={() => setSkin('dark')}>
+              <svg className="sic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>Dark
+            </button>
           </div>
         </div>
 
@@ -831,7 +835,8 @@ const CSS = `
 .mdx .brand h1{margin:0;font-size:21px;font-weight:800;letter-spacing:-.02em;line-height:1}
 .mdx .brand .sub{color:var(--sub);font-size:12.5px;margin-top:3px}
 .mdx .skins{margin-left:auto;display:flex;gap:8px;padding:6px;border-radius:999px;background:var(--panel);box-shadow:var(--shadow-in);border:var(--pborder)}
-.mdx .skin-btn{border:0;cursor:pointer;font-family:var(--font);font-weight:700;font-size:12.5px;color:var(--sub);background:transparent;padding:8px 14px;border-radius:999px;transition:all .25s;white-space:nowrap}
+.mdx .skin-btn{display:inline-flex;align-items:center;gap:6px;border:0;cursor:pointer;font-family:var(--font);font-weight:700;font-size:12.5px;color:var(--sub);background:transparent;padding:8px 14px;border-radius:999px;transition:all .25s;white-space:nowrap}
+.mdx .sic{width:15px;height:15px;flex:0 0 15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .mdx .skin-btn[aria-pressed="true"]{color:var(--accentInk);background:var(--accent);box-shadow:var(--shadow-out-sm)}
 .mdx .console{background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow-out);border:var(--pborder);padding:18px;margin-bottom:16px}
 .mdx .cmd-row{display:flex;gap:10px;align-items:center}

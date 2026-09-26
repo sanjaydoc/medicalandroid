@@ -383,7 +383,7 @@ type ModalState = { type: 'auth' | 'input' | 'custom'; reason?: string } | null;
 
 const REDUCE = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-export default function Partners() {
+export default function Providers() {
   const { user, login, logout } = useAuth();
   const [skin, setSkin] = useState<'console' | 'dark'>('console');
   const [instances, setInstances] = useState<Instance[]>([{ sys: 'his', locked: false }]);

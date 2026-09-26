@@ -9,7 +9,7 @@ import Assistant from './pages/Assistant';
 import About from './pages/About';
 import Research from './pages/Research';
 import AgenticWorkflows from './pages/AgenticWorkflows';
-import Partners from './pages/Partners';
+import Providers from './pages/Providers';
 import Legal from './pages/Legal';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
@@ -72,7 +72,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/research" element={<Research />} />
           <Route path="/workflows" element={<AgenticWorkflows />} />
-          <Route path="/providers" element={<Partners />} />
+          <Route path="/providers" element={<Providers />} />
           <Route path="/partners" element={<Navigate to="/providers" replace />} />
           <Route path="/privacy" element={<Legal doc="privacy" />} />
           <Route path="/terms" element={<Legal doc="terms" />} />

@@ -6,6 +6,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SYMPTOMS, BLOODTESTS, LAB_NOTE } from './clusters.mjs';
 import { DRUGS } from './drugs.mjs';
+import { DRUG_CLASSES } from './drugs-bulk.mjs';
 import { DEPARTMENTS } from './departments.mjs';
 import g1 from './diseases/g1.mjs';
 import g2 from './diseases/g2.mjs';
@@ -486,9 +487,59 @@ function drugPage(d) {
   };
 }
 
+// Bulk drug pages (class-based, no specific dose shown).
+function bulkDrugPage(m, cls) {
+  const low = m.name.split(' (')[0].toLowerCase();
+  const brandItems = [];
+  if (m.brandsIndia && m.brandsIndia.length) brandItems.push(`<strong>India:</strong> ${m.brandsIndia.join(', ')}`);
+  if (m.brandsWorld && m.brandsWorld.length) brandItems.push(`<strong>Worldwide:</strong> ${m.brandsWorld.join(', ')}`);
+  const lists = [];
+  if (brandItems.length) lists.push({ title: 'Common brand names', items: brandItems });
+  lists.push({ title: 'Common side effects', items: cls.sideEffects });
+  lists.push({ title: 'Before taking it — precautions', items: cls.precautions });
+  const mates = cls.members.filter((x) => x.slug !== m.slug).slice(0, 3).map((x) => ['medicines/' + x.slug, x.name.split(' (')[0]]);
+  return {
+    slug: `medicines/${m.slug}`,
+    name: m.name,
+    title: `${m.name}: Uses, Side Effects & Brands | MedDroid`,
+    desc: `${m.name} (${cls.class}): uses, common side effects, precautions and brand names — explained in plain language by MedDroid. Not a prescription.`.slice(0, 155),
+    h1: `${m.name}: uses, side effects & brands`,
+    lede: `${m.blurb} It belongs to the ${cls.class} group. ${cls.desc}`,
+    ctaShort: 'Ask MedDroid',
+    ctaLong: `Ask MedDroid about ${low}`,
+    featTitle: 'What it is used for',
+    features: cls.uses,
+    table: {
+      caption: 'Drug type — dosing is set by your doctor',
+      rows: [
+        ['Drug class', cls.class],
+        ['Type', m.rx === false ? 'Over-the-counter (OTC)' : 'Prescription'],
+        ['Dose', 'Individual — ask your doctor or pharmacist'],
+      ],
+    },
+    lists,
+    warnings: cls.warnings,
+    noteTitle: 'Not a prescription — no dose shown.',
+    note: `The right dose of ${low} depends on age, weight, kidney/liver function and the condition, so MedDroid does not show a dose here. Always get your dose from a doctor or pharmacist and the leaflet inside the pack. General educational information only.`,
+    faqs: cls.faqs,
+    related: [...mates, ['medicine-side-effects', 'Medicine side effects']],
+  };
+}
+
 const SYMPTOM_PAGES = SYMPTOMS.map(symptomPage);
 const BLOODTEST_PAGES = BLOODTESTS.map(bloodTestPage);
-const DRUG_PAGES = DRUGS.map(drugPage);
+const _curatedDrugSlugs = new Set(DRUGS.map((d) => `medicines/${d.slug}`));
+const _bulkSeen = new Set();
+const BULK_DRUG_PAGES = [];
+for (const cls of DRUG_CLASSES) {
+  for (const m of cls.members) {
+    const slug = `medicines/${m.slug}`;
+    if (_curatedDrugSlugs.has(slug) || _bulkSeen.has(slug)) continue; // curated wins, no dupes
+    _bulkSeen.add(slug);
+    BULK_DRUG_PAGES.push(bulkDrugPage(m, cls));
+  }
+}
+const DRUG_PAGES = [...DRUGS.map(drugPage), ...BULK_DRUG_PAGES];
 
 // ------------------------------------------------ India-specific specials ----
 // High-intent India searches that don't fit the disease/symptom/bloodtest

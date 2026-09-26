@@ -330,7 +330,7 @@ type ModalState = { type: 'auth' | 'input' | 'custom'; reason?: string } | null;
 const REDUCE = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 export default function Partners() {
-  const { user, login, loginWithGoogle, logout } = useAuth();
+  const { user, login, logout } = useAuth();
   const [skin, setSkin] = useState<'console' | 'dark'>('console');
   const [instances, setInstances] = useState<Instance[]>([{ sys: 'his', locked: false }]);
   const [active, setActive] = useState(0);
@@ -426,9 +426,33 @@ export default function Partners() {
   /* ----- gated partner actions (real Supabase auth) ----- */
   const gate = (reason: string, fn: () => void) => { if (user) fn(); else { pendingRef.current = fn; setModal({ type: 'auth', reason }); } };
 
+  // Resume the gated action after auth — both in-session (email) and after a
+  // Google OAuth round-trip (we stashed the intent in sessionStorage first).
   useEffect(() => {
-    if (user && pendingRef.current) { const fn = pendingRef.current; pendingRef.current = null; setModal(null); fn(); }
-  }, [user]);
+    if (!user) return;
+    if (pendingRef.current) { const fn = pendingRef.current; pendingRef.current = null; setModal(null); fn(); return; }
+    try {
+      const p = sessionStorage.getItem('mdx_pending');
+      if (p) {
+        sessionStorage.removeItem('mdx_pending');
+        setModal(null);
+        if (p === 'input') setModal({ type: 'input' });
+        else if (p === 'custom') setModal({ type: 'custom' });
+        else if (p === 'lock') { setInstances((prev) => prev.map((it, i) => (i === activeRef.current ? { ...it, locked: true, sys: curRef.current } : it))); toast('Locked to ' + SYS[curRef.current].name); }
+      }
+    } catch { /* sessionStorage blocked */ }
+  }, [user, toast]);
+
+  // Google sign-in for partners: stash the pending action, return to /partners.
+  const startGoogle = async (reason?: string) => {
+    try { sessionStorage.setItem('mdx_pending', reason || ''); } catch { /* ignore */ }
+    if (!supabase) { toast('Google sign-in is unavailable right now.'); return; }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/?next=partners' },
+    });
+    if (error) toast(error.message);
+  };
 
   const doLock = () => {
     setInstances((prev) => prev.map((it, i) => (i === activeRef.current ? { ...it, locked: true, sys: curRef.current } : it)));
@@ -583,7 +607,7 @@ export default function Partners() {
         <div className="modal" onClick={(e) => { if (e.target === e.currentTarget) setModal(null); }}>
           <div className="modal-card">
             <button className="modal-x" onClick={() => setModal(null)} aria-label="Close">✕</button>
-            {modal.type === 'auth' && <AuthForm reason={modal.reason} onLogin={login} onGoogle={loginWithGoogle} onDone={() => { }} toast={toast} />}
+            {modal.type === 'auth' && <AuthForm reason={modal.reason} onLogin={login} onGoogle={() => startGoogle(modal.reason)} onDone={() => { }} toast={toast} />}
             {modal.type === 'input' && <InputForm sysName={SYS[curRef.current].name} onSave={submitInput} />}
             {modal.type === 'custom' && <CustomForm onApply={applyBrand} />}
           </div>

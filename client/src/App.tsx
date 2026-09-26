@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -27,6 +27,27 @@ function ScrollToTop() {
 
 export default function App() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  // After an OAuth round-trip that requested it (?next=partners), land the user
+  // back on the Partners page instead of the home screen. We leave the query in
+  // place so Supabase can still read its ?code, then drop only our own param.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get('next') === 'partners') {
+      navigate('/partners', { replace: true });
+      const t = window.setTimeout(() => {
+        try {
+          const s = new URLSearchParams(window.location.search);
+          s.delete('next');
+          const q = s.toString();
+          window.history.replaceState({}, '', window.location.pathname + (q ? '?' + q : '') + window.location.hash);
+        } catch { /* ignore */ }
+      }, 1500);
+      return () => window.clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // The ChatGPT-style home is a full-screen surface with its own chrome; every
   // other page gets the shared top navbar.
   const bareHome = pathname === '/';

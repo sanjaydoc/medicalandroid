@@ -6,10 +6,11 @@ import EmrWorkspace from '../components/EmrWorkspace';
 import LisWorkspace from '../components/LisWorkspace';
 import CpoeWorkspace from '../components/CpoeWorkspace';
 import RisWorkspace from '../components/RisWorkspace';
+import CdssWorkspace from '../components/CdssWorkspace';
 
 /* Systems with a real, interactive React implementation (vs the imperative flip
    preview). These render live into the stage; everything else uses the flip engine. */
-const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace };
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace, cdss: CdssWorkspace };
 const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================
@@ -1251,6 +1252,20 @@ const CSS = `
 .mdx .viewer.empty .vph{color:#8fa3c4;font-size:13px;font-weight:700;line-height:1.6}
 .mdx .viewer.empty .vph b{color:#dce6f6}
 .mdx .viewer.empty .vph span{display:block;font-size:11px;font-weight:600;color:#6076a0;margin-top:4px}
+/* ===== CDSS extras ===== */
+.mdx .disc{font-size:11.5px;font-weight:700;color:var(--warn);background:rgba(245,166,35,.12);border-radius:var(--r-sm);padding:9px 12px;margin-bottom:14px;line-height:1.45}
+.mdx .alerts{display:flex;flex-direction:column;gap:9px}
+.mdx .alert{background:var(--panel);border-radius:var(--r-sm);box-shadow:var(--shadow-in);border:var(--pborder);border-left:4px solid var(--sub);padding:10px 12px}
+.mdx .alert.high{border-left-color:var(--bad)}
+.mdx .alert.med{border-left-color:var(--warn)}
+.mdx .alert.low{border-left-color:var(--accent)}
+.mdx .alert .ab{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mdx .alert .ab b{font-size:12.5px;font-weight:800;color:var(--ink)}
+.mdx .alert .asev{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--sub);background:var(--panel2);padding:3px 7px;border-radius:999px;white-space:nowrap}
+.mdx .alert .ad{font-size:12px;font-weight:600;color:var(--sub);line-height:1.45;margin-top:4px}
+.mdx[data-skin="console"] .alert,.mdx[data-skin="dark"] .alert{background:#0e1014;border-color:rgba(255,255,255,.12)}
+.mdx[data-skin="console"] .alert .ab b,.mdx[data-skin="dark"] .alert .ab b{color:#fff}
+.mdx[data-skin="console"] .alert .asev,.mdx[data-skin="dark"] .alert .asev{background:#17191e;color:rgba(255,255,255,.7)}
 @media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
 @media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;

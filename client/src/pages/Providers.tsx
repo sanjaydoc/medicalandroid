@@ -5,10 +5,11 @@ import HisWorkspace from '../components/HisWorkspace';
 import EmrWorkspace from '../components/EmrWorkspace';
 import LisWorkspace from '../components/LisWorkspace';
 import CpoeWorkspace from '../components/CpoeWorkspace';
+import RisWorkspace from '../components/RisWorkspace';
 
 /* Systems with a real, interactive React implementation (vs the imperative flip
    preview). These render live into the stage; everything else uses the flip engine. */
-const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace };
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace };
 const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================
@@ -1245,6 +1246,11 @@ const CSS = `
 .mdx[data-skin="console"] .setcard,.mdx[data-skin="dark"] .setcard{background:#0e1014;border-color:rgba(255,255,255,.12)}
 .mdx[data-skin="console"] .setcard>b,.mdx[data-skin="dark"] .setcard>b{color:#fff}
 .mdx[data-skin="console"] .setitems .chip,.mdx[data-skin="dark"] .setitems .chip{background:#17191e;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.14)}
+/* ===== RIS / PACS extras ===== */
+.mdx .viewer.empty{background:#05070d;min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center}
+.mdx .viewer.empty .vph{color:#8fa3c4;font-size:13px;font-weight:700;line-height:1.6}
+.mdx .viewer.empty .vph b{color:#dce6f6}
+.mdx .viewer.empty .vph span{display:block;font-size:11px;font-weight:600;color:#6076a0;margin-top:4px}
 @media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
 @media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;

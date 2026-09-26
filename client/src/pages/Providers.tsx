@@ -21,7 +21,7 @@ const mods = (items: string[]) =>
   `<div class="panel"><h3>Modules & features</h3><div class="mlist">${items
     .map((m) => `<div class="mrow"><span class="mck"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></span>${m}</div>`)
     .join('')}</div></div>`;
-const MD = '<span class="md-chip"><span class="r"></span>MedDroid · Explain in Hindi</span>';
+const MD = '<a class="md-chip" href="#/assistant" title="Ask MedDroid to explain this report in your language"><span class="r"></span>MedDroid · Explain in Hindi</a>';
 
 type Sys = {
   name: string; full: string; cat: string;
@@ -140,6 +140,12 @@ const SYS: Record<string, Sys> = {
         <div class="viewer xr"><img src="/pacs/chest-copd.jpg" alt="Chest PA radiograph" />
          <div class="vtools"><span class="vtool">W 400 / L 40</span><span class="vtool">Zoom 100%</span></div>
          <div class="vfind">⚠ qure.ai: hyperinflation · flattened diaphragms (COPD pattern) 0.88</div>
+        </div>
+        <div class="aiflab">AI findings · qure.ai</div>
+        <div class="list">
+         <div class="li"><div class="ic">🔴</div><div class="g">Hyperinflated lung fields<small>flattened hemidiaphragms</small></div><span class="st bad">COPD 0.88</span></div>
+         <div class="li"><div class="ic">🟡</div><div class="g">Increased retrosternal airspace<small>barrel-chest configuration</small></div><span class="st warn">0.71</span></div>
+         <div class="li"><div class="ic">🟢</div><div class="g">No focal consolidation · no pneumothorax<small>no acute infiltrate</small></div><span class="st ok">cleared</span></div>
         </div>
        </div>
        ${mods(['DICOM store / query / retrieve', 'Multi-modality zero-footprint viewer', 'Hanging protocols + MPR / 3D', 'Measurements & annotations', 'AI overlays (qure.ai, 5C Network)', 'Teleradiology sharing & CD import'])}
@@ -973,7 +979,8 @@ const CSS = `
 .mdx .mhead .mtitle{font-size:19px;font-weight:800;letter-spacing:-.01em}
 .mdx .mhead .mfull{color:var(--sub);font-size:12.5px}
 .mdx .badge{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:5px 10px;border-radius:999px;background:var(--chipbg);color:var(--chipink)}
-.mdx .md-chip{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;padding:8px 13px;border-radius:999px;background:var(--accent);color:var(--accentInk);box-shadow:var(--shadow-out-sm)}
+.mdx .md-chip{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;padding:8px 13px;border-radius:999px;background:var(--accent);color:var(--accentInk);box-shadow:var(--shadow-out-sm);text-decoration:none;cursor:pointer;transition:transform .12s}
+.mdx .md-chip:hover{transform:translateY(-1px)}
 .mdx .md-chip .r{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.3)}
 .mdx .pipe{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--panel2);border-radius:var(--r-sm);box-shadow:var(--shadow-in);padding:10px 12px;margin-bottom:14px;border:var(--pborder)}
 .mdx .pipe .pl{font-size:10.5px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-right:4px}
@@ -1011,6 +1018,7 @@ const CSS = `
 .mdx .viewer canvas{display:block;width:100%;height:auto}
 .mdx .viewer.xr{background:#000;display:flex;align-items:center;justify-content:center}
 .mdx .viewer.xr img{display:block;max-width:100%;max-height:420px;width:auto;margin:0 auto}
+.mdx .aiflab{font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 8px}
 .mdx .vtools{position:absolute;top:8px;left:8px;display:flex;gap:6px}
 .mdx .vtool{font-size:10px;font-weight:800;color:#bcd;background:rgba(255,255,255,.08);padding:4px 8px;border-radius:6px}
 .mdx .vfind{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:800;color:#fff;background:rgba(234,67,53,.85);padding:5px 10px;border-radius:8px}

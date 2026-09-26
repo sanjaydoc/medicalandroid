@@ -3,9 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { supabase, saveRow } from '../api/supabase';
 
 /* ============================================================================
-   MedDroid Transformer — Partner console.
+   MedDroid Transformer — Provider console.
    One workspace that morphs (flip-clock style) into any hospital system a
-   partner already runs (HIS, EMR, PACS, LIS…), showing the real modules each
+   provider already runs (HIS, EMR, PACS, LIS…), showing the real modules each
    category has — then layers MedDroid's own patient wedge on top:
    "explain my report in Hindi", which none of those systems do.
    Explore freely; sign in only to input real data, customise, or lock an
@@ -478,7 +478,7 @@ export default function Providers() {
 
   const runCmd = () => { const k = matchCmd(cmdRef.current?.value || ''); if (k) transformTo(k); else toast('Try naming a system, e.g. "transform HIS"'); };
 
-  /* ----- gated partner actions (real Supabase auth) ----- */
+  /* ----- gated provider actions (real Supabase auth) ----- */
   const gate = (reason: string, fn: () => void) => { if (user) fn(); else { pendingRef.current = fn; setModal({ type: 'auth', reason }); } };
 
   // Resume the gated action after auth — both in-session (email) and after a
@@ -487,17 +487,17 @@ export default function Providers() {
     if (!user) return;
     if (pendingRef.current) { const fn = pendingRef.current; pendingRef.current = null; setModal(null); fn(); return; }
     try {
-      // record the partner as a lead so the admin dashboard sees them (once per browser)
-      const pm = sessionStorage.getItem('mdx_partner');
+      // record the provider as a lead so the admin dashboard sees them (once per browser)
+      const pm = sessionStorage.getItem('mdx_provider');
       if (pm) {
-        sessionStorage.removeItem('mdx_partner');
+        sessionStorage.removeItem('mdx_provider');
         const { institution, itype } = JSON.parse(pm || '{}');
         const key = 'mdx_p_' + (user.email || user.id);
         if (!localStorage.getItem(key)) {
           localStorage.setItem(key, '1');
-          saveRow('signups', { name: `${institution || user.name} · Partner${itype ? ` (${itype})` : ''}`, email: user.email, consent: true });
-          // tag the account as a partner so /account shows the partner view, not patient dashboards
-          supabase?.auth.updateUser({ data: { role: 'partner', institution: institution || user.name, institution_type: itype || '' } }).catch(() => { /* ignore */ });
+          saveRow('signups', { name: `${institution || user.name} · Provider${itype ? ` (${itype})` : ''}`, email: user.email, consent: true });
+          // tag the account as a provider so /account shows the provider view, not patient dashboards
+          supabase?.auth.updateUser({ data: { role: 'provider', institution: institution || user.name, institution_type: itype || '' } }).catch(() => { /* ignore */ });
         }
       }
       const p = sessionStorage.getItem('mdx_pending');
@@ -511,11 +511,11 @@ export default function Providers() {
     } catch { /* sessionStorage blocked */ }
   }, [user, toast]);
 
-  // Google sign-in for partners: stash the pending action + partner details, return to /partners.
+  // Google sign-in for providers: stash the pending action + provider details, return to /providers.
   const startGoogle = async (reason?: string, institution?: string, itype?: string) => {
     try {
       sessionStorage.setItem('mdx_pending', reason || '');
-      sessionStorage.setItem('mdx_partner', JSON.stringify({ institution: institution || '', itype: itype || '' }));
+      sessionStorage.setItem('mdx_provider', JSON.stringify({ institution: institution || '', itype: itype || '' }));
     } catch { /* ignore */ }
     if (!supabase) { toast('Google sign-in is unavailable right now.'); return; }
     const { error } = await supabase.auth.signInWithOAuth({
@@ -716,7 +716,7 @@ export default function Providers() {
         </div>
 
         <div className="foot">
-          Demo workspace · sample data only. Systems shown are what partners already run; MedDroid connects via ABDM / FHIR / DICOM and adds the patient layer on top.
+          Demo workspace · sample data only. Systems shown are what providers already run; MedDroid connects via ABDM / FHIR / DICOM and adds the patient layer on top.
         </div>
       </div>
 
@@ -760,11 +760,11 @@ function AuthForm({ reason, onLogin, onGoogle, toast }:
         if (!supabase) throw new Error('Sign-up is not available right now.');
         const { error } = await supabase.auth.signUp({
           email, password: pass,
-          options: { data: { name: inst || (itype + ' partner'), institution: inst, institution_type: itype, role: 'partner' } },
+          options: { data: { name: inst || (itype + ' provider'), institution: inst, institution_type: itype, role: 'provider' } },
         });
         if (error) throw new Error(error.message);
-        // record the partner as a lead so the admin dashboard sees them
-        saveRow('signups', { name: `${inst || itype + ' partner'} · Partner (${itype})`, email, consent: true });
+        // record the provider as a lead so the admin dashboard sees them
+        saveRow('signups', { name: `${inst || itype + ' provider'} · Provider (${itype})`, email, consent: true });
         toast('Account created — check your email if confirmation is required.');
       } else {
         await onLogin(email, pass);
@@ -866,7 +866,7 @@ function CustomForm({ onApply }: { onApply: (color: string, logo: string) => voi
     <div className="auth-card">
       <div className="lockrow">🎨 Customise workspace</div>
       <div className="auth-h" style={{ fontSize: 18 }}>Your brand</div>
-      <div className="auth-sub">Add your logo and accent colour — partners see their own brand.</div>
+      <div className="auth-sub">Add your logo and accent colour — providers see their own brand.</div>
       <div className="fields">
         <label className="f"><span>Upload logo (PNG / SVG)</span><input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} /></label>
         <label className="f"><span>Accent colour</span><input type="color" value={color} onChange={(e) => setColor(e.target.value)} style={{ height: 44, padding: 4 }} /></label>

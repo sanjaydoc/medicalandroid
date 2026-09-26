@@ -1,7 +1,7 @@
 'use strict';
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Exposes the local encrypted-SQLite store to the Partners web UI as window.mdxDB.
+// Exposes the local encrypted-SQLite store to the Providers web UI as window.mdxDB.
 // The web page uses this when present (desktop); on the website it falls back to
 // localStorage. Synchronous IPC keeps the existing render path simple — the DB is
 // local and tiny, so blocking calls are imperceptible.

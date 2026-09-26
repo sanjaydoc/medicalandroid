@@ -1,6 +1,6 @@
 'use strict';
-// Local, ENCRYPTED SQLite store for the partner desktop app. The database lives
-// only on the partner's machine (Electron userData dir) — no hospital/PHI data
+// Local, ENCRYPTED SQLite store for the provider desktop app. The database lives
+// only on the provider's machine (Electron userData dir) — no hospital/PHI data
 // ever leaves the device. Encryption uses SQLCipher via
 // better-sqlite3-multiple-ciphers; the passphrase is generated once and kept
 // under the OS keychain (Electron safeStorage) when available.

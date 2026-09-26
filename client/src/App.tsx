@@ -29,8 +29,8 @@ export default function App() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  // After an OAuth round-trip that requested it (?next=partners), land the user
-  // back on the Partners page instead of the home screen. We leave the query in
+  // After an OAuth round-trip that requested it (?next=providers), land the user
+  // back on the Providers page instead of the home screen. We leave the query in
   // place so Supabase can still read its ?code, then drop only our own param.
   useEffect(() => {
     const sp = new URLSearchParams(window.location.search);

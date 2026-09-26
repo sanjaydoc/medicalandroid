@@ -1,6 +1,6 @@
 name: Build Providers Desktop
 
-# Builds the MedDroid Partners desktop installers (Windows / macOS / Linux) and
+# Builds the MedDroid Providers desktop installers (Windows / macOS / Linux) and
 # publishes them to this repo's Releases via electron-builder. The web UI is built
 # from client/ (public env baked from client/.env.production), copied into the
 # Electron app, and packaged with an encrypted local SQLite store.

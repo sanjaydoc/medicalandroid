@@ -21,11 +21,12 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      // Partners land in the Transformer console; patients go where they came from.
+      // Providers land in the Transformer console; patients go where they came from.
       let dest = from;
       try {
         const { data } = await supabase!.auth.getUser();
-        if ((data.user?.user_metadata as Record<string, string> | undefined)?.role === 'partner') dest = '/providers';
+        const r = (data.user?.user_metadata as Record<string, string> | undefined)?.role;
+        if (r === 'provider' || r === 'partner') dest = '/providers';
       } catch { /* ignore */ }
       navigate(dest, { replace: true });
     } catch (err) {

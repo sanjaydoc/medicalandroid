@@ -1,15 +1,15 @@
-# MedDroid Partners — Desktop
+# MedDroid Providers — Desktop
 
-The partner desktop app. It wraps the MedDroid Partners console (the Transformer)
-in an Electron shell and stores all partner data in a **local, encrypted SQLite
-database on the partner's own machine** — no hospital/PHI data ever leaves the
+The provider desktop app. It wraps the MedDroid Providers console (the Transformer)
+in an Electron shell and stores all provider data in a **local, encrypted SQLite
+database on the provider's own machine** — no hospital/PHI data ever leaves the
 device.
 
-- **UI:** the same web console (`client/dist`), loaded offline at `#/partners`.
+- **UI:** the same web console (`client/dist`), loaded offline at `#/providers`.
 - **Database:** SQLite encrypted with SQLCipher (`better-sqlite3-multiple-ciphers`).
   The passphrase is generated once and stored under the OS keychain (Electron
-  `safeStorage`) when available. DB file: `<userData>/meddroid-partners.db`.
-- **Bridge:** `preload.js` exposes `window.mdxDB` to the web UI; the Partners page
+  `safeStorage`) when available. DB file: `<userData>/meddroid-providers.db`.
+- **Bridge:** `preload.js` exposes `window.mdxDB` to the web UI; the Providers page
   uses it when running in the desktop app, and falls back to `localStorage` on the
   website.
 
@@ -24,7 +24,7 @@ npm run dist:win       # or dist:mac / dist:linux → installers in ./release
 
 ## CI
 
-`.github/workflows/partners-desktop.yml` builds installers for Windows, macOS and
+`.github/workflows/providers-desktop.yml` builds installers for Windows, macOS and
 Linux on GitHub Actions and publishes them to this repo's **Releases**. Trigger by
 bumping `.github/desktop-build.txt` (or run the workflow manually). The website's
-Partners page links its **Download desktop app** button to the latest release.
+Providers page links its **Download desktop app** button to the latest release.

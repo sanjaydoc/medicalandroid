@@ -40,8 +40,8 @@ export default function Profile() {
   const [profileId, setProfileId] = useState<string>(activeProfileId());
   const [, setPTick] = useState(0);
   const profiles = listProfiles();
-  // Partner accounts (signed up via the Partners console) don't get the patient
-  // health dashboards — they see a partner card that links to the console.
+  // Provider accounts (signed up via the Providers console) don't get the patient
+  // health dashboards — they see a provider card that links to the console.
   const [role, setRole] = useState<string | undefined>(undefined);
   const [institution, setInstitution] = useState('');
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function Profile() {
     });
     return () => { ok = false; };
   }, []);
-  const isPartner = role === 'partner';
+  const isProvider = role === 'provider' || role === 'partner';
   const chooseProfile = (id: string) => { setActiveProfile(id); setProfileId(id); };
   const onAddProfile = () => {
     const name = window.prompt('Add a person to care for (e.g. Mom, Dad, child):');
@@ -87,7 +87,7 @@ export default function Profile() {
           </div>
         </div>
 
-        {isPartner && (
+        {isProvider && (
           <div className="card mt-6 p-6 sm:p-8">
             <span className="chip">Provider account</span>
             <h2 className="mt-3 font-display text-2xl font-extrabold text-ink-900">
@@ -104,7 +104,7 @@ export default function Profile() {
           </div>
         )}
 
-        {!isPartner && (<>
+        {!isProvider && (<>
         {/* Health-hub tabs */}
         <div className="mt-6 flex gap-2 overflow-x-auto">
           {TABS.map((t) => (

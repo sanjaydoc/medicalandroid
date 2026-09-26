@@ -6,20 +6,20 @@ import { BRAND } from '../brand';
 type Row = Record<string, any>;
 
 // Some tabs are views over the same table (signups) split by whether the row is
-// a partner sign-up (name tagged "· Partner (…)") or a patient. `table` is the
+// a provider sign-up (name tagged "· Provider"/legacy "· Partner") or a patient. `table` is the
 // real Supabase table; `filter` selects the subset.
-type TableDef = { key: string; label: string; cols: string[]; table?: string; filter?: 'patients' | 'partners' };
+type TableDef = { key: string; label: string; cols: string[]; table?: string; filter?: 'patients' | 'providers' };
 const TABLES: TableDef[] = [
   { key: 'page_views', label: 'Page views', cols: ['created_at', 'page', 'path', 'country', 'duration_sec', 'session_id'] },
   { key: 'signups', label: 'Patients', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'patients' },
-  { key: 'partners', label: 'Providers', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'partners' },
+  { key: 'providers', label: 'Providers', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'providers' },
   { key: 'chat_logs', label: 'Chat logs', cols: ['created_at', 'language', 'question', 'answer', 'had_attachment'] },
 ];
 
-// Partner sign-ups are tagged "· Partner" in the name; split rows on that.
-function applyRoleFilter(q: any, filter?: 'patients' | 'partners') {
-  if (filter === 'partners') return q.ilike('name', '%Partner%');
-  if (filter === 'patients') return q.or('name.is.null,name.not.ilike.*Partner*');
+// Provider sign-ups are tagged "· Provider" (legacy "· Partner"); split rows on that.
+function applyRoleFilter(q: any, filter?: 'patients' | 'providers') {
+  if (filter === 'providers') return q.or('name.ilike.*Partner*,name.ilike.*Provider*');
+  if (filter === 'patients') return q.or('name.is.null,and(name.not.ilike.*Partner*,name.not.ilike.*Provider*)');
   return q;
 }
 

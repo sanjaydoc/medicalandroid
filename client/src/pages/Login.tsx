@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../api/supabase';
 import PasswordInput from '../components/PasswordInput';
 import { BRAND } from '../brand';
 
@@ -20,7 +21,13 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate(from, { replace: true });
+      // Partners land in the Transformer console; patients go where they came from.
+      let dest = from;
+      try {
+        const { data } = await supabase!.auth.getUser();
+        if ((data.user?.user_metadata as Record<string, string> | undefined)?.role === 'partner') dest = '/partners';
+      } catch { /* ignore */ }
+      navigate(dest, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -106,7 +113,7 @@ export default function Login() {
         </p>
         <p className="text-ink-800">
           Are you a partner specialist?{' '}
-          <Link to="/login" className="font-bold text-ink-900 underline underline-offset-4 hover:text-clay-600">
+          <Link to="/partners" className="font-bold text-ink-900 underline underline-offset-4 hover:text-clay-600">
             Clinic login
           </Link>
         </p>

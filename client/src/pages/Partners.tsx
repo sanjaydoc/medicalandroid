@@ -617,6 +617,9 @@ export default function Partners() {
               ? <><span className="badge">{(user.name || 'Partner')}</span> signed in</>
               : <><span className="dotfree" /> Exploring free — no login needed to try it</>}
           </span>
+          {!user && <button className="wbtn" onClick={() => setModal({ type: 'auth', reason: 'generic' })}>
+            <svg className="bic" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><path d="M10 17l5-5-5-5M15 12H3" /></svg>Log in
+          </button>}
           <button className="wbtn" style={{ marginLeft: 'auto' }} onClick={() => gate('input', () => { setInputCols(readCols()); setModal({ type: 'input' }); })}>
             <svg className="bic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>Input data
           </button>

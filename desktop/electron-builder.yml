@@ -1,0 +1,56 @@
+appId: com.meddroid.partners
+productName: MedDroid Partners
+copyright: © MedDroid · medicalandroid.com
+
+directories:
+  output: release
+  buildResources: build
+
+# The web UI (client/dist) is copied into ./app by scripts/copy-web.mjs before packaging.
+files:
+  - main.js
+  - preload.js
+  - db.js
+  - app/**/*
+  - "!**/*.map"
+
+# Native module (encrypted SQLite) must stay unpacked so it can load at runtime.
+asarUnpack:
+  - "**/node_modules/better-sqlite3-multiple-ciphers/**"
+
+# electron-builder generates .ico / .icns / png sizes from this 1024² source.
+icon: build/icon.png
+
+win:
+  target:
+    - nsis
+  artifactName: MedDroid-Partners-Setup-${version}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: MedDroid Partners
+
+mac:
+  target:
+    - dmg
+  category: public.app-category.medical
+  artifactName: MedDroid-Partners-${version}.${ext}
+
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Office
+  artifactName: MedDroid-Partners-${version}.${ext}
+  maintainer: MedDroid <dr.sanjay@medicalandroid.com>
+
+# Installers publish to the medicalandroid repo's Releases (same repo the APK uses).
+publish:
+  provider: github
+  owner: sanjaydoc
+  repo: medicalandroid
+  releaseType: release

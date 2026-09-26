@@ -1,0 +1,3 @@
+Bump this file to trigger a Partners desktop installer build.
+
+build: 1

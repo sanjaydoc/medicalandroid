@@ -324,14 +324,27 @@ function drawTele(root: HTMLElement) {
 const LOCK_OPEN = '<svg class="bic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
 const LOCK_CLOSED = '<svg class="bic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 
+// Desktop app exposes an encrypted local SQLite store as window.mdxDB; on the
+// website we fall back to localStorage (per-browser). Same call sites, one guard.
+type MdxDB = { available: boolean; platform?: string; list: (sys: string) => string[][]; add: (sys: string, values: string[]) => boolean };
+const mdx = (): MdxDB | null => (typeof window !== 'undefined' && (window as any).mdxDB) || null;
+const isDesktop = () => !!mdx();
+function loadRecords(sys: string): string[][] {
+  const d = mdx(); if (d) { try { return d.list(sys) || []; } catch { return []; } }
+  try { return JSON.parse(localStorage.getItem('mdx_data_' + sys) || '[]'); } catch { return []; }
+}
+function saveRecord(sys: string, values: string[]) {
+  const d = mdx(); if (d) { try { d.add(sys, values); return; } catch { /* fall through */ } }
+  try { const k = 'mdx_data_' + sys; const arr = JSON.parse(localStorage.getItem(k) || '[]'); arr.unshift(values); localStorage.setItem(k, JSON.stringify(arr)); } catch { /* ignore */ }
+}
+
 const esc = (s: string) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] || c));
 // a realistic 14-digit ABHA number, displayed 2-4-4-4
 const genAbha = () => { const d = () => Math.floor(Math.random() * 10); const g = (n: number) => Array.from({ length: n }, d).join(''); return `${g(2)}-${g(4)}-${g(4)}-${g(4)}`; };
 
 // re-insert this browser's saved records for a system after it re-renders (survives refresh)
 function injectSaved(mock: HTMLElement, key: string) {
-  let arr: string[][] = [];
-  try { arr = JSON.parse(localStorage.getItem('mdx_data_' + key) || '[]'); } catch { return; }
+  const arr = loadRecords(key);
   if (!Array.isArray(arr) || !arr.length) return;
   const tb = mock.querySelector('table tbody');
   if (tb) {
@@ -526,7 +539,7 @@ export default function Partners() {
   const submitInput = (values: string[]) => {
     const root = contentRef.current; if (!root) { setModal(null); return; }
     const key = curRef.current;
-    try { const k = 'mdx_data_' + key; const arr = JSON.parse(localStorage.getItem(k) || '[]'); arr.unshift(values); localStorage.setItem(k, JSON.stringify(arr)); } catch { /* ignore */ }
+    saveRecord(key, values);
     const mock = root.querySelector('.mock') as HTMLElement | null;
     if (mock) {
       const safe = values.map(esc);
@@ -581,6 +594,21 @@ export default function Partners() {
             </button>
           </div>
         </div>
+
+        {/* desktop app CTA (website only) */}
+        {!isDesktop() && (
+          <a className="dlbanner" href="https://github.com/sanjaydoc/medicalandroid/releases/latest" target="_blank" rel="noreferrer">
+            <svg className="dlic" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5" /><path d="M4 21h16" /></svg>
+            <span className="dltxt"><b>Get the desktop app</b> — run it on your own machine. Your hospital data stays local &amp; encrypted, never on our servers.</span>
+            <span className="dlgo">Download →</span>
+          </a>
+        )}
+        {isDesktop() && (
+          <div className="dlbanner local">
+            <svg className="dlic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+            <span className="dltxt"><b>Desktop app</b> — all records are saved to an <b>encrypted database on this computer</b> only.</span>
+          </div>
+        )}
 
         {/* command console */}
         <div className="console">
@@ -841,6 +869,12 @@ const CSS = `
 .mdx .skin-btn{display:inline-flex;align-items:center;gap:6px;border:0;cursor:pointer;font-family:var(--font);font-weight:700;font-size:12.5px;color:var(--sub);background:transparent;padding:8px 14px;border-radius:999px;transition:all .25s;white-space:nowrap}
 .mdx .sic{width:15px;height:15px;flex:0 0 15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .mdx .skin-btn[aria-pressed="true"]{color:var(--accentInk);background:var(--accent);box-shadow:var(--shadow-out-sm)}
+.mdx .dlbanner{display:flex;align-items:center;gap:12px;text-decoration:none;background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow-out);border:var(--pborder);padding:14px 16px;margin-bottom:16px;color:var(--ink)}
+.mdx .dlbanner .dlic{width:22px;height:22px;flex:0 0 22px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mdx .dlbanner .dltxt{font-size:13px;font-weight:600;color:var(--sub);line-height:1.4}
+.mdx .dlbanner .dltxt b{color:var(--ink)}
+.mdx .dlbanner .dlgo{margin-left:auto;flex:0 0 auto;font-weight:800;font-size:13px;color:var(--accentInk);background:var(--accent);padding:9px 15px;border-radius:999px;box-shadow:var(--shadow-out-sm);white-space:nowrap}
+.mdx .dlbanner.local{cursor:default}
 .mdx .console{background:var(--panel);border-radius:var(--r);box-shadow:var(--shadow-out);border:var(--pborder);padding:18px;margin-bottom:16px}
 .mdx .cmd-row{display:flex;gap:10px;align-items:center}
 .mdx .cmd-in{flex:1;display:flex;align-items:center;gap:10px;background:var(--panel2);border-radius:var(--r-sm);box-shadow:var(--shadow-in);padding:12px 14px;border:var(--pborder)}

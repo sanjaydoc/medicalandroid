@@ -1,0 +1,52 @@
+name: Build Partners Desktop
+
+# Builds the MedDroid Partners desktop installers (Windows / macOS / Linux) and
+# publishes them to this repo's Releases via electron-builder. The web UI is built
+# from client/ (public env baked from client/.env.production), copied into the
+# Electron app, and packaged with an encrypted local SQLite store.
+#
+# Trigger: run manually from the Actions tab, or bump .github/desktop-build.txt on
+# main (scoped so ordinary pushes never rebuild the installers).
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/desktop-build.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build the web UI (client/dist)
+        working-directory: client
+        run: |
+          npm install
+          npm run build
+
+      - name: Install desktop deps
+        working-directory: desktop
+        run: npm install
+
+      - name: Build & publish installers
+        working-directory: desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run publish

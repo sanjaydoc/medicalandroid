@@ -324,6 +324,32 @@ function drawTele(root: HTMLElement) {
 const LOCK_OPEN = '<svg class="bic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
 const LOCK_CLOSED = '<svg class="bic" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
 
+const esc = (s: string) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] || c));
+// a realistic 14-digit ABHA number, displayed 2-4-4-4
+const genAbha = () => { const d = () => Math.floor(Math.random() * 10); const g = (n: number) => Array.from({ length: n }, d).join(''); return `${g(2)}-${g(4)}-${g(4)}-${g(4)}`; };
+
+// re-insert this browser's saved records for a system after it re-renders (survives refresh)
+function injectSaved(mock: HTMLElement, key: string) {
+  let arr: string[][] = [];
+  try { arr = JSON.parse(localStorage.getItem('mdx_data_' + key) || '[]'); } catch { return; }
+  if (!Array.isArray(arr) || !arr.length) return;
+  const tb = mock.querySelector('table tbody');
+  if (tb) {
+    const cols = (tb.querySelector('tr')?.children.length) || 0;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const cells = arr[i].map(esc);
+      while (cells.length < cols - 1) cells.push('—');
+      cells.push('<span class="st ok">Saved</span>');
+      const tr = document.createElement('tr');
+      tr.innerHTML = cells.slice(0, cols || cells.length).map((c) => `<td>${c}</td>`).join('');
+      tb.insertBefore(tr, tb.firstChild);
+    }
+  } else {
+    const list = mock.querySelector('.list');
+    if (list) for (let i = arr.length - 1; i >= 0; i--) { const v = arr[i].map(esc); const d = document.createElement('div'); d.className = 'li'; d.innerHTML = `<div class="ic">＋</div><div class="g">${v[0] || 'New record'}<small>${v[1] || '—'}</small></div><span class="st ok">Saved</span>`; list.insertBefore(d, list.firstChild); }
+  }
+}
+
 type Instance = { sys: string; locked: boolean };
 type ModalState = { type: 'auth' | 'input' | 'custom'; reason?: string } | null;
 
@@ -380,7 +406,7 @@ export default function Partners() {
     const cardsDone = (REDUCE ? 20 : step) * Math.max(0, pieces.length - 1) + (REDUCE ? 150 : flapDur);
     window.setTimeout(() => {
       pieces.forEach((elp) => { elp.classList.remove('asm-hud', 'asm-pipe', 'asm-flap'); elp.style.animationDelay = ''; });
-      if (REDUCE) { busyRef.current = false; if (tagRef.current) tagRef.current.hidden = true; sys.after?.(mock); return; }
+      if (REDUCE) { busyRef.current = false; if (tagRef.current) tagRef.current.hidden = true; injectSaved(mock, curRef.current); sys.after?.(mock); return; }
       const ts = 55;
       targets.forEach((t, i) => window.setTimeout(() => {
         if (t.dataset.real !== undefined) { t.innerHTML = t.dataset.real; delete t.dataset.real; }
@@ -388,7 +414,7 @@ export default function Partners() {
         window.setTimeout(() => t.classList.remove('txt-flip'), 600);
       }, ts * i));
       const tdone = ts * targets.length + 640;
-      window.setTimeout(() => { busyRef.current = false; if (tagRef.current) tagRef.current.hidden = true; sys.after?.(mock); }, tdone);
+      window.setTimeout(() => { busyRef.current = false; if (tagRef.current) tagRef.current.hidden = true; injectSaved(mock, curRef.current); sys.after?.(mock); }, tdone);
     }, Math.max(200, cardsDone - 140));
   }, []);
 
@@ -442,6 +468,8 @@ export default function Partners() {
         if (!localStorage.getItem(key)) {
           localStorage.setItem(key, '1');
           saveRow('signups', { name: `${institution || user.name} · Partner${itype ? ` (${itype})` : ''}`, email: user.email, consent: true });
+          // tag the account as a partner so /account shows the partner view, not patient dashboards
+          supabase?.auth.updateUser({ data: { role: 'partner', institution: institution || user.name, institution_type: itype || '' } }).catch(() => { /* ignore */ });
         }
       }
       const p = sessionStorage.getItem('mdx_pending');
@@ -494,28 +522,30 @@ export default function Partners() {
     const ths = root?.querySelectorAll('.mock table thead th');
     return ths && ths.length ? [...ths].map((t) => (t.textContent || '').trim()) : [];
   };
-  const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] || c));
-
-  /* input a record → append into the current mock, column-for-column */
+  /* input a record → persist (survives refresh) + append into the current mock, column-for-column */
   const submitInput = (values: string[]) => {
     const root = contentRef.current; if (!root) { setModal(null); return; }
-    const safe = values.map(esc);
-    const tb = root.querySelector('.mock table tbody');
-    if (tb) {
-      const cols = (tb.querySelector('tr')?.children.length) || safe.length + 1;
-      const cells = [...safe];
-      while (cells.length < cols - 1) cells.push('—');
-      cells.length = Math.max(cells.length, cols - 1);
-      cells.push('<span class="st ok">Saved</span>');
-      const tr = document.createElement('tr');
-      tr.innerHTML = cells.slice(0, cols).map((c) => `<td>${c}</td>`).join('');
-      tr.style.animation = 'mdx-rise .4s';
-      tb.insertBefore(tr, tb.firstChild);
-    } else {
-      const list = root.querySelector('.mock .list');
-      if (list) { const d = document.createElement('div'); d.className = 'li'; d.innerHTML = `<div class="ic">＋</div><div class="g">${safe[0] || 'New record'}<small>${safe[1] || '—'}</small></div><span class="st ok">Saved</span>`; list.insertBefore(d, list.firstChild); }
+    const key = curRef.current;
+    try { const k = 'mdx_data_' + key; const arr = JSON.parse(localStorage.getItem(k) || '[]'); arr.unshift(values); localStorage.setItem(k, JSON.stringify(arr)); } catch { /* ignore */ }
+    const mock = root.querySelector('.mock') as HTMLElement | null;
+    if (mock) {
+      const safe = values.map(esc);
+      const tb = mock.querySelector('table tbody');
+      if (tb) {
+        const cols = (tb.querySelector('tr')?.children.length) || safe.length + 1;
+        const cells = [...safe];
+        while (cells.length < cols - 1) cells.push('—');
+        cells.push('<span class="st ok">Saved</span>');
+        const tr = document.createElement('tr');
+        tr.innerHTML = cells.slice(0, cols).map((c) => `<td>${c}</td>`).join('');
+        tr.style.animation = 'mdx-rise .4s';
+        tb.insertBefore(tr, tb.firstChild);
+      } else {
+        const list = mock.querySelector('.list');
+        if (list) { const d = document.createElement('div'); d.className = 'li'; d.innerHTML = `<div class="ic">＋</div><div class="g">${safe[0] || 'New record'}<small>${safe[1] || '—'}</small></div><span class="st ok">Saved</span>`; list.insertBefore(d, list.firstChild); }
+      }
     }
-    setModal(null); toast('Saved to ' + SYS[curRef.current].name);
+    setModal(null); toast('Saved to ' + SYS[key].name);
   };
 
   const applyBrand = (color: string, logoData: string) => {
@@ -726,7 +756,7 @@ function InputForm({ sysName, columns, onSave }: { sysName: string; columns: str
   const set = (i: number, v: string) => setVals((a) => a.map((x, j) => (j === i ? v : x)));
   const ph = (c: string) => {
     const l = c.toLowerCase();
-    if (isAbha(c)) return 'Leave blank to auto-generate';
+    if (isAbha(c)) return '14-19-XXXX-XXXX-XXXX · or leave blank';
     if (l.includes('patient') || l === 'name / reference' || l.includes('name')) return 'e.g. Rohan Das · 42M';
     if (l.includes('ward')) return 'e.g. Gen-B';
     if (l.includes('sample')) return 'e.g. S-2294';
@@ -744,7 +774,7 @@ function InputForm({ sysName, columns, onSave }: { sysName: string; columns: str
     const out = vals.map((v, i) => {
       const c = fieldCols[i];
       const t = v.trim();
-      if (isAbha(c) && !t) return '••••-' + Math.floor(1000 + Math.random() * 9000);
+      if (isAbha(c) && !t) return genAbha();
       return t || (i === 0 ? 'New record' : '—');
     });
     onSave(out);

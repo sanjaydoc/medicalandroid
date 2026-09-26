@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../api/supabase';
 import { BRAND } from '../brand';
 import HealthDashboard from '../components/HealthDashboard';
 import ImmunizationDashboard from '../components/ImmunizationDashboard';
@@ -39,6 +40,20 @@ export default function Profile() {
   const [profileId, setProfileId] = useState<string>(activeProfileId());
   const [, setPTick] = useState(0);
   const profiles = listProfiles();
+  // Partner accounts (signed up via the Partners console) don't get the patient
+  // health dashboards — they see a partner card that links to the console.
+  const [role, setRole] = useState<string | undefined>(undefined);
+  const [institution, setInstitution] = useState('');
+  useEffect(() => {
+    let ok = true;
+    supabase?.auth.getUser().then(({ data }) => {
+      if (!ok) return;
+      const m = (data.user?.user_metadata || {}) as Record<string, string>;
+      setRole(m.role); setInstitution(m.institution || '');
+    });
+    return () => { ok = false; };
+  }, []);
+  const isPartner = role === 'partner';
   const chooseProfile = (id: string) => { setActiveProfile(id); setProfileId(id); };
   const onAddProfile = () => {
     const name = window.prompt('Add a person to care for (e.g. Mom, Dad, child):');
@@ -72,6 +87,24 @@ export default function Profile() {
           </div>
         </div>
 
+        {isPartner && (
+          <div className="card mt-6 p-6 sm:p-8">
+            <span className="chip">Partner account</span>
+            <h2 className="mt-3 font-display text-2xl font-extrabold text-ink-900">
+              {institution || user.name}
+            </h2>
+            <p className="mt-2 max-w-prose text-sm text-ink-700/70">
+              You're signed in as a MedDroid partner. Manage your workspace — transform into any of
+              your hospital systems, input data, brand it and lock instances — in the Transformer console.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link to="/partners" className="btn-primary px-5 py-2.5 text-sm">Open Partners console →</Link>
+              <Link to="/assistant" className="btn-outline px-5 py-2.5 text-sm">AI Assistant</Link>
+            </div>
+          </div>
+        )}
+
+        {!isPartner && (<>
         {/* Health-hub tabs */}
         <div className="mt-6 flex gap-2 overflow-x-auto">
           {TABS.map((t) => (
@@ -155,6 +188,7 @@ export default function Profile() {
             </div>
           )}
         </div>
+        </>)}
 
         <p className="mt-6 text-center text-[11px] text-ink-700/45">
           Need help? Contact {BRAND.supportEmail}

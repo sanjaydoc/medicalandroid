@@ -689,6 +689,18 @@ export default function Providers() {
             </button>
             <button className="tbtn run" onClick={runCmd}>Transform →</button>
           </div>
+          <div className="instcard">
+            <div className="ichead"><span>Instances</span><button className="inew2" onClick={newInstance}>＋ New</button></div>
+            <div className="ilist">
+              {instances.map((it, i) => (
+                <button className={'ipill' + (i === active ? ' on' : '')} key={i} onClick={() => switchInst(i)} title={it.locked ? 'Locked to ' + (SYS[it.sys]?.name || '') : SYS[it.sys]?.name}>
+                  <span className="lk" dangerouslySetInnerHTML={{ __html: it.locked ? LOCK_CLOSED : '•' }} />
+                  <span className="nm">{SYS[it.sys]?.name || '—'}</span>
+                  {it.locked && <span className="lkt">Locked</span>}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="hint">Say or tap a system to transform into it</div>
           <div className="chip-groups">
             {GROUPS.map(([cat, keys]) => (
@@ -1133,6 +1145,21 @@ const CSS = `
 .mdx[data-skin="dark"] .pipe .pl{color:rgba(255,255,255,.55)}
 .mdx[data-skin="dark"] .pipe .node{background:#0d0d10;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.12)}
 .mdx[data-skin="dark"] .hint,.mdx[data-skin="dark"] .cg .catlab,.mdx[data-skin="dark"] .tchip{color:#fff}
+/* ===== Instances card (left sidebar, above the command hint) ===== */
+.mdx .instcard{margin:12px 0 4px;background:var(--panel2);border-radius:var(--r-sm);box-shadow:var(--shadow-in);border:var(--pborder);padding:9px 10px}
+.mdx .instcard .ichead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mdx .instcard .ichead>span{font-size:10.5px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}
+.mdx .instcard .inew2{border:0;cursor:pointer;font-family:var(--font);font-weight:800;font-size:11px;color:var(--accent);background:transparent;padding:2px 4px;border-radius:6px}
+.mdx .instcard .inew2:hover{background:var(--chipbg)}
+.mdx .instcard .ilist{display:flex;flex-direction:column;gap:6px}
+.mdx .ipill{display:flex;align-items:center;gap:8px;border:0;cursor:pointer;font-family:var(--font);text-align:left;width:100%;background:var(--panel);box-shadow:var(--shadow-out-sm);border:var(--pborder);border-radius:10px;padding:8px 10px;transition:all .15s}
+.mdx .ipill:hover{transform:translateX(1px)}
+.mdx .ipill .lk{width:14px;flex:0 0 14px;display:inline-flex;align-items:center;justify-content:center;color:var(--sub);font-weight:900}
+.mdx .ipill .lk svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.mdx .ipill .nm{font-size:12.5px;font-weight:800;color:var(--ink);flex:1}
+.mdx .ipill .lkt{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--sub)}
+.mdx .ipill.on{background:var(--accent);box-shadow:var(--shadow-out-sm)}
+.mdx .ipill.on .nm,.mdx .ipill.on .lk,.mdx .ipill.on .lkt{color:var(--accentInk)}
 /* ===== HIS workspace — the live, fully-functional flagship ===== */
 .mdx .hiswrap{display:block}
 .mdx .hiswrap.flap .mock{animation:none}

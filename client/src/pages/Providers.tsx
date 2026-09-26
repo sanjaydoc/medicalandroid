@@ -21,7 +21,15 @@ const mods = (items: string[]) =>
   `<div class="panel"><h3>Modules & features</h3><div class="mlist">${items
     .map((m) => `<div class="mrow"><span class="mck"><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg></span>${m}</div>`)
     .join('')}</div></div>`;
-const MD = '<a class="md-chip" href="#/assistant" title="Ask MedDroid to explain this report in your language"><span class="r"></span>MedDroid · Explain in Hindi</a>';
+// The patient-layer chip → opens the Assistant pre-filled with this system's context.
+function mdChip(sys: Sys) {
+  const radiology = /PACS|RIS/i.test(sys.name);
+  const spec = radiology ? 'Radiology & Imaging' : 'General Physician';
+  let ask = `Explain my ${sys.name} (${sys.full}) report to me in simple Hindi — what does it mean and what should I do next?`;
+  if (/PACS/i.test(sys.name)) ask = 'Explain this chest X-ray (PACS) report to me in simple Hindi — it shows hyperinflated lungs and flattened diaphragms (a COPD pattern). What does it mean and what should I do?';
+  else if (/LIS/i.test(sys.name)) ask = 'Explain my lab report (LIS) to me in simple Hindi — my haemoglobin is 9.8 (low). What does it mean and what should I do?';
+  return `<a class="md-chip" href="#/assistant" data-ask="${encodeURIComponent(ask)}" data-spec="${encodeURIComponent(spec)}" title="Ask MedDroid to explain this in your language"><span class="r"></span>MedDroid · Explain in Hindi</a>`;
+}
 
 type Sys = {
   name: string; full: string; cat: string;
@@ -407,7 +415,7 @@ export default function Providers() {
     const el = contentRef.current; if (!el) return;
     busyRef.current = true;
     el.innerHTML =
-      `<div class="mock"><div class="mhead"><div><div class="mtitle">${sys.name}</div><div class="mfull">${sys.full}</div></div><span class="badge">${sys.cat}</span>${MD}</div>${sys.render()}</div>`;
+      `<div class="mock"><div class="mhead"><div><div class="mtitle">${sys.name}</div><div class="mfull">${sys.full}</div></div><span class="badge">${sys.cat}</span>${mdChip(sys)}</div>${sys.render()}</div>`;
     const mock = el.querySelector('.mock') as HTMLElement; if (!mock) return;
     mock.classList.add('assemble');
     const pieces: HTMLElement[] = [];
@@ -454,6 +462,23 @@ export default function Providers() {
   useEffect(() => {
     transformTo('his', true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* "Explain in Hindi" chip → hand the current system's context to the Assistant */
+  useEffect(() => {
+    const el = contentRef.current; if (!el) return;
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement).closest('.md-chip') as HTMLElement | null;
+      if (!a) return;
+      try {
+        const q = decodeURIComponent(a.getAttribute('data-ask') || '');
+        const spec = decodeURIComponent(a.getAttribute('data-spec') || '');
+        sessionStorage.setItem('meddroid_pending', JSON.stringify({ q, spec }));
+      } catch { /* ignore */ }
+      // let the anchor's href="#/assistant" carry the navigation
+    };
+    el.addEventListener('click', onClick);
+    return () => el.removeEventListener('click', onClick);
   }, []);
 
   const startVoice = () => {

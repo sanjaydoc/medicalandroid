@@ -670,6 +670,16 @@ export default function Providers() {
               ? <><span className="badge">{(user.name || 'Provider')}</span> signed in</>
               : <><span className="dotfree" /> Exploring free — no login needed to try it</>}
           </span>
+          <div className="instbar">
+            {instances.map((it, i) => (
+              <button className="itab" key={i} aria-selected={i === active} onClick={() => switchInst(i)}>
+                <span className="lk" dangerouslySetInnerHTML={{ __html: it.locked ? LOCK_CLOSED : '•' }} />
+                <span className="sys">{SYS[it.sys]?.name || '—'}</span>
+              </button>
+            ))}
+            <button className="inew" onClick={newInstance}>＋ New instance</button>
+            {inst.locked && <span className="locked-note">Locked to {SYS[inst.sys].name} · commands disabled</span>}
+          </div>
           {!user && <button className="wbtn" onClick={() => setModal({ type: 'auth', reason: 'generic' })}>
             <svg className="bic" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><path d="M10 17l5-5-5-5M15 12H3" /></svg>Log in
           </button>}
@@ -682,18 +692,6 @@ export default function Providers() {
           <button className={'wbtn' + (inst.locked ? ' pri' : '')} onClick={toggleLock}
             dangerouslySetInnerHTML={{ __html: (inst.locked ? LOCK_CLOSED : LOCK_OPEN) + (inst.locked ? 'Locked' : 'Lock') }} />
           {user && <button className="out" onClick={logout}>Log out</button>}
-        </div>
-
-        {/* instance bar */}
-        <div className="instbar">
-          {instances.map((it, i) => (
-            <button className="itab" key={i} aria-selected={i === active} onClick={() => switchInst(i)}>
-              <span className="lk" dangerouslySetInnerHTML={{ __html: it.locked ? LOCK_CLOSED : '•' }} />
-              <span className="sys">{SYS[it.sys]?.name || '—'}</span>
-            </button>
-          ))}
-          <button className="inew" onClick={newInstance}>＋ New instance</button>
-          {inst.locked && <span className="locked-note">Locked to {SYS[inst.sys].name} · commands disabled</span>}
         </div>
 
         {/* stage */}
@@ -967,6 +965,7 @@ const CSS = `
 .mdx .bic{width:15px;height:15px;flex:0 0 15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .mdx .out{border:0;background:transparent;color:var(--accent);font-family:var(--font);font-weight:800;font-size:12px;cursor:pointer;padding:0 4px}
 .mdx .instbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.mdx .wstop .instbar{margin:0;display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}
 .mdx .itab{display:inline-flex;align-items:center;gap:7px;font-family:var(--font);font-weight:700;font-size:12px;color:var(--sub);background:var(--panel);box-shadow:var(--shadow-out-sm);border:var(--pborder);border-radius:999px;padding:7px 13px;cursor:pointer;transition:all .18s}
 .mdx .itab[aria-selected="true"]{color:var(--accentInk);background:var(--accent)}
 .mdx .itab .lk{font-size:11px;opacity:.9;display:inline-flex;align-items:center}.mdx .itab .lk .bic{width:13px;height:13px;flex:0 0 13px}.mdx .itab .sys{font-weight:800}

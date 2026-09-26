@@ -100,7 +100,7 @@ export default function EmrWorkspace() {
 
       <div className="htabs">
         {TABS.map(([k, label]) => (
-          <button key={k} className={'htab' + (tab === k ? ' on' : '')} disabled={k !== 'patients' && !person} onClick={() => setTab(k)}>{label}</button>
+          <button key={k} className={'htab' + (tab === k ? ' on' : '')} onClick={() => setTab(k)}>{label}</button>
         ))}
       </div>
 
@@ -132,7 +132,18 @@ export default function EmrWorkspace() {
       {tab === 'meds' && person && <Medications pk={person.key} onChange={refresh} />}
       {tab === 'vitals' && person && <Vitals pk={person.key} onChange={refresh} />}
       {tab === 'labs' && person && <Labs pk={person.key} onChange={refresh} />}
-      {tab !== 'patients' && !person && <div className="panel"><h3>Select a patient</h3><div style={{ color: 'var(--sub)', fontSize: 13 }}>Open a chart from the Patients tab first.</div></div>}
+      {tab !== 'patients' && !person && (
+        <div className="panel"><h3>Choose a patient <span className="c">to open {(TABS.find(([k]) => k === tab) || [, ''])[1]}</span></h3>
+          <div style={{ color: 'var(--sub)', fontSize: 12.5, marginBottom: 10 }}>These screens are per-patient — pick who you're documenting.</div>
+          <div className="tblwrap"><table><thead><tr><th>Patient</th><th>ABHA</th><th>Type</th><th></th></tr></thead><tbody>
+            {people.length === 0 && <tr><td colSpan={4} style={{ color: 'var(--sub)' }}>No patients yet — register one on the Patients tab, or admit in HIS.</td></tr>}
+            {people.map((p) => (
+              <tr key={p.key}><td>{p.name} · {p.age}{p.sex}</td><td>{p.abha}</td><td><span className={'st ' + (p.source === 'HIS' ? 'ok' : 'info')}>{p.source === 'HIS' ? 'Inpatient' : 'OPD'}</span></td>
+                <td><button className="wbtn xs" onClick={() => setSel(p.key)}>Select →</button></td></tr>
+            ))}
+          </tbody></table></div>
+        </div>
+      )}
     </div>
   );
 }

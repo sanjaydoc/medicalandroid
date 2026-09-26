@@ -79,15 +79,17 @@ const SOCIALS: { label: string; href: string; icon: JSX.Element }[] = [
       </svg>
     ),
   },
-  {
-    label: 'Reddit',
-    href: 'https://www.reddit.com/user/Medicalandroid',
-    icon: (
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
-        <path d="M22 11.6a2.1 2.1 0 0 0-3.55-1.5 10.3 10.3 0 0 0-5.2-1.63l.9-4.2 2.94.65a1.5 1.5 0 1 0 .18-.98l-3.3-.73a.5.5 0 0 0-.59.38l-1 4.7a10.4 10.4 0 0 0-5.32 1.62 2.1 2.1 0 1 0-2.3 3.45 3.7 3.7 0 0 0-.05.6c0 3.1 3.6 5.6 8.05 5.6 4.46 0 8.06-2.5 8.06-5.6 0-.2-.02-.4-.05-.6A2.1 2.1 0 0 0 22 11.6ZM8 13.2a1.3 1.3 0 1 1 2.6 0 1.3 1.3 0 0 1-2.6 0Zm7.36 3.5c-.9.9-2.63.97-3.36.97-.73 0-2.46-.07-3.36-.97a.37.37 0 0 1 .52-.52c.57.57 1.78.77 2.84.77 1.06 0 2.27-.2 2.84-.77a.37.37 0 1 1 .52.52Zm-.06-2.2a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6Z" />
-      </svg>
-    ),
-  },
+  // Reddit temporarily removed (account under suspension; appeal filed). Restore
+  // this block once the u/Medicalandroid account is reinstated.
+  // {
+  //   label: 'Reddit',
+  //   href: 'https://www.reddit.com/user/Medicalandroid',
+  //   icon: (
+  //     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
+  //       <path d="M22 11.6a2.1 2.1 0 0 0-3.55-1.5 10.3 10.3 0 0 0-5.2-1.63l.9-4.2 2.94.65a1.5 1.5 0 1 0 .18-.98l-3.3-.73a.5.5 0 0 0-.59.38l-1 4.7a10.4 10.4 0 0 0-5.32 1.62 2.1 2.1 0 1 0-2.3 3.45 3.7 3.7 0 0 0-.05.6c0 3.1 3.6 5.6 8.05 5.6 4.46 0 8.06-2.5 8.06-5.6 0-.2-.02-.4-.05-.6A2.1 2.1 0 0 0 22 11.6ZM8 13.2a1.3 1.3 0 1 1 2.6 0 1.3 1.3 0 0 1-2.6 0Zm7.36 3.5c-.9.9-2.63.97-3.36.97-.73 0-2.46-.07-3.36-.97a.37.37 0 0 1 .52-.52c.57.57 1.78.77 2.84.77 1.06 0 2.27-.2 2.84-.77a.37.37 0 1 1 .52.52Zm-.06-2.2a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6Z" />
+  //     </svg>
+  //   ),
+  // },
   {
     label: 'Quora',
     href: 'https://www.quora.com/profile/MedDroid',

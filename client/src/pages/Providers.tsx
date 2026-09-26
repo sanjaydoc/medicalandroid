@@ -137,14 +137,13 @@ const SYS: Record<string, Sys> = {
      ${pipe('DICOM flow', ['Modality', 'DICOM store', 'PACS', 'qure.ai AI'])}
      <div class="cols">
        <div class="panel"><h3>Chest PA · Rajesh Kumar</h3>
-        <div class="viewer"><canvas id="pacsMain" width="520" height="360"></canvas>
+        <div class="viewer xr"><img src="/pacs/chest-copd.jpg" alt="Chest PA radiograph" />
          <div class="vtools"><span class="vtool">W 400 / L 40</span><span class="vtool">Zoom 100%</span></div>
-         <div class="vfind">⚠ qure.ai: opacity, R lower zone (0.86)</div>
+         <div class="vfind">⚠ qure.ai: hyperinflation · flattened diaphragms (COPD pattern) 0.88</div>
         </div>
        </div>
        ${mods(['DICOM store / query / retrieve', 'Multi-modality zero-footprint viewer', 'Hanging protocols + MPR / 3D', 'Measurements & annotations', 'AI overlays (qure.ai, 5C Network)', 'Teleradiology sharing & CD import'])}
      </div>`,
-    after: (root) => drawPACS(root),
   },
   /* ---------------- Operations & business ---------------- */
   practice: {
@@ -297,19 +296,6 @@ function matchCmd(raw: string): string | null {
   return best;
 }
 
-/* radiograph-ish canvas so PACS looks like a real scan */
-function drawPACS(root: HTMLElement) {
-  const c = root.querySelector<HTMLCanvasElement>('#pacsMain'); if (!c) return;
-  const x = c.getContext('2d'); if (!x) return;
-  const g = x.createRadialGradient(c.width * 0.5, c.height * 0.55, 20, c.width * 0.5, c.height * 0.55, c.width * 0.6);
-  g.addColorStop(0, '#3a3f4a'); g.addColorStop(0.5, '#20242c'); g.addColorStop(1, '#05070d');
-  x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
-  x.strokeStyle = 'rgba(210,220,235,0.28)'; x.lineWidth = 2;
-  for (let i = 0; i < 7; i++) { x.beginPath(); x.arc(c.width * 0.5, -40 + i * 46, c.width * 0.42, 0.15 * Math.PI, 0.85 * Math.PI); x.stroke(); }
-  x.fillStyle = 'rgba(230,235,245,0.35)'; for (let i = 0; i < 9; i++) x.fillRect(c.width * 0.5 - 8, 60 + i * 30, 16, 18);
-  for (let i = 0; i < 2400; i++) { x.fillStyle = 'rgba(255,255,255,' + (Math.random() * 0.05) + ')'; x.fillRect(Math.random() * c.width, Math.random() * c.height, 1, 1); }
-  x.strokeStyle = '#EA4335'; x.lineWidth = 2.5; x.setLineDash([6, 4]); x.strokeRect(c.width * 0.58, c.height * 0.62, 90, 70); x.setLineDash([]);
-}
 function drawTele(root: HTMLElement) {
   const c = root.querySelector<HTMLCanvasElement>('#tmMain'); if (!c) return;
   const x = c.getContext('2d'); if (!x) return;
@@ -1023,6 +1009,8 @@ const CSS = `
 .mdx .mck svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 .mdx .viewer{background:#05070d;border-radius:12px;overflow:hidden;position:relative;box-shadow:var(--shadow-in)}
 .mdx .viewer canvas{display:block;width:100%;height:auto}
+.mdx .viewer.xr{background:#000;display:flex;align-items:center;justify-content:center}
+.mdx .viewer.xr img{display:block;max-width:100%;max-height:420px;width:auto;margin:0 auto}
 .mdx .vtools{position:absolute;top:8px;left:8px;display:flex;gap:6px}
 .mdx .vtool{font-size:10px;font-weight:800;color:#bcd;background:rgba(255,255,255,.08);padding:4px 8px;border-radius:6px}
 .mdx .vfind{position:absolute;left:8px;bottom:8px;font-size:11px;font-weight:800;color:#fff;background:rgba(234,67,53,.85);padding:5px 10px;border-radius:8px}

@@ -9,10 +9,11 @@ import RisWorkspace from '../components/RisWorkspace';
 import CdssWorkspace from '../components/CdssWorkspace';
 import ApptWorkspace from '../components/ApptWorkspace';
 import PharmacyWorkspace from '../components/PharmacyWorkspace';
+import RcmWorkspace from '../components/RcmWorkspace';
 
 /* Systems with a real, interactive React implementation (vs the imperative flip
    preview). These render live into the stage; everything else uses the flip engine. */
-const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace, cdss: CdssWorkspace, appt: ApptWorkspace, pharmacy: PharmacyWorkspace };
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace, cdss: CdssWorkspace, appt: ApptWorkspace, pharmacy: PharmacyWorkspace, rcm: RcmWorkspace };
 const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================

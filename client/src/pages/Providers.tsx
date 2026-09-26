@@ -10,10 +10,11 @@ import CdssWorkspace from '../components/CdssWorkspace';
 import ApptWorkspace from '../components/ApptWorkspace';
 import PharmacyWorkspace from '../components/PharmacyWorkspace';
 import RcmWorkspace from '../components/RcmWorkspace';
+import TelemedWorkspace from '../components/TelemedWorkspace';
 
 /* Systems with a real, interactive React implementation (vs the imperative flip
    preview). These render live into the stage; everything else uses the flip engine. */
-const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace, cdss: CdssWorkspace, appt: ApptWorkspace, pharmacy: PharmacyWorkspace, rcm: RcmWorkspace };
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace, cdss: CdssWorkspace, appt: ApptWorkspace, pharmacy: PharmacyWorkspace, rcm: RcmWorkspace, telemed: TelemedWorkspace };
 const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================
@@ -1296,6 +1297,30 @@ const CSS = `
 .mdx[data-skin="console"] .qcard,.mdx[data-skin="dark"] .qcard{background:#17191e;box-shadow:none;border:1px solid rgba(255,255,255,.14)}
 .mdx[data-skin="console"] .qcard .qg b,.mdx[data-skin="dark"] .qcard .qg b,.mdx[data-skin="console"] .nowserving .nm,.mdx[data-skin="dark"] .nowserving .nm{color:#fff}
 .mdx[data-skin="console"] .slot,.mdx[data-skin="dark"] .slot{background:#17191e;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.14)}
+/* ===== Teleconsult / video room extras ===== */
+.mdx .vc{position:relative;border-radius:12px;overflow:hidden;background:#05070d;min-height:260px;box-shadow:var(--shadow-in)}
+.mdx .vc .vtile{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.mdx .vc .vinit{font-size:56px;font-weight:900;color:rgba(255,255,255,.92);letter-spacing:.02em}
+.mdx .vc .vinit.sm{font-size:20px}
+.mdx .vc .vcamoff{color:#8fa3c4;font-size:13px;font-weight:700}
+.mdx .vc .vname{position:absolute;left:10px;bottom:10px;font-size:12px;font-weight:800;color:#fff;background:rgba(0,0,0,.4);padding:4px 9px;border-radius:8px}
+.mdx .vc .vconn{position:absolute;right:10px;top:10px;font-size:10.5px;font-weight:800;color:#7ee0b5;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);padding:4px 9px;border-radius:999px}
+.mdx .vc .vconn .d{width:7px;height:7px;border-radius:50%;background:#22b07d;animation:mdx-blink 1.2s infinite}
+.mdx .vc .vself{position:absolute;right:12px;bottom:12px;width:96px;height:70px;border-radius:10px;background:linear-gradient(135deg,#2b3550,#465a86);box-shadow:0 6px 16px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.5)}
+.mdx .vc .vself .vname{left:6px;bottom:5px;font-size:10px;padding:2px 6px}
+.mdx .vc.camoff .vtile{background:#0e1420 !important}
+.mdx .vcontrols{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.mdx .vbtn{border:0;cursor:pointer;font-family:var(--font);font-weight:800;font-size:15px;width:48px;height:48px;border-radius:50%;background:var(--panel2);box-shadow:var(--shadow-out-sm);border:var(--pborder);color:var(--ink)}
+.mdx .vbtn.off{background:rgba(234,67,53,.14);color:var(--bad)}
+.mdx .vbtn.end{width:auto;border-radius:999px;padding:0 18px;font-size:13px;background:var(--bad);color:#fff}
+.mdx .ctxrow{display:flex;flex-direction:column;gap:8px}
+.mdx .ctx{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px}
+.mdx .ctx>b{font-size:10px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.04em;min-width:64px}
+.mdx .ctx .chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--panel2);box-shadow:var(--shadow-out-sm);border:var(--pborder);color:var(--ink)}
+.mdx .ctx .chip.bad{background:rgba(234,67,53,.14);color:var(--bad)}
+.mdx .rxbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.mdx .rxbar input,.mdx .rxbar select{border:0;background:var(--panel2);box-shadow:var(--shadow-in);border-radius:var(--r-sm);padding:9px 11px;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--ink);outline:none;border:var(--pborder);flex:1;min-width:70px}
+.mdx[data-skin="console"] .ctx .chip,.mdx[data-skin="dark"] .ctx .chip{background:#17191e;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.14)}
 @media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
 @media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;

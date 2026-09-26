@@ -4,10 +4,11 @@ import { supabase, saveRow } from '../api/supabase';
 import HisWorkspace from '../components/HisWorkspace';
 import EmrWorkspace from '../components/EmrWorkspace';
 import LisWorkspace from '../components/LisWorkspace';
+import CpoeWorkspace from '../components/CpoeWorkspace';
 
 /* Systems with a real, interactive React implementation (vs the imperative flip
    preview). These render live into the stage; everything else uses the flip engine. */
-const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace };
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace };
 const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================
@@ -1231,6 +1232,19 @@ const CSS = `
 .mdx .barcode{width:100%;height:44px;display:block;margin-bottom:8px}
 .mdx .accno{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:800;letter-spacing:.06em;color:#152038;margin-bottom:8px}
 .mdx .acclabel .mini{color:#61708f}.mdx .acclabel .mini b{color:#152038}
+/* ===== CPOE extras ===== */
+.mdx .alertbox{background:rgba(234,67,53,.12);color:var(--bad);border-radius:var(--r-sm);padding:10px 12px;font-size:12px;font-weight:700;line-height:1.45}
+.mdx .alertbox b{font-weight:900}
+.mdx .okbox{background:rgba(34,176,125,.14);color:var(--ok);border-radius:var(--r-sm);padding:10px 12px;font-size:12px;font-weight:700;line-height:1.45;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.mdx .setgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.mdx .setcard{background:var(--panel);border-radius:var(--r-sm);box-shadow:var(--shadow-in);border:var(--pborder);padding:13px;display:flex;flex-direction:column;gap:10px}
+.mdx .setcard>b{font-size:13px;font-weight:800;color:var(--ink)}
+.mdx .setitems{display:flex;flex-direction:column;gap:6px;flex:1}
+.mdx .setitems .chip{font-size:11px;font-weight:700;padding:5px 9px;border-radius:8px;background:var(--panel2);box-shadow:var(--shadow-out-sm);border:var(--pborder);color:var(--ink)}
+.mdx .setcard .tbtn.run{width:100%}
+.mdx[data-skin="console"] .setcard,.mdx[data-skin="dark"] .setcard{background:#0e1014;border-color:rgba(255,255,255,.12)}
+.mdx[data-skin="console"] .setcard>b,.mdx[data-skin="dark"] .setcard>b{color:#fff}
+.mdx[data-skin="console"] .setitems .chip,.mdx[data-skin="dark"] .setitems .chip{background:#17191e;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.14)}
 @media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
 @media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;

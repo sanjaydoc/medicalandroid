@@ -338,6 +338,7 @@ export default function Partners() {
   const [toastMsg, setToastMsg] = useState('');
   const [accent, setAccent] = useState<string>('');
   const [logo, setLogo] = useState<string>('');
+  const [inputCols, setInputCols] = useState<string[]>([]);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const tagRef = useRef<HTMLDivElement>(null);
@@ -487,19 +488,32 @@ export default function Partners() {
     setActive(i); const s = instRef.current[i].sys; curRef.current = s; assembleMock(SYS[s], true);
   };
 
-  /* input a record → append into the current mock */
-  const submitInput = (name: string, note: string) => {
+  /* read the current system's table headers so the input form matches its columns */
+  const readCols = () => {
+    const root = contentRef.current;
+    const ths = root?.querySelectorAll('.mock table thead th');
+    return ths && ths.length ? [...ths].map((t) => (t.textContent || '').trim()) : [];
+  };
+  const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] || c));
+
+  /* input a record → append into the current mock, column-for-column */
+  const submitInput = (values: string[]) => {
     const root = contentRef.current; if (!root) { setModal(null); return; }
+    const safe = values.map(esc);
     const tb = root.querySelector('.mock table tbody');
     if (tb) {
-      const cols = (tb.querySelector('tr')?.children.length) || 3;
-      const cells: string[] = [name]; if (cols >= 3) cells.push(note); while (cells.length < cols - 1) cells.push('—');
+      const cols = (tb.querySelector('tr')?.children.length) || safe.length + 1;
+      const cells = [...safe];
+      while (cells.length < cols - 1) cells.push('—');
+      cells.length = Math.max(cells.length, cols - 1);
       cells.push('<span class="st ok">Saved</span>');
-      const tr = document.createElement('tr'); tr.innerHTML = cells.map((c) => `<td>${c}</td>`).join(''); tr.style.animation = 'mdx-rise .4s';
+      const tr = document.createElement('tr');
+      tr.innerHTML = cells.slice(0, cols).map((c) => `<td>${c}</td>`).join('');
+      tr.style.animation = 'mdx-rise .4s';
       tb.insertBefore(tr, tb.firstChild);
     } else {
       const list = root.querySelector('.mock .list');
-      if (list) { const d = document.createElement('div'); d.className = 'li'; d.innerHTML = `<div class="ic">＋</div><div class="g">${name}<small>${note}</small></div><span class="st ok">Saved</span>`; list.insertBefore(d, list.firstChild); }
+      if (list) { const d = document.createElement('div'); d.className = 'li'; d.innerHTML = `<div class="ic">＋</div><div class="g">${safe[0] || 'New record'}<small>${safe[1] || '—'}</small></div><span class="st ok">Saved</span>`; list.insertBefore(d, list.firstChild); }
     }
     setModal(null); toast('Saved to ' + SYS[curRef.current].name);
   };
@@ -569,7 +583,7 @@ export default function Partners() {
               ? <><span className="badge">{(user.name || 'Partner')}</span> signed in</>
               : <><span className="dotfree" /> Exploring free — no login needed to try it</>}
           </span>
-          <button className="wbtn" style={{ marginLeft: 'auto' }} onClick={() => gate('input', () => setModal({ type: 'input' }))}>
+          <button className="wbtn" style={{ marginLeft: 'auto' }} onClick={() => gate('input', () => { setInputCols(readCols()); setModal({ type: 'input' }); })}>
             <svg className="bic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>Input data
           </button>
           <button className="wbtn" onClick={() => gate('custom', () => setModal({ type: 'custom' }))}>
@@ -622,7 +636,7 @@ export default function Partners() {
           <div className="modal-card">
             <button className="modal-x" onClick={() => setModal(null)} aria-label="Close">✕</button>
             {modal.type === 'auth' && <AuthForm reason={modal.reason} onLogin={login} onGoogle={(inst, itype) => startGoogle(modal.reason, inst, itype)} onDone={() => { }} toast={toast} />}
-            {modal.type === 'input' && <InputForm sysName={SYS[curRef.current].name} onSave={submitInput} />}
+            {modal.type === 'input' && <InputForm sysName={SYS[curRef.current].name} columns={inputCols} onSave={submitInput} />}
             {modal.type === 'custom' && <CustomForm onApply={applyBrand} />}
           </div>
         </div>
@@ -701,18 +715,55 @@ function AuthForm({ reason, onLogin, onGoogle, toast }:
   );
 }
 
-function InputForm({ sysName, onSave }: { sysName: string; onSave: (n: string, note: string) => void }) {
-  const [name, setName] = useState(''); const [note, setNote] = useState('');
+function InputForm({ sysName, columns, onSave }: { sysName: string; columns: string[]; onSave: (values: string[]) => void }) {
+  // Fields = the current table's columns, minus the auto "Status" column.
+  const statusish = (c: string) => /status|state/i.test(c);
+  const fieldCols = columns.length
+    ? (statusish(columns[columns.length - 1]) ? columns.slice(0, -1) : columns)
+    : ['Name / reference', 'Detail'];
+  const isAbha = (c: string) => /abha/i.test(c);
+  const [vals, setVals] = useState<string[]>(fieldCols.map(() => ''));
+  const set = (i: number, v: string) => setVals((a) => a.map((x, j) => (j === i ? v : x)));
+  const ph = (c: string) => {
+    const l = c.toLowerCase();
+    if (isAbha(c)) return 'Leave blank to auto-generate';
+    if (l.includes('patient') || l === 'name / reference' || l.includes('name')) return 'e.g. Rohan Das · 42M';
+    if (l.includes('ward')) return 'e.g. Gen-B';
+    if (l.includes('sample')) return 'e.g. S-2294';
+    if (l.includes('test')) return 'e.g. CBC';
+    if (l.includes('claim')) return 'e.g. C-8844';
+    if (l.includes('payer') || l.includes('tpa')) return 'e.g. Star Health';
+    if (l.includes('amount')) return 'e.g. ₹1,20,000';
+    if (l.includes('modality')) return 'e.g. CT';
+    if (l.includes('study')) return 'e.g. Chest PA';
+    if (l.includes('time')) return 'e.g. 11:00';
+    if (l.includes('detail')) return 'e.g. Ward Gen-B · admitted';
+    return 'e.g. …';
+  };
+  const save = () => {
+    const out = vals.map((v, i) => {
+      const c = fieldCols[i];
+      const t = v.trim();
+      if (isAbha(c) && !t) return '••••-' + Math.floor(1000 + Math.random() * 9000);
+      return t || (i === 0 ? 'New record' : '—');
+    });
+    onSave(out);
+  };
   return (
     <div className="auth-card">
       <div className="lockrow">＋ Input data → {sysName}</div>
       <div className="auth-h" style={{ fontSize: 18 }}>New entry</div>
-      <div className="auth-sub">Adds a live record to the current system.</div>
+      <div className="auth-sub">Fill the fields for this system. A <b>Status</b> of “Saved” is added automatically.</div>
       <div className="fields">
-        <label className="f"><span>Name / reference</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Rohan Das · 42M" /></label>
-        <label className="f"><span>Detail</span><input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Ward Gen-B · admitted" /></label>
+        {fieldCols.map((c, i) => (
+          <label className="f" key={c + i}>
+            <span>{c}</span>
+            <input value={vals[i]} onChange={(e) => set(i, e.target.value)} placeholder={ph(c)} />
+            {isAbha(c) && <small className="fhint">ABHA is the patient’s national health ID (ABDM) — enter it, or leave blank to auto-generate a demo ID.</small>}
+          </label>
+        ))}
       </div>
-      <button className="tbtn run authgo" onClick={() => onSave(name.trim() || 'New record', note.trim() || '—')}>Save to {sysName} →</button>
+      <button className="tbtn run authgo" onClick={save}>Save to {sysName} →</button>
     </div>
   );
 }
@@ -863,6 +914,7 @@ const CSS = `
 .mdx .f>span{font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.04em}
 .mdx .f input{border:0;background:var(--panel2);box-shadow:var(--shadow-in);border-radius:var(--r-sm);padding:12px 14px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--ink);outline:none;border:var(--pborder)}
 .mdx .f input::placeholder{color:var(--sub);font-weight:500}
+.mdx .fhint{font-size:10.5px;color:var(--sub);font-weight:600;line-height:1.4;text-transform:none;letter-spacing:0}
 .mdx .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mdx .seg button{border:0;cursor:pointer;font-family:var(--font);font-weight:700;font-size:12.5px;color:var(--ink);background:var(--panel2);box-shadow:var(--shadow-out-sm);border:var(--pborder);border-radius:var(--r-sm);padding:11px;transition:all .18s}
 .mdx .seg button[aria-pressed="true"]{color:var(--accentInk);background:var(--accent)}

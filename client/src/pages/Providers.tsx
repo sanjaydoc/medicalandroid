@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase, saveRow } from '../api/supabase';
+import HisWorkspace from '../components/HisWorkspace';
 
 /* ============================================================================
    MedDroid Transformer — Provider console.
@@ -395,10 +396,15 @@ export default function Providers() {
   const [inputCols, setInputCols] = useState<string[]>([]);
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const hisRef = useRef<HTMLDivElement>(null);
   const tagRef = useRef<HTMLDivElement>(null);
   const cmdRef = useRef<HTMLInputElement>(null);
   const busyRef = useRef(false);
   const curRef = useRef('his');
+  // Drives the stage: HIS renders the live <HisWorkspace/>; every other system
+  // renders through the imperative flip engine into contentRef.
+  const [renderReq, setRenderReq] = useState<{ key: string; fast: boolean; n: number }>({ key: 'his', fast: true, n: 0 });
+  const curSysState = renderReq.key;
   const instRef = useRef(instances); instRef.current = instances;
   const activeRef = useRef(active); activeRef.current = active;
   const pendingRef = useRef<null | (() => void)>(null);
@@ -446,6 +452,16 @@ export default function Providers() {
     }, Math.max(200, cardsDone - 140));
   }, []);
 
+  /* HIS is a live React component — play the same 360° flip on its real DOM via a
+     wrapper class (CSS-driven, so it never fights React's re-renders). */
+  const playFlaps = useCallback((fast: boolean) => {
+    const w = hisRef.current; if (!w) { busyRef.current = false; return; }
+    busyRef.current = true;
+    w.classList.remove('flap'); void w.offsetWidth; w.classList.add('flap');
+    const dur = REDUCE ? 340 : (fast ? 1150 : 1750);
+    window.setTimeout(() => { hisRef.current?.classList.remove('flap'); busyRef.current = false; }, dur);
+  }, []);
+
   const transformTo = useCallback((key: string | null, fast = false) => {
     if (!key || !SYS[key] || busyRef.current) return;
     const inst = instRef.current[activeRef.current];
@@ -455,14 +471,17 @@ export default function Providers() {
     }
     curRef.current = key;
     if (inst && !inst.locked) setInstances((prev) => prev.map((it, i) => (i === activeRef.current ? { ...it, sys: key } : it)));
-    assembleMock(SYS[key], fast);
-  }, [assembleMock, toast]);
+    setRenderReq((r) => ({ key, fast, n: r.n + 1 }));
+  }, [toast]);
 
-  /* boot + voice */
+  /* Render the requested system AFTER commit (so contentRef/hisRef reflect the
+     mount state), then play its flip. Runs once on mount for the default HIS. */
   useEffect(() => {
-    transformTo('his', true);
+    const { key, fast } = renderReq;
+    if (key === 'his') playFlaps(fast);
+    else assembleMock(SYS[key], fast);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [renderReq]);
 
   /* "Explain in Hindi" chip → hand the current system's context to the Assistant */
   useEffect(() => {
@@ -558,7 +577,8 @@ export default function Providers() {
   };
   const switchInst = (i: number) => {
     if (i === active || busyRef.current) return;
-    setActive(i); const s = instRef.current[i].sys; curRef.current = s; assembleMock(SYS[s], true);
+    setActive(i); const s = instRef.current[i].sys; curRef.current = s;
+    setRenderReq((r) => ({ key: s, fast: true, n: r.n + 1 }));
   };
 
   /* read the current system's table headers so the input form matches its columns */
@@ -714,7 +734,9 @@ export default function Providers() {
         {/* stage */}
         <div className="stage">
           <div className="asmtag" ref={tagRef} hidden />
-          <div ref={contentRef} />
+          {/* contentRef stays mounted (flip engine + delegated md-chip handler); hidden while HIS is live */}
+          <div ref={contentRef} hidden={curSysState === 'his'} />
+          {curSysState === 'his' && <div className="hiswrap" ref={hisRef}><HisWorkspace /></div>}
         </div>
 
         {/* the glue + core wedge */}
@@ -1105,6 +1127,48 @@ const CSS = `
 .mdx[data-skin="dark"] .pipe .pl{color:rgba(255,255,255,.55)}
 .mdx[data-skin="dark"] .pipe .node{background:#0d0d10;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.12)}
 .mdx[data-skin="dark"] .hint,.mdx[data-skin="dark"] .cg .catlab,.mdx[data-skin="dark"] .tchip{color:#fff}
-@media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}}
-@media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}}
+/* ===== HIS workspace — the live, fully-functional flagship ===== */
+.mdx .hiswrap{display:block}
+.mdx .hiswrap.flap .mock{animation:none}
+.mdx .hiswrap.flap .mhead{animation:mdx-hudIn .5s both}
+.mdx .hiswrap.flap .pipe{animation:mdx-partIn .55s both;animation-delay:.12s}
+.mdx .hiswrap.flap .htabs{animation:mdx-partIn .5s both;animation-delay:.2s}
+.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{backface-visibility:visible;transform-style:preserve-3d;animation:mdx-flapIn .72s cubic-bezier(.25,.7,.3,1) both}
+.mdx .hiswrap.flap .kpis .tile:nth-child(1){animation-delay:.30s}
+.mdx .hiswrap.flap .kpis .tile:nth-child(2){animation-delay:.42s}
+.mdx .hiswrap.flap .kpis .tile:nth-child(3){animation-delay:.54s}
+.mdx .hiswrap.flap .kpis .tile:nth-child(4){animation-delay:.66s}
+.mdx .hiswrap.flap .cols .panel:nth-child(1){animation-delay:.78s}
+.mdx .hiswrap.flap .cols .panel:nth-child(2){animation-delay:.90s}
+.mdx .htabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.mdx .htab{border:0;cursor:pointer;font-family:var(--font);font-weight:800;font-size:12px;color:var(--sub);background:var(--panel2);box-shadow:var(--shadow-out-sm);border:var(--pborder);border-radius:999px;padding:8px 13px;transition:all .16s}
+.mdx .htab:hover{transform:translateY(-1px)}
+.mdx .htab.on{color:var(--accentInk);background:var(--accent);box-shadow:var(--shadow-out-sm)}
+.mdx .wardgrid{display:flex;flex-direction:column;gap:11px}
+.mdx .ward .wn,.mdx .bedward .wn{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:800;margin-bottom:6px;color:var(--ink)}
+.mdx .bar{height:9px;border-radius:999px;background:var(--panel);box-shadow:var(--shadow-in);overflow:hidden}
+.mdx .bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .5s var(--tr)}
+.mdx .frm{display:flex;flex-direction:column;gap:11px}
+.mdx .frow{display:flex;gap:10px}.mdx .frow>*{flex:1}
+.mdx .ferr{color:var(--bad);font-size:12px;font-weight:700}
+.mdx .f select{border:0;background:var(--panel2);box-shadow:var(--shadow-in);border-radius:var(--r-sm);padding:12px 14px;font-family:var(--font);font-size:14px;font-weight:600;color:var(--ink);outline:none;border:var(--pborder);width:100%;-webkit-appearance:none;appearance:none;cursor:pointer}
+.mdx .seg.sm{display:inline-flex;gap:6px}
+.mdx .seg.sm button{padding:9px 16px}
+.mdx .rowacts{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.mdx .wbtn.xs{padding:5px 9px;font-size:10.5px;min-height:0}
+.mdx .bedwards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mdx .bedward{background:var(--panel);border-radius:var(--r-sm);box-shadow:var(--shadow-in);border:var(--pborder);padding:11px}
+.mdx .bedgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.mdx .bed{font-size:9.5px;font-weight:700;text-align:center;padding:8px 3px;border-radius:8px;background:var(--panel2);box-shadow:var(--shadow-out-sm);color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mdx .bed.occ{background:var(--accent);color:var(--accentInk)}
+.mdx .chkbox{width:22px;height:22px;flex:0 0 22px;border-radius:7px;border:0;cursor:pointer;background:var(--panel2);box-shadow:var(--shadow-out-sm);color:var(--ok);font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
+.mdx .chkbox[aria-pressed="true"]{background:var(--ok);color:#fff}
+/* HIS text on the dark flip-clock shells (console + dark skins) */
+.mdx[data-skin="console"] .panel .f>span,.mdx[data-skin="dark"] .panel .f>span{color:rgba(255,255,255,.72)}
+.mdx[data-skin="console"] .ward .wn,.mdx[data-skin="dark"] .ward .wn{color:#fff}
+.mdx[data-skin="console"] .bedward,.mdx[data-skin="dark"] .bedward{background:#0e1014;border-color:rgba(255,255,255,.12)}
+.mdx[data-skin="console"] .bedward .wn,.mdx[data-skin="dark"] .bedward .wn{color:#fff}
+.mdx[data-skin="console"] .bar,.mdx[data-skin="dark"] .bar{background:#0e1014;box-shadow:none}
+@media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
+@media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;

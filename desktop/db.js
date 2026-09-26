@@ -47,6 +47,8 @@ function openDb(app, safeStorage) {
   const stmtList = d.prepare('SELECT id, values_json FROM records WHERE sys = ? ORDER BY id DESC');
   const stmtAdd = d.prepare('INSERT INTO records (sys, values_json, created_at) VALUES (?, ?, ?)');
   const stmtDel = d.prepare('DELETE FROM records WHERE id = ?');
+  const stmtKvGet = d.prepare('SELECT v FROM kv WHERE k = ?');
+  const stmtKvSet = d.prepare('INSERT INTO kv (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v');
 
   return {
     list(sys) {
@@ -59,6 +61,13 @@ function openDb(app, safeStorage) {
     },
     remove(id) {
       try { stmtDel.run(Number(id)); return true; } catch { return false; }
+    },
+    // Encrypted key-value store — backs the structured module collections (HIS etc.).
+    kvGet(k) {
+      try { const r = stmtKvGet.get(String(k)); return r ? r.v : null; } catch { return null; }
+    },
+    kvSet(k, v) {
+      try { stmtKvSet.run(String(k), String(v)); return true; } catch { return false; }
     },
   };
 }

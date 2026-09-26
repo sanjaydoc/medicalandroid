@@ -43,6 +43,8 @@ function registerIpc() {
   ipcMain.on('mdx-db-list', (e, sys) => { e.returnValue = db ? db.list(sys) : []; });
   ipcMain.on('mdx-db-add', (e, payload) => { e.returnValue = db ? db.add(payload && payload.sys, payload && payload.values) : false; });
   ipcMain.on('mdx-db-remove', (e, payload) => { e.returnValue = db ? db.remove(payload && payload.id) : false; });
+  ipcMain.on('mdx-kv-get', (e, k) => { e.returnValue = db ? db.kvGet(k) : null; });
+  ipcMain.on('mdx-kv-set', (e, payload) => { e.returnValue = db ? db.kvSet(payload && payload.k, payload && payload.v) : false; });
 }
 
 app.whenReady().then(() => {

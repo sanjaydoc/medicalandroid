@@ -11,4 +11,7 @@ contextBridge.exposeInMainWorld('mdxDB', {
   list: (sys) => { try { return ipcRenderer.sendSync('mdx-db-list', sys) || []; } catch { return []; } },
   add: (sys, values) => { try { return ipcRenderer.sendSync('mdx-db-add', { sys, values }); } catch { return false; } },
   remove: (id) => { try { return ipcRenderer.sendSync('mdx-db-remove', { id }); } catch { return false; } },
+  // encrypted key-value store for structured module collections (HIS etc.)
+  kvGet: (k) => { try { return ipcRenderer.sendSync('mdx-kv-get', k); } catch { return null; } },
+  kvSet: (k, v) => { try { return ipcRenderer.sendSync('mdx-kv-set', { k, v }); } catch { return false; } },
 });

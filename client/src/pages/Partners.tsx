@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../api/supabase';
+import { supabase, saveRow } from '../api/supabase';
 
 /* ============================================================================
    MedDroid Transformer — Partner console.
@@ -432,6 +432,17 @@ export default function Partners() {
     if (!user) return;
     if (pendingRef.current) { const fn = pendingRef.current; pendingRef.current = null; setModal(null); fn(); return; }
     try {
+      // record the partner as a lead so the admin dashboard sees them (once per browser)
+      const pm = sessionStorage.getItem('mdx_partner');
+      if (pm) {
+        sessionStorage.removeItem('mdx_partner');
+        const { institution, itype } = JSON.parse(pm || '{}');
+        const key = 'mdx_p_' + (user.email || user.id);
+        if (!localStorage.getItem(key)) {
+          localStorage.setItem(key, '1');
+          saveRow('signups', { name: `${institution || user.name} · Partner${itype ? ` (${itype})` : ''}`, email: user.email, consent: true });
+        }
+      }
       const p = sessionStorage.getItem('mdx_pending');
       if (p) {
         sessionStorage.removeItem('mdx_pending');
@@ -443,9 +454,12 @@ export default function Partners() {
     } catch { /* sessionStorage blocked */ }
   }, [user, toast]);
 
-  // Google sign-in for partners: stash the pending action, return to /partners.
-  const startGoogle = async (reason?: string) => {
-    try { sessionStorage.setItem('mdx_pending', reason || ''); } catch { /* ignore */ }
+  // Google sign-in for partners: stash the pending action + partner details, return to /partners.
+  const startGoogle = async (reason?: string, institution?: string, itype?: string) => {
+    try {
+      sessionStorage.setItem('mdx_pending', reason || '');
+      sessionStorage.setItem('mdx_partner', JSON.stringify({ institution: institution || '', itype: itype || '' }));
+    } catch { /* ignore */ }
     if (!supabase) { toast('Google sign-in is unavailable right now.'); return; }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -607,7 +621,7 @@ export default function Partners() {
         <div className="modal" onClick={(e) => { if (e.target === e.currentTarget) setModal(null); }}>
           <div className="modal-card">
             <button className="modal-x" onClick={() => setModal(null)} aria-label="Close">✕</button>
-            {modal.type === 'auth' && <AuthForm reason={modal.reason} onLogin={login} onGoogle={() => startGoogle(modal.reason)} onDone={() => { }} toast={toast} />}
+            {modal.type === 'auth' && <AuthForm reason={modal.reason} onLogin={login} onGoogle={(inst, itype) => startGoogle(modal.reason, inst, itype)} onDone={() => { }} toast={toast} />}
             {modal.type === 'input' && <InputForm sysName={SYS[curRef.current].name} onSave={submitInput} />}
             {modal.type === 'custom' && <CustomForm onApply={applyBrand} />}
           </div>
@@ -619,7 +633,7 @@ export default function Partners() {
 
 /* ----------------------------- auth modal ----------------------------- */
 function AuthForm({ reason, onLogin, onGoogle, toast }:
-  { reason?: string; onLogin: (e: string, p: string) => Promise<void>; onGoogle: () => Promise<void>; onDone: () => void; toast: (m: string) => void; }) {
+  { reason?: string; onLogin: (e: string, p: string) => Promise<void>; onGoogle: (inst: string, itype: string) => Promise<void>; onDone: () => void; toast: (m: string) => void; }) {
   const [mode, setMode] = useState<'signup' | 'login'>('signup');
   const [inst, setInst] = useState('');
   const [itype, setItype] = useState('Clinic');
@@ -644,6 +658,8 @@ function AuthForm({ reason, onLogin, onGoogle, toast }:
           options: { data: { name: inst || (itype + ' partner'), institution: inst, institution_type: itype, role: 'partner' } },
         });
         if (error) throw new Error(error.message);
+        // record the partner as a lead so the admin dashboard sees them
+        saveRow('signups', { name: `${inst || itype + ' partner'} · Partner (${itype})`, email, consent: true });
         toast('Account created — check your email if confirmation is required.');
       } else {
         await onLogin(email, pass);
@@ -678,7 +694,7 @@ function AuthForm({ reason, onLogin, onGoogle, toast }:
       {err && <div className="err">{err}</div>}
       <button className="tbtn run authgo" disabled={busy} onClick={go}>{busy ? 'Please wait…' : (mode === 'signup' ? 'Create account →' : 'Log in →')}</button>
       <div className="oauth">
-        <button className="obtn" onClick={() => onGoogle().catch((e) => setErr(e.message))}>Continue with Google</button>
+        <button className="obtn" onClick={() => onGoogle(inst, itype).catch((e) => setErr(e.message))}>Continue with Google</button>
       </div>
       <div className="auth-foot">Your systems stay yours — MedDroid connects via ABDM / FHIR / DICOM, read-only by default.</div>
     </div>

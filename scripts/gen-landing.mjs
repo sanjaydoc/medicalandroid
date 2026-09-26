@@ -11,6 +11,7 @@ import { DRUG_CLASSES_2 } from './drugs-bulk2.mjs';
 import { DRUG_CLASSES_3 } from './drugs-bulk3.mjs';
 import { CHILD_QA } from './child-qa.mjs';
 import { WOMEN_QA } from './women-qa.mjs';
+import { FIRST_AID } from './first-aid.mjs';
 import { DEPARTMENTS } from './departments.mjs';
 import g1 from './diseases/g1.mjs';
 import g2 from './diseases/g2.mjs';
@@ -1188,7 +1189,7 @@ const QA_PAGES = [
   },
 ];
 
-const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES, ...INDIA_SPECIALS, ...AI_PAGES, ...QA_PAGES, ...DRUG_PAGES, ...CHILD_QA, ...WOMEN_QA];
+const ALL = [...SPECIALITIES, ...QUESTIONS, ...SYMPTOM_PAGES, ...BLOODTEST_PAGES, ...DISEASE_PAGES, ...INDIA_SPECIALS, ...AI_PAGES, ...QA_PAGES, ...DRUG_PAGES, ...CHILD_QA, ...WOMEN_QA, ...FIRST_AID];
 
 for (const p of ALL) {
   const dir = join(PUBLIC, ...p.slug.split('/'));

@@ -593,23 +593,19 @@ export default function Providers() {
         <aside className="side">
         {/* top bar */}
         <div className="top">
-          <div className="logo" aria-hidden="true">
-            {logo
-              ? <img src={logo} alt="" />
-              : <svg viewBox="0 0 64 64"><rect x="27.5" y="13" width="9" height="30" rx="4.5" fill="#EA4335" /><rect x="17" y="23.5" width="30" height="9" rx="4.5" fill="#EA4335" /><path d="M8 50 h12 l4 -10 5 18 4 -12 h23" fill="none" stroke="#fff" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-          </div>
+          {logo && <div className="logo" aria-hidden="true"><img src={logo} alt="" /></div>}
           <div className="brand">
             <h1>MedDroid Transformer</h1>
             <div className="sub">One workspace · speaks into any hospital system · for provider clinics, labs &amp; hospitals</div>
           </div>
-          <div className="skins" role="group" aria-label="Theme">
-            <button className="skin-btn" aria-pressed={skin === 'console'} onClick={() => setSkin('console')}>
-              <svg className="sic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>Light
-            </button>
-            <button className="skin-btn" aria-pressed={skin === 'dark'} onClick={() => setSkin('dark')}>
-              <svg className="sic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>Dark
-            </button>
-          </div>
+        </div>
+        <div className="skins" role="group" aria-label="Theme">
+          <button className="skin-btn" aria-pressed={skin === 'console'} onClick={() => setSkin('console')}>
+            <svg className="sic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg>Light
+          </button>
+          <button className="skin-btn" aria-pressed={skin === 'dark'} onClick={() => setSkin('dark')}>
+            <svg className="sic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" /></svg>Dark
+          </button>
         </div>
 
         {/* desktop app downloads (website only) */}
@@ -891,15 +887,27 @@ const CSS = `
 .mdx *{box-sizing:border-box}
 .mdx .wrap{max-width:1080px;margin:0 auto;padding:0 16px;padding-block:26px 60px}
 /* Assistant-style two-column: controls on the left, flip stage on the right */
-.mdx .layout{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;padding:18px 16px;align-items:start}
+.mdx .layout{max-width:1600px;margin:0 auto;display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px;padding:18px 20px;align-items:start}
 .mdx .side{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;display:flex;flex-direction:column;gap:14px;padding-right:4px}
 .mdx .main{min-width:0;display:flex;flex-direction:column;gap:14px}
 /* the left menu's blocks already carry their own margins; neutralize doubling */
 .mdx .side > *{margin-bottom:0!important}
-.mdx .side .top{flex-wrap:wrap;gap:12px}
-.mdx .side .skins{margin-left:0;width:100%;justify-content:center}
+/* header: just the wordmark, tight */
+.mdx .side .top{display:block;margin:0}
+.mdx .side .top .logo{width:38px;height:38px;margin-bottom:8px}
+.mdx .side .brand h1{font-size:20px}
+.mdx .side .brand .sub{font-size:12px;margin-top:4px}
+/* theme: full-width segmented control */
+.mdx .side .skins{margin-left:0;width:100%;display:flex;gap:5px;padding:5px}
+.mdx .side .skin-btn{flex:1;justify-content:center;padding:9px 8px}
+/* command bar stacks; input full width, mic+run below */
 .mdx .side .cmd-row{flex-wrap:wrap}
 .mdx .side .cmd-in{flex:1 1 100%}
+.mdx .side .tbtn.run{flex:1}
+/* downloads fit the column: Windows full width, mac+linux share a row */
+.mdx .side .dlrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mdx .side .dlopt{justify-content:center;padding:11px 8px}
+.mdx .side .dlopt:first-child{grid-column:1 / -1}
 .mdx .side .cg .catlab{flex-basis:100%}
 @media (max-width:900px){
   .mdx .layout{grid-template-columns:1fr;padding:14px}

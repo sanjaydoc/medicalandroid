@@ -9,6 +9,7 @@ import Assistant from './pages/Assistant';
 import About from './pages/About';
 import Research from './pages/Research';
 import AgenticWorkflows from './pages/AgenticWorkflows';
+import Partners from './pages/Partners';
 import Legal from './pages/Legal';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/research" element={<Research />} />
           <Route path="/workflows" element={<AgenticWorkflows />} />
+          <Route path="/partners" element={<Partners />} />
           <Route path="/privacy" element={<Legal doc="privacy" />} />
           <Route path="/terms" element={<Legal doc="terms" />} />
           <Route path="/account" element={<Profile />} />

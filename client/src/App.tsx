@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -34,8 +34,8 @@ export default function App() {
   // place so Supabase can still read its ?code, then drop only our own param.
   useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
-    if (sp.get('next') === 'partners') {
-      navigate('/partners', { replace: true });
+    if (sp.get('next') === 'providers' || sp.get('next') === 'partners') {
+      navigate('/providers', { replace: true });
       const t = window.setTimeout(() => {
         try {
           const s = new URLSearchParams(window.location.search);
@@ -72,7 +72,8 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/research" element={<Research />} />
           <Route path="/workflows" element={<AgenticWorkflows />} />
-          <Route path="/partners" element={<Partners />} />
+          <Route path="/providers" element={<Partners />} />
+          <Route path="/partners" element={<Navigate to="/providers" replace />} />
           <Route path="/privacy" element={<Legal doc="privacy" />} />
           <Route path="/terms" element={<Legal doc="terms" />} />
           <Route path="/account" element={<Profile />} />

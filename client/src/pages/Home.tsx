@@ -123,7 +123,7 @@ export default function Home() {
             <Link to="/assistant"><NavIcon d="M4 5.5h16a1.5 1.5 0 011.5 1.5v8a1.5 1.5 0 01-1.5 1.5H9l-4 3v-3H4A1.5 1.5 0 012.5 15V7A1.5 1.5 0 014 5.5z" /> Assistant</Link>
             <Link to="/assistant"><NavIcon d="M12 3v18M3 12h18" /> Ask by speciality</Link>
             <Link to="/workflows"><NavIcon d="M3 12h4l2-6 4 12 2-6h6" /> Agentic workflows</Link>
-            <Link to="/partners"><NavIcon d="M3 21V9l5-3 5 3v12M13 21V12l4-2 4 2v9M2 21h20M6.5 11h.01M6.5 14.5h.01M17 14h.01M17 17h.01" /> Partners</Link>
+            <Link to="/providers"><NavIcon d="M3 21V9l5-3 5 3v12M13 21V12l4-2 4 2v9M2 21h20M6.5 11h.01M6.5 14.5h.01M17 14h.01M17 17h.01" /> Providers</Link>
             <Link to="/research"><NavIcon d="M9 3v6l-5 9a2 2 0 0 0 1.8 3h12.4a2 2 0 0 0 1.8-3l-5-9V3" /> Research</Link>
             <Link to="/about"><NavIcon d="M12 11v6M12 7h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z" /> About</Link>
             {isAdmin && <Link to="/admin"><NavIcon d="M4 5h16v6H4zM4 15h10v4H4z" /> Admin</Link>}

@@ -9,7 +9,7 @@ import BrandLogo from './BrandLogo';
 const links = [
   { to: '/assistant', label: 'Assistant' },
   { to: '/workflows', label: 'Workflows' },
-  { to: '/partners', label: 'Partners' },
+  { to: '/providers', label: 'Providers' },
   { to: '/research', label: 'Research' },
   { to: '/about', label: 'About' },
 ];

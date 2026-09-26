@@ -12,7 +12,7 @@ type TableDef = { key: string; label: string; cols: string[]; table?: string; fi
 const TABLES: TableDef[] = [
   { key: 'page_views', label: 'Page views', cols: ['created_at', 'page', 'path', 'country', 'duration_sec', 'session_id'] },
   { key: 'signups', label: 'Patients', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'patients' },
-  { key: 'partners', label: 'Partners', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'partners' },
+  { key: 'partners', label: 'Providers', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'partners' },
   { key: 'chat_logs', label: 'Chat logs', cols: ['created_at', 'language', 'question', 'answer', 'had_attachment'] },
 ];
 

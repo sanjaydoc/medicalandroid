@@ -25,7 +25,7 @@ export default function Login() {
       let dest = from;
       try {
         const { data } = await supabase!.auth.getUser();
-        if ((data.user?.user_metadata as Record<string, string> | undefined)?.role === 'partner') dest = '/partners';
+        if ((data.user?.user_metadata as Record<string, string> | undefined)?.role === 'partner') dest = '/providers';
       } catch { /* ignore */ }
       navigate(dest, { replace: true });
     } catch (err) {
@@ -112,9 +112,9 @@ export default function Login() {
           </Link>
         </p>
         <p className="text-ink-800">
-          Are you a partner specialist?{' '}
-          <Link to="/partners" className="font-bold text-ink-900 underline underline-offset-4 hover:text-clay-600">
-            Clinic login
+          Are you a healthcare provider?{' '}
+          <Link to="/providers" className="font-bold text-ink-900 underline underline-offset-4 hover:text-clay-600">
+            Provider login
           </Link>
         </p>
       </div>

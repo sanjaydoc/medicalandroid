@@ -520,7 +520,7 @@ export default function Partners() {
     if (!supabase) { toast('Google sign-in is unavailable right now.'); return; }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin + '/?next=partners' },
+      options: { redirectTo: window.location.origin + '/?next=providers' },
     });
     if (error) toast(error.message);
   };
@@ -599,7 +599,7 @@ export default function Partners() {
           </div>
           <div className="brand">
             <h1>MedDroid Transformer</h1>
-            <div className="sub">One workspace · speaks into any hospital system · for partner labs, clinics &amp; hospitals</div>
+            <div className="sub">One workspace · speaks into any hospital system · for provider clinics, labs &amp; hospitals</div>
           </div>
           <div className="skins" role="group" aria-label="Theme">
             <button className="skin-btn" aria-pressed={skin === 'console'} onClick={() => setSkin('console')}>
@@ -668,7 +668,7 @@ export default function Partners() {
         <div className="wstop">
           <span className="state">
             {user
-              ? <><span className="badge">{(user.name || 'Partner')}</span> signed in</>
+              ? <><span className="badge">{(user.name || 'Provider')}</span> signed in</>
               : <><span className="dotfree" /> Exploring free — no login needed to try it</>}
           </span>
           {!user && <button className="wbtn" onClick={() => setModal({ type: 'auth', reason: 'generic' })}>
@@ -747,11 +747,11 @@ function AuthForm({ reason, onLogin, onGoogle, toast }:
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const REASONS: Record<string, [string, string]> = {
-    input: ['Log in to input & save data', "You're free to explore any system. Create a partner account to add records that stick."],
+    input: ['Log in to input & save data', "You're free to explore any system. Create a provider account to add records that stick."],
     custom: ['Log in to customise with your logo', 'Sign in to brand this workspace with your logo & colour.'],
     lock: ['Log in to lock this instance', 'Locking commits this workspace to one purpose so your team uses it with real data.'],
   };
-  const [head, sub] = REASONS[reason || ''] || ['Partner sign-in', 'Create a partner account or log in to continue.'];
+  const [head, sub] = REASONS[reason || ''] || ['Provider sign-in', 'Create a provider account or log in to continue.'];
 
   const go = async () => {
     setErr(''); setBusy(true);
@@ -780,7 +780,7 @@ function AuthForm({ reason, onLogin, onGoogle, toast }:
         <button className="auth-tab" aria-pressed={mode === 'signup'} onClick={() => setMode('signup')}>Sign up</button>
         <button className="auth-tab" aria-pressed={mode === 'login'} onClick={() => setMode('login')}>Log in</button>
       </div>
-      <div className="auth-h">Partner portal</div>
+      <div className="auth-h">Provider portal</div>
       <div className="auth-sub">{sub}</div>
       <div className="fields">
         {mode === 'signup' && <>

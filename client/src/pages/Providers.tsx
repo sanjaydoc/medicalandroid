@@ -2,6 +2,12 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase, saveRow } from '../api/supabase';
 import HisWorkspace from '../components/HisWorkspace';
+import EmrWorkspace from '../components/EmrWorkspace';
+
+/* Systems with a real, interactive React implementation (vs the imperative flip
+   preview). These render live into the stage; everything else uses the flip engine. */
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace };
+const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================
    MedDroid Transformer — Provider console.
@@ -478,7 +484,7 @@ export default function Providers() {
      mount state), then play its flip. Runs once on mount for the default HIS. */
   useEffect(() => {
     const { key, fast } = renderReq;
-    if (key === 'his') playFlaps(fast);
+    if (isLive(key)) playFlaps(fast);
     else assembleMock(SYS[key], fast);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [renderReq]);
@@ -734,9 +740,9 @@ export default function Providers() {
         {/* stage */}
         <div className="stage">
           <div className="asmtag" ref={tagRef} hidden />
-          {/* contentRef stays mounted (flip engine + delegated md-chip handler); hidden while HIS is live */}
-          <div ref={contentRef} hidden={curSysState === 'his'} />
-          {curSysState === 'his' && <div className="hiswrap" ref={hisRef}><HisWorkspace /></div>}
+          {/* contentRef stays mounted (flip engine + delegated md-chip handler); hidden while a live system is up */}
+          <div ref={contentRef} hidden={isLive(curSysState)} />
+          {isLive(curSysState) && (() => { const Live = LIVE[curSysState]; return <div className="hiswrap" ref={hisRef}><Live /></div>; })()}
         </div>
 
         {/* the glue + core wedge */}
@@ -1169,6 +1175,26 @@ const CSS = `
 .mdx[data-skin="console"] .bedward,.mdx[data-skin="dark"] .bedward{background:#0e1014;border-color:rgba(255,255,255,.12)}
 .mdx[data-skin="console"] .bedward .wn,.mdx[data-skin="dark"] .bedward .wn{color:#fff}
 .mdx[data-skin="console"] .bar,.mdx[data-skin="dark"] .bar{background:#0e1014;box-shadow:none}
+/* ===== EMR / EHR extras ===== */
+.mdx .htab:disabled{opacity:.4;cursor:not-allowed}
+.mdx .f textarea{border:0;background:var(--panel2);box-shadow:var(--shadow-in);border-radius:var(--r-sm);padding:11px 13px;font-family:var(--font);font-size:13px;font-weight:600;color:var(--ink);outline:none;border:var(--pborder);width:100%;min-height:52px;resize:vertical;line-height:1.45}
+.mdx .f textarea::placeholder{color:var(--sub);font-weight:500}
+.mdx .ptbanner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--panel2);border-radius:var(--r-sm);box-shadow:var(--shadow-out-sm);border:var(--pborder);padding:11px 14px;margin-bottom:14px}
+.mdx .ptbanner .pi{display:flex;flex-direction:column;line-height:1.35}
+.mdx .ptbanner .pi b{font-size:14px;font-weight:800}
+.mdx .ptbanner .pi span{font-size:11.5px;color:var(--sub);font-weight:600}
+.mdx .ptbanner .wbtn.xs{margin-left:auto}
+.mdx .enc{background:var(--panel);border-radius:var(--r-sm);box-shadow:var(--shadow-in);border:var(--pborder);padding:11px 12px}
+.mdx .enc .ehd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.mdx .enc .ehd b{font-size:12.5px;font-weight:800}
+.mdx .enc .ehd span{font-size:11px;color:var(--sub);font-weight:600}
+.mdx .enc .erow{display:flex;gap:8px;font-size:12px;font-weight:600;line-height:1.4;margin-top:3px}
+.mdx .enc .erow i{flex:0 0 16px;font-style:normal;font-weight:900;color:var(--accent);font-size:11px}
+.mdx .spark{width:100%;height:60px;display:block;background:var(--panel);border-radius:10px;box-shadow:var(--shadow-in);border:var(--pborder);padding:4px}
+.mdx[data-skin="console"] .ptbanner .pi b,.mdx[data-skin="dark"] .ptbanner .pi b{color:var(--ink)}
+.mdx[data-skin="console"] .enc,.mdx[data-skin="dark"] .enc{background:#0e1014;border-color:rgba(255,255,255,.12)}
+.mdx[data-skin="console"] .enc .ehd b,.mdx[data-skin="dark"] .enc .ehd b,.mdx[data-skin="console"] .enc .erow,.mdx[data-skin="dark"] .enc .erow{color:#fff}
+.mdx[data-skin="console"] .spark,.mdx[data-skin="dark"] .spark{background:#0e1014;box-shadow:none}
 @media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
 @media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;

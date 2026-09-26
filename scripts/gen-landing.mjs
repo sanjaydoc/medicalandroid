@@ -451,23 +451,36 @@ function bloodTestPage(b) {
 function drugPage(d) {
   const low = d.name.split(' (')[0].toLowerCase();
   const lists = [];
+  const brandItems = [];
+  if (d.brandsIndia && d.brandsIndia.length) brandItems.push(`<strong>India:</strong> ${d.brandsIndia.join(', ')}`);
+  if (d.brandsWorld && d.brandsWorld.length) brandItems.push(`<strong>Worldwide:</strong> ${d.brandsWorld.join(', ')}`);
+  if (brandItems.length) lists.push({ title: 'Common brand names', items: brandItems });
   if ((d.sideEffects || []).length) lists.push({ title: 'Common side effects', items: d.sideEffects });
   if ((d.precautions || []).length) lists.push({ title: 'Before taking it — precautions', items: d.precautions });
+  const rx = d.rx ? 'Prescription' : 'Over-the-counter (OTC)';
   return {
     slug: `medicines/${d.slug}`,
     name: d.name,
-    title: `${d.name}: Uses, Side Effects & Precautions | MedDroid`,
-    desc: (d.desc || `${d.name}: what it is used for, common side effects and precautions, explained in plain language by MedDroid. Educational information, not a prescription.`).slice(0, 155),
-    h1: `${d.name}: uses, side effects & precautions`,
+    title: `${d.name}: Uses, Dose, Side Effects & Brands | MedDroid`,
+    desc: (d.desc || `${d.name}: uses, typical adult and paediatric dose, common brands, side effects and precautions — explained in plain language by MedDroid. Not a prescription.`).slice(0, 155),
+    h1: `${d.name}: uses, dose & side effects`,
     lede: d.lede,
     ctaShort: 'Ask MedDroid',
     ctaLong: `Ask MedDroid about ${low}`,
     featTitle: 'What it is used for',
     features: d.uses,
+    table: {
+      caption: 'Typical dose — general reference only, NOT a prescription',
+      rows: [
+        ['Category', rx],
+        ['Adult dose', d.adultDose || 'As directed by your doctor'],
+        ['Child (paediatric) dose', d.pedsDose || 'Must be set by a doctor'],
+      ],
+    },
     lists,
     warnings: d.warnings,
-    noteTitle: 'Not a prescription.',
-    note: `MedDroid gives general educational information about ${low}. It cannot prescribe or set your dose — always follow your doctor or pharmacist and the leaflet inside the pack.`,
+    noteTitle: 'Doses are a general reference, not a prescription.',
+    note: `Doses shown are typical adult/paediatric references and vary with age, weight, kidney/liver function and the exact product. Paediatric doses are usually weight-based and must be set by a doctor. MedDroid cannot prescribe — always confirm ${low} and your dose with a doctor or pharmacist and the leaflet inside the pack.`,
     faqs: d.faqs,
     related: d.related || [['medicine-side-effects', 'Medicine side effects'], ['ai-medical-assistant', 'AI medical assistant'], ['ai-doctor', 'AI doctor']],
   };

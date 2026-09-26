@@ -5,11 +5,23 @@ import { BRAND } from '../brand';
 
 type Row = Record<string, any>;
 
-const TABLES = [
+// Some tabs are views over the same table (signups) split by whether the row is
+// a partner sign-up (name tagged "· Partner (…)") or a patient. `table` is the
+// real Supabase table; `filter` selects the subset.
+type TableDef = { key: string; label: string; cols: string[]; table?: string; filter?: 'patients' | 'partners' };
+const TABLES: TableDef[] = [
   { key: 'page_views', label: 'Page views', cols: ['created_at', 'page', 'path', 'country', 'duration_sec', 'session_id'] },
-  { key: 'signups', label: 'Sign-ups', cols: ['created_at', 'name', 'email'] },
+  { key: 'signups', label: 'Patients', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'patients' },
+  { key: 'partners', label: 'Partners', cols: ['created_at', 'name', 'email'], table: 'signups', filter: 'partners' },
   { key: 'chat_logs', label: 'Chat logs', cols: ['created_at', 'language', 'question', 'answer', 'had_attachment'] },
-] as const;
+];
+
+// Partner sign-ups are tagged "· Partner" in the name; split rows on that.
+function applyRoleFilter(q: any, filter?: 'patients' | 'partners') {
+  if (filter === 'partners') return q.ilike('name', '%Partner%');
+  if (filter === 'patients') return q.or('name.is.null,name.not.ilike.*Partner*');
+  return q;
+}
 
 // Seconds → "1m 20s" / "45s".
 function fmtDuration(s: any): string {
@@ -50,7 +62,7 @@ export default function Admin() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [tab, setTab] = useState<(typeof TABLES)[number]['key']>('chat_logs');
+  const [tab, setTab] = useState<string>('chat_logs');
   const [rows, setRows] = useState<Row[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [dataLoading, setDataLoading] = useState(false);
@@ -100,17 +112,22 @@ export default function Admin() {
     try {
       const nextCounts: Record<string, number> = {};
       for (const t of TABLES) {
-        let cq = supabase.from(t.key).select('*', { count: 'exact', head: true });
+        const src = t.table || t.key;
+        let cq = supabase.from(src).select('*', { count: 'exact', head: true });
         // Exclude internal admin-page visits from the page-view totals.
-        if (t.key === 'page_views') cq = cq.neq('page', 'Admin');
+        if (src === 'page_views') cq = cq.neq('page', 'Admin');
+        cq = applyRoleFilter(cq, t.filter);
         const { count } = await cq;
         nextCounts[t.key] = count || 0;
       }
       setCounts(nextCounts);
 
-      let q = supabase.from(tab).select('*');
+      const activeDef = TABLES.find((t) => t.key === tab) || TABLES[0];
+      const src = activeDef.table || activeDef.key;
+      let q = supabase.from(src).select('*');
       // Page views: hide internal admin-page traffic from the analytics.
-      if (tab === 'page_views') q = q.neq('page', 'Admin');
+      if (src === 'page_views') q = q.neq('page', 'Admin');
+      q = applyRoleFilter(q, activeDef.filter);
       q = q.order('created_at', { ascending: false }).limit(1000);
       if (rangeDays > 0) {
         q = q.gte('created_at', new Date(Date.now() - rangeDays * 86400000).toISOString());

@@ -3,10 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { supabase, saveRow } from '../api/supabase';
 import HisWorkspace from '../components/HisWorkspace';
 import EmrWorkspace from '../components/EmrWorkspace';
+import LisWorkspace from '../components/LisWorkspace';
 
 /* Systems with a real, interactive React implementation (vs the imperative flip
    preview). These render live into the stage; everything else uses the flip engine. */
-const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace };
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace };
 const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================
@@ -1222,6 +1223,14 @@ const CSS = `
 .mdx[data-skin="console"] .enc,.mdx[data-skin="dark"] .enc{background:#0e1014;border-color:rgba(255,255,255,.12)}
 .mdx[data-skin="console"] .enc .ehd b,.mdx[data-skin="dark"] .enc .ehd b,.mdx[data-skin="console"] .enc .erow,.mdx[data-skin="dark"] .enc .erow{color:#fff}
 .mdx[data-skin="console"] .spark,.mdx[data-skin="dark"] .spark{background:#0e1014;box-shadow:none}
+/* ===== LIS / LIMS extras ===== */
+.mdx .mini{font-size:11.5px;color:var(--sub);font-weight:600;line-height:1.5}
+.mdx .mini b{color:var(--ink);font-weight:800}
+/* accession label always reads like a printed sticker: dark bars on white */
+.mdx .acclabel{background:#ffffff;border-radius:var(--r-sm);box-shadow:0 2px 10px rgba(20,32,56,.14);border:1px solid #e6e9f0;padding:14px;text-align:center}
+.mdx .barcode{width:100%;height:44px;display:block;margin-bottom:8px}
+.mdx .accno{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;font-weight:800;letter-spacing:.06em;color:#152038;margin-bottom:8px}
+.mdx .acclabel .mini{color:#61708f}.mdx .acclabel .mini b{color:#152038}
 @media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
 @media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;

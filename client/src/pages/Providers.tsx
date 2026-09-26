@@ -7,10 +7,11 @@ import LisWorkspace from '../components/LisWorkspace';
 import CpoeWorkspace from '../components/CpoeWorkspace';
 import RisWorkspace from '../components/RisWorkspace';
 import CdssWorkspace from '../components/CdssWorkspace';
+import ApptWorkspace from '../components/ApptWorkspace';
 
 /* Systems with a real, interactive React implementation (vs the imperative flip
    preview). These render live into the stage; everything else uses the flip engine. */
-const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace, cdss: CdssWorkspace };
+const LIVE: Record<string, () => JSX.Element> = { his: HisWorkspace, emr: EmrWorkspace, lis: LisWorkspace, cpoe: CpoeWorkspace, ris: RisWorkspace, pacs: RisWorkspace, cdss: CdssWorkspace, appt: ApptWorkspace };
 const isLive = (k: string) => Object.prototype.hasOwnProperty.call(LIVE, k);
 
 /* ============================================================================
@@ -1266,6 +1267,33 @@ const CSS = `
 .mdx[data-skin="console"] .alert,.mdx[data-skin="dark"] .alert{background:#0e1014;border-color:rgba(255,255,255,.12)}
 .mdx[data-skin="console"] .alert .ab b,.mdx[data-skin="dark"] .alert .ab b{color:#fff}
 .mdx[data-skin="console"] .alert .asev,.mdx[data-skin="dark"] .alert .asev{background:#17191e;color:rgba(255,255,255,.7)}
+/* ===== Appointments / Queue extras ===== */
+.mdx .qtophd{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.mdx .nowserving{flex:1;display:flex;align-items:baseline;gap:10px;background:var(--panel2);border-radius:var(--r-sm);box-shadow:var(--shadow-in);border:var(--pborder);padding:10px 14px}
+.mdx .nowserving .l{font-size:10.5px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}
+.mdx .nowserving b{font-size:22px;font-weight:900;color:var(--accent);letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.mdx .nowserving .nm{font-size:12.5px;font-weight:700;color:var(--ink)}
+.mdx .qboard{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mdx .qcol{background:var(--panel2);border-radius:var(--r-sm);box-shadow:var(--shadow-in);border:var(--pborder);padding:11px;display:flex;flex-direction:column;gap:8px}
+.mdx .qch{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.04em}
+.mdx .qch span{background:var(--panel);box-shadow:var(--shadow-out-sm);border-radius:999px;padding:1px 8px;color:var(--ink)}
+.mdx .qempty{font-size:12px;color:var(--sub);font-weight:600;padding:6px 2px}
+.mdx .qcard{display:flex;align-items:center;gap:9px;background:var(--panel);border-radius:10px;box-shadow:var(--shadow-out-sm);border:var(--pborder);padding:9px 10px}
+.mdx .qcard.hot{box-shadow:0 0 0 2px var(--accent) inset}
+.mdx .qcard .token{font-size:13px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums;min-width:42px}
+.mdx .qcard .token.muted{color:var(--sub);font-size:12px;font-weight:800}
+.mdx .qcard .qg{flex:1;display:flex;flex-direction:column;line-height:1.3}
+.mdx .qcard .qg b{font-size:12.5px;font-weight:800;color:var(--ink)}
+.mdx .qcard .qg small{font-size:10.5px;color:var(--sub);font-weight:600}
+.mdx .slotgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mdx .slot{font-size:11px;font-weight:800;text-align:center;padding:7px 3px;border-radius:8px;background:var(--panel2);box-shadow:var(--shadow-out-sm);border:var(--pborder);color:var(--ink);font-variant-numeric:tabular-nums}
+.mdx .slot.taken{opacity:.4;text-decoration:line-through}
+.mdx .chkline{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--sub)}
+.mdx .chkline input{width:16px;height:16px;accent-color:var(--accent)}
+.mdx[data-skin="console"] .qcol,.mdx[data-skin="dark"] .qcol,.mdx[data-skin="console"] .nowserving,.mdx[data-skin="dark"] .nowserving{background:#0e1014;border-color:rgba(255,255,255,.12)}
+.mdx[data-skin="console"] .qcard,.mdx[data-skin="dark"] .qcard{background:#17191e;box-shadow:none;border:1px solid rgba(255,255,255,.14)}
+.mdx[data-skin="console"] .qcard .qg b,.mdx[data-skin="dark"] .qcard .qg b,.mdx[data-skin="console"] .nowserving .nm,.mdx[data-skin="dark"] .nowserving .nm{color:#fff}
+.mdx[data-skin="console"] .slot,.mdx[data-skin="dark"] .slot{background:#17191e;color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.14)}
 @media (max-width:720px){.mdx .kpis{grid-template-columns:1fr 1fr}.mdx .cols{grid-template-columns:1fr}.mdx .cg .catlab{flex-basis:100%}.mdx .skins{width:100%;justify-content:center}.mdx .bedwards{grid-template-columns:1fr}.mdx .frow{flex-direction:column}}
 @media (prefers-reduced-motion:reduce){.mdx .asm-hud,.mdx .asm-pipe,.mdx .asm-flap,.mdx .txt-flip{animation:mdx-rise .3s both}.mdx .hiswrap.flap .mhead,.mdx .hiswrap.flap .pipe,.mdx .hiswrap.flap .htabs,.mdx .hiswrap.flap .kpis .tile,.mdx .hiswrap.flap .cols .panel{animation:mdx-rise .3s both}}
 `;
